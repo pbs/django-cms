@@ -1,6 +1,7 @@
 import HTMLParser
 import re
 
+from django.template.defaultfilters import force_escape
 
 from cms.models import CMSPlugin
 from cms.plugins.utils import downcast_plugins
