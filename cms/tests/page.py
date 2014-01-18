@@ -81,8 +81,8 @@ class PagesTestCase(CMSTestCase):
             self.assertTrue(response.request['PATH_INFO'].endswith(URL_CMS_PAGE_ADD))
             self.assertContains(response, '<ul class="errorlist"><li>Another page with this slug already exists</li></ul>')
 
-    def test_get_available_slug(self):
-        """ Checks cms.utils.get_available_slug
+    def test_get_available_slug_recursion(self):
+        """ Checks cms.utils.page.get_available_slug for infinite recursion
         """
         for x in range(0, 12):
             page1 = create_page('test copy', 'nav_playground.html', 'en',
