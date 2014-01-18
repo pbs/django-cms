@@ -28,7 +28,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
 import datetime
 import os.path
-from cms.utils.page import is_valid_page_slug
+from cms.utils.page import is_valid_page_slug, get_available_slug
 
 
 class PagesTestCase(CMSTestCase):
@@ -80,6 +80,15 @@ class PagesTestCase(CMSTestCase):
             self.assertEqual(response.status_code, 200)
             self.assertTrue(response.request['PATH_INFO'].endswith(URL_CMS_PAGE_ADD))
             self.assertContains(response, '<ul class="errorlist"><li>Another page with this slug already exists</li></ul>')
+
+    def test_get_available_slug(self):
+        """ Checks cms.utils.get_available_slug
+        """
+        for x in range(0, 12):
+            page1 = create_page('test copy', 'nav_playground.html', 'en',
+                                published=True)
+        new_slug = get_available_slug(page1.get_title_obj('en'), 'test-copy')
+        self.assertTrue(new_slug, 'test-copy-11')
 
     def test_slug_collisions_api_1(self):
         """ Checks for slug collisions on sibling pages - uses API to create pages
