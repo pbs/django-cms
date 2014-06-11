@@ -70,21 +70,26 @@ def get_page_choices(lang=None):
     site_ids = [site_id for site_id, _ in site_choices]
     cache_key_names = {site_id: get_page_cache_key(lang, site_id)
                        for site_id in site_ids}
-    cached_page_choices = cache.get_many(cache_key_names.values())
-    not_found_in_cache = [
-        site_id
-        for site_id in site_ids
-        if cache_key_names[site_id] not in cached_page_choices]
+    def page_keys():
+        return cache_key_names.values()
+
+    def page_key(site_id):
+        return cache_key_names[site_id]
+
+    cached_pages = cache.get_many(page_keys())
+    not_in_cache = [site_id
+                    for site_id in site_ids
+                    if page_key(site_id) not in cached_pages]
     # fetch new page choices
-    new_choices = _fetch_page_choices(lang, not_found_in_cache)
-    cache.set_many({cache_key_names[site_id]: page_choices
-                    for site_id, page_choices in new_choices.items()}, 86400)
+    new_choices = _fetch_page_choices(lang, not_in_cache)
+    cache.set_many({page_key(site_id): new_choices.get(site_id, {})
+                    for site_id in site_ids}, 86400)
 
     # make choice list
     all_page_choices = [('', '----')]
     for site_id, site_name in site_choices:
-        page_choices = cached_page_choices.get(cache_key_names[site_id])
-        page_choices = page_choices or new_choices.get(site_id, {})
+        cached_choices = cached_pages.get(page_key(site_id))
+        page_choices = cached_choices or new_choices.get(site_id, {})
         all_page_choices.append((site_name, page_choices.items()))
     return all_page_choices
 
