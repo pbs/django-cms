@@ -1,6 +1,19 @@
 CHANGELOG
 =========
 
+Revision 46802f2 (13.06.2014, 12:31 UTC)
+----------------------------------------
+
+* LUN-1596
+
+  * Set callback to delete empty plugin image in text editor
+
+* LUN-1633
+
+  * page choices should be cached only for the sites that are in cache. Fixes the following problem: a site is created through the dbshell and the cache is not invalidated since the post save signals are not called.
+
+No other commits.
+
 Revision 6250c2b (30.05.2014, 10:50 UTC)
 ----------------------------------------
 
