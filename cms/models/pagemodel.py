@@ -150,6 +150,13 @@ class Page(MPTTModel):
         # check the slugs
         page_utils.check_title_slugs(self)
 
+        # save home -> save titles -> remove first slug
+        if not self.is_home():
+            try:
+                Page.objects.get_home(self.site).save()
+            except NoHomeFound:
+                pass
+
     def copy_page(self, target, site, position='first-child',
                   copy_permissions=True, copy_moderation=True,
                   public_copy=False):
