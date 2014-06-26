@@ -107,7 +107,11 @@
 }
 #sitemap li .col1{	
 	float:left;
+	max-width: 30%;
+	overflow: hidden;
 }
 #sitemap li .col2{
 	float:right;
+	max-width: 70%;
+	overflow: hidden;
 }
