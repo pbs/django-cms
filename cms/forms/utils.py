@@ -80,10 +80,12 @@ def get_page_choices(lang=None):
     not_in_cache = [site_id
                     for site_id in site_ids
                     if page_key(site_id) not in cached_pages]
-    # fetch new page choices
-    new_choices = _fetch_page_choices(lang, not_in_cache)
-    cache.set_many({page_key(site_id): new_choices.get(site_id, {})
-                    for site_id in site_ids}, 86400)
+    new_choices = {}
+    if not_in_cache:
+        # fetch new page choices
+        new_choices = _fetch_page_choices(lang, not_in_cache)
+        cache.set_many({page_key(site_id): new_choices.get(site_id, {})
+                        for site_id in site_ids}, 86400)
 
     # make choice list
     all_page_choices = [('', '----')]

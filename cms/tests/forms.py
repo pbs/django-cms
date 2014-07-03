@@ -88,6 +88,11 @@ class FormsTestCase(CMSTestCase):
             self.assertEquals(home_page,result)
 
     def test_update_site_and_page_choices(self):
+
+        def get_choices():
+            # enfore the choices to be casted to a list
+            return [list(bit) for bit in update_site_and_page_choices('en')]
+
         with SettingsOverride(CMS_MODERATOR=False):
             Site.objects.all().delete()
             site = Site.objects.create(domain='http://www.django-cms.org', name='Django CMS')
@@ -95,17 +100,22 @@ class FormsTestCase(CMSTestCase):
             page2 = create_page('Page 2', 'nav_playground.html', 'de', site=site)
             page3 = create_page('Page 3', 'nav_playground.html', 'en',
                          site=site, parent=page1)
-            # enfore the choices to be casted to a list
-            site_choices, page_choices = [list(bit) for bit in update_site_and_page_choices('en')]
-            self.assertEqual(page_choices, [
-                ('', '----'),
-                (site.name, [
-                    (page1.pk, 'Page 1'),
-                    (page3.pk, '&nbsp;&nbsp;Page 3'),
-                    (page2.pk, 'Page 2'),
-                ])
-            ])
-            self.assertEqual(site_choices, [(site.pk, site.name)])
+            expected_sites = [(site.pk, site.name)]
+            expected_pages = [('', '----'),
+                              (site.name, [(page1.pk, 'Page 1'),
+                                           (page3.pk, '&nbsp;&nbsp;Page 3'),
+                                           (page2.pk, 'Page 2'), ])]
+            # first time these are fetched from the db(
+            #    one query for sites, one for pages)
+            # second time these are fetched from cache(
+            #    no queries should be executed)
+            num_queries_to_assert = (2, 0)
+            for num_queries in num_queries_to_assert:
+                with self.assertNumQueries(num_queries):
+                    site_choices, page_choices = get_choices()
+                    self.assertEqual(page_choices, expected_pages)
+                    self.assertEqual(site_choices, expected_sites)
+
 
     def test_cache_invalidation_for_site_choices(self):
         with SettingsOverride(CMS_MODERATOR=False):
