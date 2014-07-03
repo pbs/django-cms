@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+Revision c975832 (03.07.2014, 07:43 UTC)
+----------------------------------------
+
+* LUN-1562
+
+  * Made the 'table row' (in fact it's made with divs) in the cms pages admin view not to overlap
+
+No other commits.
+
 Revision 46802f2 (13.06.2014, 12:31 UTC)
 ----------------------------------------
 
