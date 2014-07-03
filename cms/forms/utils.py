@@ -85,7 +85,7 @@ def get_page_choices(lang=None):
         # fetch new page choices
         new_choices = _fetch_page_choices(lang, not_in_cache)
         cache.set_many({page_key(site_id): new_choices.get(site_id, {})
-                        for site_id in site_ids}, 86400)
+                        for site_id in not_in_cache}, 86400)
 
     # make choice list
     all_page_choices = [('', '----')]

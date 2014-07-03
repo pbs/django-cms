@@ -90,7 +90,7 @@ class FormsTestCase(CMSTestCase):
     def test_update_site_and_page_choices(self):
 
         def get_choices():
-            # enfore the choices to be casted to a list
+            # enforce the choices to be casted to a list
             return [list(bit) for bit in update_site_and_page_choices('en')]
 
         with SettingsOverride(CMS_MODERATOR=False):
