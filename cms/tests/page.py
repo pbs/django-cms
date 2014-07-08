@@ -853,13 +853,28 @@ class PagesTestCase(CMSTestCase):
                 'root2/child2'
                 ))
 
-    def _create_and_move_pages(self, moderated):
+    def _create_and_move_pages_up(self, moderated):
 
         def change_states(root1, child1, root2, child2):
             # publish the second root page and it's child
             self.client.post(URL_CMS_PAGE_CHANGE_STATUS % root2.pk, {1: 1})
             self.client.post(URL_CMS_PAGE_CHANGE_STATUS % child2.pk, {1: 1})
             response = self.client.post('/admin/cms/page/%s/move-page/' % root2.pk, {'target': root1.pk, 'position': 'left'})
+            self.assertEqual(response.status_code, 200)
+
+        self._test_paths(moderated, change_states, (
+                'root1',
+                'root1/child1',
+                '',
+                'child2'
+                ))
+
+    def _create_and_move_pages_down(self, moderated):
+        def change_states(root1, child1, root2, child2):
+            # publish the second root page and it's child
+            self.client.post(URL_CMS_PAGE_CHANGE_STATUS % root2.pk, {1: 1})
+            self.client.post(URL_CMS_PAGE_CHANGE_STATUS % child2.pk, {1: 1})
+            response = self.client.post('/admin/cms/page/%s/move-page/' % root1.pk, {'target': root2.pk, 'position': 'right'})
             self.assertEqual(response.status_code, 200)
 
         self._test_paths(moderated, change_states, (
@@ -907,11 +922,14 @@ class PagesTestCase(CMSTestCase):
     def test_path_generation_3_with_moderation(self):
         self._create_pages_and_switch_status_3(moderated=True)
 
-    def test_create_and_move_pages_no_moderation(self):
-        self._create_and_move_pages(moderated=False)
+    def test_create_and_move_pages_up_no_moderation(self):
+        self._create_and_move_pages_up(moderated=False)
 
-    def test_create_and_move_pages_with_moderation(self):
-        self._create_and_move_pages(moderated=True)
+    def test_create_and_move_pages_up_with_moderation(self):
+        self._create_and_move_pages_up(moderated=True)
+
+    def test_create_and_move_pages_down_no_moderation(self):
+        self._create_and_move_pages_down(moderated=False)
 
     def test_create_and_delete_pages_no_moderation(self):
         self._create_and_delete_pages(moderated=False)
