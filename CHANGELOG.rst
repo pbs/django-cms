@@ -1,6 +1,19 @@
 CHANGELOG
 =========
 
+Revision c6668cc (08.07.2014, 11:31 UTC)
+----------------------------------------
+
+No new issues.
+
+* Misc commits
+
+  * Test moving home page down rewrites new home path.
+  * pages should be cached only for sites that do not have pages in cache
+  * fixed: page choices were always fetched from the databse even if they were in cache.
+  * Update home only if the previous home was moved.
+  * Save home to force removal of first slug.
+
 Revision c975832 (03.07.2014, 07:43 UTC)
 ----------------------------------------
 
