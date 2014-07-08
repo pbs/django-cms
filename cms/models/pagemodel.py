@@ -138,6 +138,8 @@ class Page(MPTTModel):
             and not target.parent
             and self.template == settings.CMS_TEMPLATE_INHERITANCE_MAGIC):
             self.template = self.get_template()
+
+        moved_page_is_home = self.is_home() 
         self.move_to(target, position)
 
         # fire signal
@@ -149,6 +151,14 @@ class Page(MPTTModel):
 
         # check the slugs
         page_utils.check_title_slugs(self)
+
+        if moved_page_is_home:
+            try:
+                # Update path for new home page and subpages.
+                # Saving page triggers page and subpage path update 
+                Page.objects.get_home(self.site).save()
+            except NoHomeFound:
+                pass
 
     def copy_page(self, target, site, position='first-child',
                   copy_permissions=True, copy_moderation=True,
