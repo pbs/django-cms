@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+Revision f62e66b (05.08.2014, 12:32 UTC)
+----------------------------------------
+
+No new issues.
+
+* Misc commits
+
+  * get_object_queryset should return a queryset without evaluation; This is a performance improvement(even with the extra query) that doesn't change the previous logic.
+
 Revision c6668cc (08.07.2014, 11:31 UTC)
 ----------------------------------------
 
