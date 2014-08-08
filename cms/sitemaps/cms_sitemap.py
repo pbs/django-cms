@@ -30,6 +30,18 @@ class CMSSitemap(Sitemap):
         from cms.utils.moderator import get_page_queryset
         page_queryset = get_page_queryset(None)
         all_pages = page_queryset.published().filter(login_required=False)
+        # page is 1 by default for get_urls method
+        page = 1
+        # iterate through cms pages and set homepage when found in order
+        #   to not execute expensive queries just to re-fetch it for
+        #   each root page
+        homepage_pk = None
+        for page in all_pages:
+            if not homepage_pk:
+                if page.is_home():
+                    homepage_pk = page.pk
+                else:
+                    page.home_pk_cache = homepage_pk
         return all_pages
 
     def lastmod(self, page):
