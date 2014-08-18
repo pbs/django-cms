@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+Revision 4b5f557 (18.08.2014, 12:39 UTC)
+----------------------------------------
+
+* LUN-1371
+
+  * Move the fix for LUN-1371 from django-robots to cms, where the fix seems to be more suitable due to the intrisic knowledge about cms internals.
+
+No other commits.
+
 Revision f62e66b (05.08.2014, 12:32 UTC)
 ----------------------------------------
 
