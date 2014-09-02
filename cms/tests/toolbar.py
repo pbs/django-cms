@@ -148,6 +148,7 @@ class ToolbarTests(SettingsOverrideTestCase, ToolbarUserMixin):
         request = self.request_factory.get(page.get_absolute_url())
         request.user = self.get_superuser()
         request.current_page = page
+        request.session = {}
         toolbar = CMSToolbar(request)
 
         items = toolbar.get_items({})

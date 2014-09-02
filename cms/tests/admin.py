@@ -7,7 +7,7 @@ from cms.admin.dialog.views import _form_class_selector
 from cms.admin.forms import PageForm
 from cms.admin.pageadmin import contribute_fieldsets, contribute_list_filter, PageAdmin
 from cms.admin.permissionadmin import PagePermissionInlineAdmin
-from cms.api import create_page, create_title, add_plugin
+from cms.api import create_page, create_title, add_plugin, assign_user_to_page
 from cms.apphook_pool import apphook_pool, ApphookPool
 from cms.models.moderatormodels import PageModeratorState
 from cms.models.pagemodel import Page
@@ -34,6 +34,7 @@ from django.utils.encoding import smart_str
 from menus.menu_pool import menu_pool
 from types import MethodType
 from unittest import TestCase
+import contextlib
 
 
 class AdminTestsBase(CMSTestCase):
@@ -402,6 +403,101 @@ class AdminTestCase(AdminTestsBase):
         self.assertTrue('id="page_3"' in response.content)
         # but not any further down the tree
         self.assertFalse('id="page_4"' in response.content)
+
+    def test_changelist_site_items(self):
+        site_one = Site.objects.get_current()
+        site_two = Site.objects.create(
+            domain='django-cms2.org', name='django-cms2')
+        normal_guy = self._get_guys()[1]
+        one_page = create_page(
+            'one',  'nav_playground.html', 'en', site=site_one)
+        second_page = create_page(
+            'two',  'nav_playground.html', 'en', site=site_two)
+        with contextlib.nested(SettingsOverride(CMS_PERMISSION=True),
+                               self.login_user_context(normal_guy)):
+            url = reverse('admin:cms_%s_changelist' % Page._meta.module_name)
+            request = self.request_factory.get(url)
+            request.session = {}
+            request.user = normal_guy
+
+            page_admin = site._registry[Page]
+            cl_params = [request, page_admin.model, page_admin.list_display,
+                         page_admin.list_display_links, page_admin.list_filter,
+                         page_admin.date_hierarchy, page_admin.search_fields,
+                         page_admin.list_select_related, page_admin.list_per_page]
+            if hasattr(page_admin, 'list_max_show_all'): # django 1.4
+                cl_params.append(page_admin.list_max_show_all)
+            cl_params.extend([page_admin.list_editable, page_admin])
+            # current site items
+            changelist = CMSChangeList(*tuple(cl_params))
+            changelist.set_items(request)
+            self.assertItemsEqual(changelist.get_items(), [one_page])
+            # change working site
+            request.session['cms_admin_site'] = site_two.id
+            changelist = CMSChangeList(*tuple(cl_params))
+            changelist.set_items(request)
+            self.assertItemsEqual(changelist.get_items(), [second_page])
+            # now remove permissions for second site => we should see pages
+            #   from first site since it's the only site available
+            GlobalPagePermission.objects.get(
+                user=normal_guy).sites.remove(site_two)
+            changelist = CMSChangeList(*tuple(cl_params))
+            changelist.set_items(request)
+            self.assertItemsEqual(changelist.get_items(), [one_page])
+
+    def test_pages_admin_access_with_global_permissions(self):
+        site_one = Site.objects.get_current()
+        site_two = Site.objects.create(
+            domain='django-cms2.org', name='django-cms2')
+        normal_guy = self._get_guys()[1]
+        create_page('one',  'nav_playground.html', 'en', site=site_one)
+        create_page('two',  'nav_playground.html', 'en', site=site_two)
+        with contextlib.nested(SettingsOverride(CMS_PERMISSION=True),
+                               self.login_user_context(normal_guy)):
+            request = self.request_factory.get(reverse('admin:index'))
+            request.session = {}
+            request.user = normal_guy
+            page_admin = site._registry[Page]
+            self.assertTrue(page_admin.has_add_permission(request))
+            self.assertTrue(page_admin.has_change_permission(request))
+            # change working site
+            request.session['cms_admin_site'] = site_two.id
+            # remove permissions on current site
+            GlobalPagePermission.objects.get(
+                user=normal_guy).sites.remove(site_two)
+            # user should have access to pages since he still has access
+            #   on site one
+            self.assertTrue(page_admin.has_add_permission(request))
+            self.assertTrue(page_admin.has_change_permission(request))
+
+    def test_pages_admin_access_with_page_permissions(self):
+        site_one = Site.objects.get_current()
+        site_two = Site.objects.create(
+            domain='django-cms2.org', name='django-cms2')
+        normal_guy = self._get_guys()[1]
+        GlobalPagePermission.objects.all().delete()
+        PagePermission.objects.all().delete()
+        assign_user_to_page(
+            create_page('one',  'nav_playground.html', 'en', site=site_one),
+            normal_guy, can_add=True, can_change=True, can_delete=True)
+        assign_user_to_page(
+            create_page('two',  'nav_playground.html', 'en', site=site_two),
+            normal_guy, can_add=True, can_change=True, can_delete=True)
+        with contextlib.nested(SettingsOverride(CMS_PERMISSION=True),
+                               self.login_user_context(normal_guy)):
+            request = self.request_factory.get(reverse('admin:index'))
+            request.session = {}
+            request.user = normal_guy
+            page_admin = site._registry[Page]
+            self.assertTrue(page_admin.has_change_permission(request))
+            # change working site
+            request.session['cms_admin_site'] = site_two.id
+            # remove permissions on current site
+            PagePermission.objects.get(
+                user=normal_guy, page=site_two.page_set.get()).delete()
+            # user should have access to pages since he still has access
+            #   on site one
+            self.assertTrue(page_admin.has_change_permission(request))
 
 
 class AdminFieldsetTests(TestCase):
