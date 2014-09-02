@@ -62,6 +62,7 @@ class CMSChangeList(ChangeList):
             is_current = lambda x: x.id == self._current_site.id
             is_site_allowed = next(ifilter(is_current, self.sites), None)
             if not is_site_allowed and self.sites:
+                # change working site to one where the user has permissions on
                 self._current_site = self.sites[0]
             request.session['cms_admin_site'] = self._current_site.pk
         super(CMSChangeList, self).__init__(request, *args, **kwargs)
