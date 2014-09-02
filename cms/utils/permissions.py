@@ -31,7 +31,7 @@ def get_current_user():
     """
     return getattr(_thread_locals, 'user', None)
 
-def has_page_add_permission(request):
+def has_page_add_permission(request, on_any_sites=False):
     """
     Return true if the current user has permission to add a new page. This is
     just used for general add buttons - only superuser, or user with can_add in
@@ -66,22 +66,21 @@ def has_page_add_permission(request):
                 #return page.parent.has_add_permission(request)
     else:
         from cms.utils.plugins import current_site
-        site = current_site(request)
+        site = current_site(request) if not on_any_sites else None
         if (request.user.has_perm(opts.app_label + '.' + opts.get_add_permission()) and
             has_global_page_permission(request, site, can_add=True)):
             return True
     return False
 
-def has_any_page_change_permissions(request):
+def has_any_page_change_permissions(request, on_any_sites=False):
     from cms.utils.plugins import current_site
-    return PagePermission.objects.filter(
-            page__site=current_site(request)
-        ).filter((
+    on_site = {'page__site': current_site(request)} if not on_any_sites else {}
+    return PagePermission.objects.filter(**on_site).filter((
             Q(user=request.user) |
             Q(group__in=request.user.groups.all())
         )).exists()
 
-def has_page_change_permission(request):
+def has_page_change_permission(request, on_any_sites=False):
     """
     Return true if the current user has permission to change any page. This is
     just used for building the tree - only superuser, or user with can_change in
@@ -89,10 +88,13 @@ def has_page_change_permission(request):
     """
     from cms.utils.plugins import current_site
     opts = Page._meta
+    site = current_site(request) if not on_any_sites else None
     if request.user.is_superuser or (
         request.user.has_perm(opts.app_label + '.' + opts.get_change_permission()) and (
-            has_global_page_permission(request, current_site(request), can_change=True))
-            or has_any_page_change_permissions(request)):
+            has_global_page_permission(
+                request, site, can_change=True))
+            or has_any_page_change_permissions(
+                request, on_any_sites=on_any_sites)):
         return True
     return False
 
@@ -108,6 +110,9 @@ def has_global_page_permission(request, site, **filters):
     :param filters: queryset filters, e.g. ``can_add = True``
     :return: ``True`` or ``False``
     """
+    if site is None:
+        return GlobalPagePermission.objects.with_user(request.user).filter(
+            sites__isnull=False, **filters).exists()
     if not hasattr(request, '_cms_global_perms'):
         request._cms_global_perms = {}
     key = (site.pk if hasattr(site, 'pk') else int(site),) + tuple((k, v) for k, v in filters.iteritems())
