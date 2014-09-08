@@ -35,15 +35,6 @@ def update_plugin_positions(**kwargs):
 signals.post_delete.connect(update_plugin_positions, sender=CMSPlugin, dispatch_uid="cms.plugin.update_position")
 
 
-def update_title_paths(instance, **kwargs):
-    """Update child pages paths in case when page was moved.
-    """
-    for title in instance.title_set.all():
-        title.save()
-        
-page_moved.connect(update_title_paths, sender=Page, dispatch_uid="cms.title.update_path")
-
-
 def pre_save_title(instance, raw, **kwargs):
     """Save old state to instance and setup path
     """
