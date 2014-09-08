@@ -43,11 +43,12 @@ class Title(models.Model):
 
         slug = u'%s' % self.slug
         if not self.has_url_overwrite:
-            self.path = u'%s' % slug
+            self.path = u'%s' % ('' if self.page.is_home() else slug)
             if parent_page:
                 parent_title = Title.objects.get_title(parent_page, language=self.language, language_fallback=True)
                 if parent_title:
                     self.path = u'%s/%s' % (parent_title.path, slug)
+        self.path = self.path.strip(" /")
 
     @property
     def overwrite_url(self):

@@ -636,6 +636,40 @@ class PagesTestCase(CMSTestCase):
         self.assertEqual(page3.get_absolute_url(),
             self.get_pages_root()+'test-page-4/test-page-3/')
 
+    def test_home_page_overwrite_url(self):
+        overwrite_url = 'customhome'
+        page1 = create_page('home', 'nav_playground.html', 'en',
+                            published=True, overwrite_url=overwrite_url)
+        self.assertEqual(
+            page1.get_title_obj().overwrite_url,
+            overwrite_url)
+        # plain save on home page without changing anything
+        Page.objects.get(id=page1.id).save()
+        # overwrite url should be the same
+        self.assertEqual(
+            Page.objects.get(id=page1.id).get_title_obj().overwrite_url,
+            overwrite_url)
+
+    def test_change_home_page_overwrite_url(self):
+        new_url = 'customhome'
+        page1 = create_page('home', 'nav_playground.html', 'en',
+                            published=True, overwrite_url=new_url)
+        page2 = create_page('home2', 'nav_playground.html', 'en',
+                            published=True)
+        self.assertTrue(page1.is_home())
+        self.assertEqual(page1.get_title_obj().overwrite_url, new_url)
+
+        page2.move_page(page1, position='left')
+        page1 = Page.objects.get(id=page1.pk)
+        page2 = Page.objects.get(id=page2.pk)
+        self.assertTrue(page2.is_home())
+        self.assertEqual(page1.get_title_obj().overwrite_url, new_url)
+
+        page2.move_page(page1, position='right')
+        page1 = Page.objects.get(id=page1.pk)
+        self.assertTrue(page1.is_home())
+        self.assertEqual(page1.get_title_obj().overwrite_url, new_url)
+
     def test_page_overwrite_urls(self):
         page1 = create_page('test page 1', 'nav_playground.html', 'en',
             published=True)
