@@ -1,6 +1,21 @@
 CHANGELOG
 =========
 
+Revision 4c4b59a (09.09.2014, 09:00 UTC)
+----------------------------------------
+
+* LUN-1452
+
+  * Removed unnecessary path updates on move. Title paths are correctly updated on move for all cases (in page post save signal): * moved page becomes homepage * moved page was homepage before save * all descendants title paths are updated
+
+* LUN-1832
+
+  * fixed overwrite_url disappearance
+
+* Misc commits
+
+  * Update version as instructed by bamboo
+
 Revision 4b5f557 (18.08.2014, 12:39 UTC)
 ----------------------------------------
 
