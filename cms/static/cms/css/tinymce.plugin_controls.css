@@ -1,0 +1,66 @@
+.plugin-controls{
+    position: fixed;
+    border:5px solid #DCDCDC;
+    border-radius: 5px;
+    margin-left: -7px;
+    margin-top: -7px;
+    padding: 2px;
+}
+
+/* transparent selecion color for plugin placeholders */
+img[id^='plugin_obj_']::selection {
+  background: rgba(0,0,0,0); /* WebKit/Blink Browsers */
+}
+img[id^='plugin_obj_']::-moz-selection {
+  background: rgba(0,0,0,0); /* Gecko Browsers */
+}
+
+.plugin-controls .control{
+    width: 20px;
+    height: 20px;
+    margin: 7px;
+    display: inline-block;
+    background:#DCDCDC url(../images/plugin_controls/X-icn.png) no-repeat 50% 50%;
+    background-size: contain;
+    border:5px solid #DCDCDC;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.plugin-controls .control:hover{
+    background-color: #ebebeb;
+    border-color: #ebebeb;
+}
+
+.plugin-controls .delete.control{
+    margin-left: 0;
+}
+
+.plugin-controls .control.edit{
+    background-image: url(../images/plugin_controls/pencil-icn.png);
+}
+
+.plugin-controls.small .control{
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    margin-left: 0;
+}
+
+
+.plugin-controls.small .delete.control{
+    left:37px;
+}
+
+.plugin-controls.small.top .control{
+    top: 100%;
+}
+
+.plugin-controls.small.right .control{
+    left:-37px;
+}
+
+.plugin-controls.small.right .delete.control{
+    left: 0;
+}
+

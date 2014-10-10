@@ -34,11 +34,12 @@ class TinyMCEEditor(TinyMCE):
           'js/tinymce.placeholdereditor.js',
           'js/libs/jquery.ui.core.js',
           'js/placeholder_editor_registry.js',
+          'js/tinymce.plugin_controls.js',
         )])
         media.add_css({
             "all": [
                 cms_static_url(path) for path in ('css/jquery/cupertino/jquery-ui.css',
-                                                  'css/tinymce_toolbar.css')
+                                                  'css/tinymce_toolbar.css',)
             ]
         })
         
@@ -81,6 +82,7 @@ class TinyMCEEditor(TinyMCE):
             }
             c_json = simplejson.dumps(compressor_config)
             html.append(u'<script type="text/javascript">//<![CDATA[\ntinyMCE_GZ.init(%s);\n//]]></script>' % (c_json))
+        html.append(u'<link id="bento-controls" type="text/css" rel="stylesheet" href="%s">' % (cms_static_url('css/tinymce.plugin_controls.css')))
         html.append(u'<script type="text/javascript">//<![CDATA[\n%s;\ntinyMCE.init(%s);\n//]]></script>' % (self.render_additions(name, value, attrs), json))
         return mark_safe(u'\n'.join(html))
     
