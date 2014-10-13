@@ -1,7 +1,6 @@
 //Add `edit` and `delete` controls for plugin placeholder inside text plugin
 (function($){
     /* global edit_plugin */
-    console.log("here")
     $.fn.extend({
         getScreenPosition : function(ed){
             var parentWin = $(ed.getWin());
@@ -45,13 +44,11 @@
             controls.addClass('small');
 
             //even worse, the placeholedr is in the top left corner
-            console.log(target, target.position().top)
             if(target.position().top - $(window).scrollTop() < edit.outerHeight()){
                 controls.addClass('top');
             }
 
             //in case the placeholder is tooclose to the right edge
-            console.log(body.width(), target.offset().left, del.outerWidth(), del.offset().left)
             if(del.outerWidth() + del.offset().left > body.width()){
                 controls.addClass('right');
             }
