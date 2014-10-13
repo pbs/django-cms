@@ -1,1 +1,4 @@
-{{ body|safe }}
+{% load iframe_HTML_decode %}
+<div class="text-plugin clearfix">
+{{ body|decode_iframe|safe }}
+</div>

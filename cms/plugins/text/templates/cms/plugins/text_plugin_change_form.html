@@ -9,7 +9,6 @@
 (function unecodeIframe($){
     //this unencodes iframes in the hidden textarea used by tinyMCE
     //without this the <iframe> will be self closed and break the layout 
-    //LUN-986
     $('textarea#id_body').val($('textarea#id_body').val().replace(/&lt;iframe/g, "<iframe").replace(/&gt;&lt;\/iframe&gt;/g,"></iframe>"))
 })(window.CMS.$);
 (function namespacing(jQuery) {
