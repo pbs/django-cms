@@ -90,7 +90,7 @@
     tinymce.onAddEditor.add(function(mgr, ed){
         ed.onInit.add(function(ed){
             //append controls styles to editor iframe head
-            $('#bento-controls').appendTo($(ed.getDoc()).find('head'));
+            $('#plugin-controls').appendTo($(ed.getDoc()).find('head'));
         });
 
         ed.onClick.add(function(ed, e){
