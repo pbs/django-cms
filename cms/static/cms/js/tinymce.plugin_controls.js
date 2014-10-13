@@ -83,8 +83,8 @@
         if(!ed){return;}
 
         $(ed.getBody()).find('.plugin-controls').remove();
-        $(ed.getWin()).unbind('scroll.'+ed.editorId);
-        $('body').unbind('click.'+ed.editorId);
+        $(ed.getWin()).unbind('scroll.' + ed.editorId);
+        $('body').unbind('click.' + ed.editorId);
     }
 
     tinymce.onAddEditor.add(function(mgr, ed){
