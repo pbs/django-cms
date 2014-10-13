@@ -1,6 +1,7 @@
+/* global edit_plugin */
 //Add `edit` and `delete` controls for plugin placeholder inside text plugin
 (function($){
-    /* global edit_plugin */
+    'use strict';
     $.fn.extend({
         getScreenPosition : function(ed){
             var parentWin = $(ed.getWin());
@@ -48,7 +49,7 @@
                 controls.addClass('top');
             }
 
-            //in case the placeholder is tooclose to the right edge
+            //in case the placeholder is too close to the right edge
             if(del.outerWidth() + del.offset().left > body.width()){
                 controls.addClass('right');
             }
@@ -60,11 +61,11 @@
         });
 
         edit.click(function(){
-            // `edit_plugin` should be provided globally by Django but worth to check
-            if(typeof window.edit_plugin === 'function'){
-                var taget_id_arr = target.attr('id').split('_'),
-                    obj_id = taget_id_arr[taget_id_arr.length - 1];
+            var taget_id_arr = target.attr('id').split('_'),
+                obj_id = taget_id_arr[taget_id_arr.length - 1];
 
+            // `edit_plugin` should be provided globally but worth to check
+            if(typeof window.edit_plugin === 'function'){
                 edit_plugin(obj_id);
             }
         });
@@ -88,6 +89,7 @@
 
     tinymce.onAddEditor.add(function(mgr, ed){
         ed.onInit.add(function(ed){
+            //append controls styles to editor iframe head
             $('#bento-controls').appendTo($(ed.getDoc()).find('head'));
         });
 
