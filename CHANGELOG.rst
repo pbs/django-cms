@@ -1,6 +1,27 @@
 CHANGELOG
 =========
 
+Revision 866ddbf (15.10.2014, 12:07 UTC)
+----------------------------------------
+
+* LUN-986
+
+  * LUN-1608: Apply LUN-986 (make iframe embedable in text plugin)
+
+* LUN-1608
+
+  * fix tests
+  * remove debug
+  * move iframe_HTML_decode.py to cms templatetags folder, minor code refactor
+  * ignore case when replacing
+  * rename plugin controls styles id
+  * minor code refactor
+  * remove logging
+  * Apply LUN-986 (make iframe embedable in text plugin)
+  * add edit and delete plugin controlls in tinymce
+
+No other commits.
+
 Revision 4c4b59a (09.09.2014, 09:00 UTC)
 ----------------------------------------
 
