@@ -174,7 +174,9 @@ class PluginsTestCase(PluginsTestBaseCase):
             self.assertEqual(db_plugin_2.position,2)
             ## Finally we render the placeholder to test the actual content
             rendered_placeholder = ph_en.render(self.get_context(page_en.get_absolute_url()),None)
-            self.assertEquals(rendered_placeholder,"I'm the firstI'm the second")
+            self.assertEquals(rendered_placeholder, 
+                              self.get_text_plugin_wrapper("I'm the first") + 
+                              self.get_text_plugin_wrapper("I'm the second"))
 
     def test_add_cancel_plugin(self):
         """

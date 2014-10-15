@@ -141,7 +141,8 @@ class RenderingTestCase(SettingsOverrideTestCase):
             from cms.views import details
             response = details(self.get_request(self.test_page), '')
             r = self.strip_rendered(response.content)
-            self.assertEqual(r, u'|'+self.test_data['text_main']+u'|'+self.test_data['text_sub']+u'|')
+            self.assertEqual(r, u'|'+ self.get_text_plugin_wrapper(self.test_data['text_main']) + 
+                             u'|' +self.get_text_plugin_wrapper(self.test_data['text_sub'])+u'|')
         
     def test_processors(self):
         """
@@ -172,7 +173,7 @@ class RenderingTestCase(SettingsOverrideTestCase):
         t = u'{% load cms_tags %}'+ \
             u'|{% placeholder "main" %}|{% placeholder "empty" %}'
         r = self.render(t, self.test_page)
-        self.assertEqual(r, u'|'+self.test_data['text_main']+'|')
+        self.assertEqual(r, u'|'+self.get_text_plugin_wrapper(self.test_data['text_main'])+'|')
         
 
     def test_placeholder_extra_context(self):
@@ -202,7 +203,7 @@ class RenderingTestCase(SettingsOverrideTestCase):
             u'|{% show_placeholder "sub" "'+str(self.test_page.reverse_id)+'" %}'+ \
             u'|{% show_placeholder "sub" test_page %}'
         r = self.render(t, self.test_page, {'test_page': self.test_page, 'test_dict': {'pk': self.test_page.pk}})
-        self.assertEqual(r, (u'|'+self.test_data['text_main'])*2+(u'|'+self.test_data['text_sub'])*2)
+        self.assertEqual(r, (u'|'+self.get_text_plugin_wrapper(self.test_data['text_main']))*2+(u'|'+self.get_text_plugin_wrapper(self.test_data['text_sub']))*2)
         
     def test_show_placeholder_extra_context(self):
         t = u'{% load cms_tags %}{% show_placeholder "extra_context" '+str(self.test_page4.pk)+' %}'
@@ -218,22 +219,22 @@ class RenderingTestCase(SettingsOverrideTestCase):
         """
         template = u'{%% load cms_tags %%}{%% show_uncached_placeholder "main" %s %%}' % self.test_page.pk
         output = self.render(template, self.test_page)
-        self.assertEqual(output, self.test_data['text_main'])
+        self.assertEqual(output, self.get_text_plugin_wrapper(self.test_data['text_main']))
 
     def test_show_uncached_placeholder_by_lookup_dict(self):
         template = u'{% load cms_tags %}{% show_uncached_placeholder "main" test_dict %}'
         output = self.render(template, self.test_page, {'test_dict': {'pk': self.test_page.pk}})
-        self.assertEqual(output, self.test_data['text_main'])
+        self.assertEqual(output, self.get_text_plugin_wrapper(self.test_data['text_main']))
 
     def test_show_uncached_placeholder_by_reverse_id(self):
         template = u'{%% load cms_tags %%}{%% show_uncached_placeholder "sub" "%s" %%}' % self.test_page.reverse_id
         output = self.render(template, self.test_page)
-        self.assertEqual(output, self.test_data['text_sub'])
+        self.assertEqual(output, self.get_text_plugin_wrapper(self.test_data['text_sub']))
 
     def test_show_uncached_placeholder_by_page(self):
         template = u'{% load cms_tags %}{% show_uncached_placeholder "sub" test_page %}'
         output = self.render(template, self.test_page, {'test_page': self.test_page})
-        self.assertEqual(output, self.test_data['text_sub'])
+        self.assertEqual(output, self.get_text_plugin_wrapper(self.test_data['text_sub']))
         
     def test_page_url_by_pk(self):
         template = u'{%% load cms_tags %%}{%% page_url %s %%}' % self.test_page2.pk
@@ -287,7 +288,8 @@ class RenderingTestCase(SettingsOverrideTestCase):
         t = u'{% load cms_tags %}'+ \
             u'|{% placeholder "main" inherit %}|{% placeholder "sub" %}'
         r = self.render(t, self.test_page3)
-        self.assertEqual(r, u'|'+self.test_data['text_main']+'|'+self.test_data3['text_sub'])
+        self.assertEqual(r, u'|'+self.get_text_plugin_wrapper(self.test_data['text_main'])
+                         +'|'+self.get_text_plugin_wrapper(self.test_data3['text_sub']))
         
     def test_detail_view_404_when_no_language_is_found(self):
         with SettingsOverride(TEMPLATE_CONTEXT_PROCESSORS=[],
