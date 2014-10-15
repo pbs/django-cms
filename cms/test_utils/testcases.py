@@ -106,6 +106,9 @@ class CMSTestCase(testcases.TestCase):
         staff.set_password("staff")
         staff.save()
         return staff
+
+    def get_text_plugin_wrapper(self, body):
+        return '<div class="text-plugin clearfix">%s</div>' % body
     
     def get_new_page_data(self, parent_id=''):
         page_data = {

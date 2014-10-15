@@ -224,7 +224,7 @@ class PlaceholderTestCase(CMSTestCase):
         rctx = RequestContext(request)
         placeholder = self.reload(placeholder)
         rctx['placeholder'] = placeholder
-        self.assertEqual(template.render(rctx).strip(), "test")
+        self.assertEqual(template.render(rctx).strip(), self.get_text_plugin_wrapper("test"))
     
     def test_placeholder_context_leaking(self):
         TEST_CONF = {'test': {'extra_context': {'width': 10}}}
