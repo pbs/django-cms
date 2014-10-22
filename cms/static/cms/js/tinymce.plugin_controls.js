@@ -45,7 +45,7 @@
             controls.addClass('small');
 
             //even worse, the placeholedr is in the top left corner
-            if(target.position().top - $(window).scrollTop() < edit.outerHeight()){
+            if(target.position().top < edit.outerHeight()){
                 controls.addClass('top');
             }
 
@@ -77,11 +77,17 @@
         $('body').bind('click.'+ed.editorId, function(){
             removePluginControls(ed);
         });
+
+        //temporary disable editing
+        ed.getBody().setAttribute('contenteditable', false);
+
     }
 
     function removePluginControls(ed){
         if(!ed){return;}
 
+        //enable editing
+        ed.getBody().setAttribute('contenteditable', true);
         $(ed.getBody()).find('.plugin-controls').remove();
         $(ed.getWin()).unbind('scroll.' + ed.editorId);
         $('body').unbind('click.' + ed.editorId);
