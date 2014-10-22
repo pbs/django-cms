@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+Revision 842b35f (22.10.2014, 14:27 UTC)
+----------------------------------------
+
+* LUN-1912
+
+  * Fix plugin editing icons position, disable editing when icons are visible
+
+No other commits.
+
 Revision 866ddbf (15.10.2014, 12:07 UTC)
 ----------------------------------------
 
