@@ -1,6 +1,19 @@
 CHANGELOG
 =========
 
+Revision 182cafd (17.11.2014, 16:34 UTC)
+----------------------------------------
+
+No new issues.
+
+* Misc commits
+
+  * Update cms version
+  * added some comments to make the code more explicit.
+  * Added some tests for multiple sites permission issues
+  * Users with pages permissions should always have access to admin pages section on the sites they have access to.
+  * Pages changelist should always show items from an allowed working site.
+
 Revision 842b35f (22.10.2014, 14:27 UTC)
 ----------------------------------------
 
