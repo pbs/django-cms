@@ -9,6 +9,7 @@ from django.contrib.admin.views.main import ChangeList, ALL_VAR, IS_POPUP_VAR, \
     ORDER_TYPE_VAR, ORDER_VAR, SEARCH_VAR
 from django.contrib.sites.models import Site
 import django
+from itertools import ifilter
 
 COPY_VAR = "copy"
 
@@ -56,16 +57,20 @@ class CMSChangeList(ChangeList):
     def __init__(self, request, *args, **kwargs):
         from cms.utils.plugins import current_site
         self._current_site = current_site(request)
+        self.set_sites(request)
+        if self._current_site:
+            is_current = lambda x: x.id == self._current_site.id
+            is_site_allowed = next(ifilter(is_current, self.sites), None)
+            if not is_site_allowed and self.sites:
+                # change working site to one where the user has permissions on
+                self._current_site = self.sites[0]
+            request.session['cms_admin_site'] = self._current_site.pk
         super(CMSChangeList, self).__init__(request, *args, **kwargs)
         try:
             self.query_set = self.get_query_set(request)
         except:
             raise
         self.get_results(request)
-        
-        if self._current_site:
-            request.session['cms_admin_site'] = self._current_site.pk
-        self.set_sites(request)
         
     def get_query_set(self, request=None):
         if COPY_VAR in self.params:

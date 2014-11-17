@@ -656,7 +656,8 @@ class PageAdmin(ModelAdmin):
         Return true if the current user has permission to add a new page.
         """
         if settings.CMS_PERMISSION:
-            return permissions.has_page_add_permission(request)
+            return permissions.has_page_add_permission(
+                request, on_any_sites=True)
         return super(PageAdmin, self).has_add_permission(request)
 
     def has_change_permission(self, request, obj=None):
@@ -668,7 +669,8 @@ class PageAdmin(ModelAdmin):
             if obj:
                 return obj.has_change_permission(request)
             else:
-                return permissions.has_page_change_permission(request)
+                return permissions.has_page_change_permission(
+                    request, on_any_sites=True)
         return super(PageAdmin, self).has_change_permission(request, obj)
 
     def has_delete_permission(self, request, obj=None):
