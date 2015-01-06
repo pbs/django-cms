@@ -1602,7 +1602,15 @@ function tree_component () {
 					}
 					if($where.parents("li:eq(0)").children("ul:first").size()) {
 						if(this.settings.rules.createat == "top")	$where.parents("li:eq(0)").children("ul:first").prepend(what.removeClass("last")).children("li:last").addClass("last");
-						else										$where.parents("li:eq(0)").children("ul:first").children(".last").removeClass("last").end().append(what.removeClass("last")).children("li:last").addClass("last");
+						else
+                        {
+                            if($where.parents("li:eq(0)").children("ul:first").children("li").size()) {
+                                $where.parents("li:eq(0)").children("ul:first").children(".last").removeClass("last").end().append(what.removeClass("last")).children("li:last").addClass("last");
+                            }
+                            else {
+                                what.remove();
+                            }
+                        }
 					}
 					else {
 						what.addClass("last");
