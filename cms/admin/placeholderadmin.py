@@ -13,7 +13,7 @@ from django.http import (HttpResponse, Http404, HttpResponseBadRequest,
     HttpResponseForbidden)
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
-from django.template.defaultfilters import force_escape, escapejs
+from django.template.defaultfilters import force_escape
 from django.utils.translation import ugettext as _
 from cms.templatetags.cms_admin import admin_static_url
 
@@ -212,8 +212,8 @@ class PlaceholderAdmin(ModelAdmin):
                 'name': unicode(cms_plugin),
                 "type": cms_plugin.get_plugin_name(),
                 'plugin_id': plugin_id,
-                'icon': force_escape(escapejs(cms_plugin.get_instance_icon_src())),
-                'alt': force_escape(escapejs(cms_plugin.get_instance_icon_alt())),
+                'icon': force_escape(cms_plugin.get_instance_icon_src()),
+                'alt': force_escape(cms_plugin.get_instance_icon_alt()),
                 'cancel': True,
             }
             instance = cms_plugin.get_plugin_instance()[0]
@@ -248,7 +248,7 @@ class PlaceholderAdmin(ModelAdmin):
                 "type": saved_object.get_plugin_name(),
                 'plugin_id': plugin_id,
                 'icon': force_escape(saved_object.get_instance_icon_src()),
-                'alt': force_escape(escapejs(saved_object.get_instance_icon_alt())),
+                'alt': force_escape(saved_object.get_instance_icon_alt()),
             }
             return render_to_response('admin/cms/page/plugin_forms_ok.html', context, RequestContext(request))
             
