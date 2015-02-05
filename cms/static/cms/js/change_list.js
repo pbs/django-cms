@@ -519,6 +519,17 @@
 				response = decoded.content;
 				status = decoded.status;
 				if(status==200) {
+					jtarget = $('#page_'+target_id);
+					if(jtarget.find('ul > li').length == 0 && !jtarget.hasClass("loading")) {
+						jtarget.addClass("loading");
+						admin_base_url = document.URL.split("/cms/page/")[0] + "/";
+						$.get(admin_base_url + "cms/page/" + target_id + "/descendants/", {}, function(r, status) {
+							jtarget.children('ul').append(r);
+							if($('span.move-target-container:visible').length > 0) {
+								jtarget.children('ul').find('a.move-target, span.move-target-container, span.line').show();
+							};
+						});
+					}
 					if (tree) {
 						var tree_pos = {'left': 'before', 'right': 'after'}[position] || 'inside';
 						tree.moved("#page_" + item_id, $("#page_" + target_id + " a.title")[0], tree_pos, false, false);
