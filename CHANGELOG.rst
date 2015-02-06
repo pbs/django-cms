@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+Revision 2e0b6f6 (06.02.2015, 13:17 UTC)
+----------------------------------------
+
+No new issues.
+
+* Misc commits
+
+  * small change
+  * move page into closed/open page
+
 Revision 182cafd (17.11.2014, 16:34 UTC)
 ----------------------------------------
 
