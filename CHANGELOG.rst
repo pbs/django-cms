@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+Revision fdd78c9 (17.02.2015, 10:33 UTC)
+----------------------------------------
+
+* LUN-2055
+
+  * fixed double encoding when hitting cancel button
+
+No other commits.
+
 Revision 2e0b6f6 (06.02.2015, 13:17 UTC)
 ----------------------------------------
 
