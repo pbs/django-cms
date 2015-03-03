@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+Revision 67e0d2b (03.03.2015, 12:36 UTC)
+----------------------------------------
+
+No new issues.
+
+* Misc commits
+
+  * mptt version upgrade
+
 Revision fdd78c9 (17.02.2015, 10:33 UTC)
 ----------------------------------------
 
