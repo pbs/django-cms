@@ -71,7 +71,7 @@ class CMSChangeList(ChangeList):
         except:
             raise
         self.get_results(request)
-
+        
     def get_query_set(self, request=None):
         if COPY_VAR in self.params:
             del self.params[COPY_VAR]
@@ -86,14 +86,14 @@ class CMSChangeList(ChangeList):
         if request:
             site = self._current_site
             permissions = Page.permissions.get_change_id_list(request.user, site)
-
+            
             if permissions != Page.permissions.GRANT_ALL:
                 qs = qs.filter(pk__in=permissions)
                 self.root_query_set = self.root_query_set.filter(pk__in=permissions)
             self.real_queryset = True
             qs = qs.filter(site=self._current_site)
         return qs
-
+    
     def is_filtered(self):
         from cms.utils.plugins import SITE_VAR
         lookup_params = self.params.copy() # a dictionary of the query string
@@ -111,7 +111,7 @@ class CMSChangeList(ChangeList):
                 self.full_result_count = self.result_count = self.root_query_set.count()
             else:
                 self.full_result_count = self.root_query_set.count()
-
+    
     def set_items(self, request):
         site = self._current_site
         # Get all the pages, ordered by tree ID (it's convenient to build the 
@@ -253,11 +253,11 @@ class CMSChangeList(ChangeList):
         sites combo.
         """
         if settings.CMS_PERMISSION:
-            self.sites = get_user_sites_queryset(request.user)
+            self.sites = get_user_sites_queryset(request.user)   
         else:
             self.sites = Site.objects.all()
         self.has_access_to_multiple_sites = len(self.sites) > 1
-
+    
     def current_site(self):
         return self._current_site
     
