@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+Revision 463467a (08.04.2015, 11:02 UTC)
+----------------------------------------
+
+* LUN-1919
+
+  * Display site information on Change Page View
+
+* Misc commits
+
+  * django-cms-layouts tests fail because of django-cms 0.7.1
+
 Revision 67e0d2b (03.03.2015, 12:36 UTC)
 ----------------------------------------
 
