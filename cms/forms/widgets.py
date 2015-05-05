@@ -24,7 +24,9 @@ class PageSelectWidget(MultiWidget):
         else:
             self.attrs = {}
         if site_choices is None or page_choices is None:
-            site_choices, page_choices = get_site_choices(), get_page_choices()
+            from cms.forms.fields import SuperLazyIterator
+            site_choices = SuperLazyIterator(get_site_choices)
+            page_choices = SuperLazyIterator(get_page_choices)
         self.site_choices = site_choices
         self.choices = page_choices
         widgets = (Select(choices=site_choices ),
