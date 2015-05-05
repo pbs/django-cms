@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+Revision 1566109 (05.05.2015, 16:04 UTC)
+----------------------------------------
+
+No new issues.
+
+* Misc commits
+
+  * make page widget choices lazy
+
 Revision 463467a (08.04.2015, 11:02 UTC)
 ----------------------------------------
 
