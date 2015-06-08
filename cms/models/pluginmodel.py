@@ -15,6 +15,7 @@ from cms.models.placeholdermodel import Placeholder
 from cms.plugin_rendering import PluginContext, render_plugin
 from cms.utils.helpers import reversion_register
 from cms.utils import timezone
+from cms.utils.compat.metaclasses import with_metaclass
 
 from mptt.models import MPTTModel, MPTTModelBase
 
@@ -63,7 +64,7 @@ class PluginModelBase(MPTTModelBase):
         return new_class
 
 
-class CMSPlugin(MPTTModel):
+class CMSPlugin(with_metaclass(PluginModelBase, MPTTModel)):
     '''
     The base class for a CMS plugin model. When defining a new custom plugin, you should
     store plugin-instance specific information on a subclass of this class.
@@ -75,7 +76,6 @@ class CMSPlugin(MPTTModel):
     2. Subclasses of CMSPlugin cannot define a "text" field.
 
     '''
-    __metaclass__ = PluginModelBase
 
     placeholder = models.ForeignKey(Placeholder, editable=False, null=True)
     parent = models.ForeignKey('self', blank=True, null=True, editable=False)
