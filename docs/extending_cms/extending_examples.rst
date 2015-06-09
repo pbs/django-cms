@@ -5,12 +5,12 @@ Extending the CMS: Examples
 From this point onwards, this tutorial assumes you have done the
 `Django Tutorial`_ and will show you how to integrate the tutorial's poll app into the
 django CMS. Hereafter, if a poll app is mentioned, we are referring to the one you get
-after completing the `Django Tutorial`_. 
+after completing the `Django Tutorial`_.
 Also, make sure the poll app is in your :setting:`django:INSTALLED_APPS`.
 
 We assume your main ``urls.py`` looks something like this::
 
-    from django.conf.urls.defaults import *
+    from django.conf.urls import *
 
     from django.contrib import admin
     admin.autodiscover()
@@ -36,10 +36,10 @@ poll and lets the user vote.
 In your poll application's ``models.py`` add the following::
 
     from cms.models import CMSPlugin
-    
+
     class PollPlugin(CMSPlugin):
         poll = models.ForeignKey('polls.Poll', related_name='plugins')
-        
+
         def __unicode__(self):
           return self.poll.question
 
@@ -66,7 +66,7 @@ app folder should look like this::
         cms_plugins.py
         models.py
         tests.py
-        views.py 
+        views.py
 
 
 The plugin class is responsible for providing the django CMS with the necessary
@@ -78,21 +78,21 @@ For our poll plugin, write the following plugin class::
     from cms.plugin_pool import plugin_pool
     from polls.models import PollPlugin as PollPluginModel
     from django.utils.translation import ugettext as _
-    
+
     class PollPlugin(CMSPluginBase):
         model = PollPluginModel # Model where data about this plugin is saved
         name = _("Poll Plugin") # Name of the plugin
         render_template = "polls/plugin.html" # template to render the plugin with
-    
+
         def render(self, context, instance, placeholder):
             context.update({'instance':instance})
             return context
-    
+
     plugin_pool.register_plugin(PollPlugin) # register the plugin
 
 .. note::
 
-    All plugin classes must inherit from 
+    All plugin classes must inherit from
     :class:`cms.plugin_base.CMSPluginBase` and must register themselves
     with the :data:`cms.plugin_pool.plugin_pool`.
 
@@ -111,7 +111,7 @@ The template should look something like this:
 .. code-block:: html+django
 
     <h1>{{ instance.poll.question }}</h1>
-    
+
     <form action="{% url polls.views.vote instance.poll.id %}" method="post">
     {% csrf_token %}
     {% for choice in instance.poll.choice_set.all %}
@@ -147,24 +147,24 @@ make your polls app look like this::
         cms_plugins.py
         models.py
         tests.py
-        views.py 
+        views.py
 
 In this file, write::
 
     from cms.app_base import CMSApp
     from cms.apphook_pool import apphook_pool
     from django.utils.translation import ugettext_lazy as _
-    
+
     class PollsApp(CMSApp):
         name = _("Poll App") # give your app a name, this is required
         urls = ["polls.urls"] # link your app to url configuration(s)
-        
+
     apphook_pool.register(PollsApp) # register your app
-    
+
 Now remove the inclusion of the polls urls in your main ``urls.py`` so it looks
 like this::
 
-    from django.conf.urls.defaults import *
+    from django.conf.urls import *
 
     from django.contrib import admin
     admin.autodiscover()
@@ -215,10 +215,10 @@ In your ``menu.py`` write::
     from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext_lazy as _
     from polls.models import Poll
-    
+
     class PollsMenu(CMSAttachMenu):
         name = _("Polls Menu") # give the menu a name, this is required.
-        
+
         def get_nodes(self, request):
             """
             This method is used to build the menu tree.
@@ -248,12 +248,12 @@ So open your ``cms_apps.py`` and write::
     from cms.apphook_pool import apphook_pool
     from polls.menu import PollsMenu
     from django.utils.translation import ugettext_lazy as _
-    
+
     class PollsApp(CMSApp):
         name = _("Poll App")
         urls = ["polls.urls"]
         menus = [PollsMenu] # attach a CMSAttachMenu to this apphook.
-        
+
     apphook_pool.register(PollsApp)
 
 

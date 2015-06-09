@@ -181,7 +181,7 @@ under "Application". Save the page.
     except the dev-server): Restart the server because the URLs are cached by
     Django and in a multi-threaded environment we don't know which caches are
     cleared yet.
-    
+
 .. note::
 
     If at some point you want to remove this apphook after deleting the cms_app.py
@@ -194,7 +194,7 @@ under "Application". Save the page.
 If you attached the app to a page with the url ``/hello/world/`` and the app has
 a urls.py that looks like this::
 
-    from django.conf.urls.defaults import *
+    from django.conf.urls import *
 
     urlpatterns = patterns('sampleapp.views',
         url(r'^$', 'main_view', name='app_main'),
@@ -326,7 +326,7 @@ An example use-case
 
 A simple example: you have a news application that publishes pages
 independently of django CMS. However, you would like to integrate the
-application into the menu structure of your site, so that at appropriate 
+application into the menu structure of your site, so that at appropriate
 places a *News* node appears in the navigation menu.
 
 In such a case, a Navigation Modifier is the solution.
@@ -335,10 +335,10 @@ In such a case, a Navigation Modifier is the solution.
 How it works
 ------------
 
-Normally, you'd want to place modifiers in your application's 
+Normally, you'd want to place modifiers in your application's
 ``menu.py``.
 
-To make your modifier available, it then needs to be registered with 
+To make your modifier available, it then needs to be registered with
 ``menus.menu_pool.menu_pool``.
 
 Now, when a page is loaded and the menu generated, your modifier will
@@ -361,7 +361,7 @@ A simple modifier looks something like this::
                 node.counter = count
                 count += 1
             return nodes
-    
+
     menu_pool.register_modifier(MyMode)
 
 It has a method :meth:`~menus.base.Modifier.modify` that should return a list
@@ -426,7 +426,7 @@ Here is an example of a built-in modifier that marks all node levels::
                 else:
                     child.level = node.level + 1
                 self.mark_levels(child, post_cut)
-    
+
     menu_pool.register_modifier(Level)
 
 **************

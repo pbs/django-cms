@@ -224,7 +224,7 @@ class PageAdmin(ModelAdmin):
     def get_urls(self):
         """Get the admin urls
         """
-        from django.conf.urls.defaults import patterns, url
+        from django.conf.urls import patterns, url
         info = "%s_%s" % (self.model._meta.app_label, self.model._meta.module_name)
         pat = lambda regex, fn: url(regex, self.admin_site.admin_view(fn), name='%s_%s' % (info, fn.__name__))
 
@@ -383,6 +383,74 @@ class PageAdmin(ModelAdmin):
     def get_fieldset_placeholders(self, template):
         return plugins.get_placeholders(template)
 
+    def get_placeholders_formfields(
+            self, template, obj, language, version_id, versioned):
+        formfields = {}
+        placeholders = self.get_fieldset_placeholders(template)
+        for placeholder_name in placeholders:
+            plugin_list = []
+            show_copy = False
+            copy_languages = {}
+            if versioned:
+                from reversion.models import Version
+                version = get_object_or_404(Version, pk=version_id)
+                installed_plugins = plugin_pool.get_all_plugins()
+                plugin_list = []
+                actual_plugins = []
+                bases = {}
+                revs = []
+                for related_version in version.revision.version_set.all():
+                    try:
+                        rev = related_version.object_version
+                    except models.FieldDoesNotExist:
+                        # in case the model has changed in the meantime
+                        continue
+                    else:
+                        revs.append(rev)
+                for rev in revs:
+                    pobj = rev.object
+                    if pobj.__class__ == Placeholder:
+                        if pobj.slot == placeholder_name:
+                            placeholder = pobj
+                            break
+                for rev in revs:
+                    pobj = rev.object
+                    if pobj.__class__ == CMSPlugin:
+                        if pobj.language == language and pobj.placeholder_id == placeholder.id and not pobj.parent_id:
+                            if pobj.get_plugin_class() == CMSPlugin:
+                                plugin_list.append(pobj)
+                            else:
+                                bases[int(pobj.pk)] = pobj
+                    if hasattr(pobj, "cmsplugin_ptr_id"):
+                        actual_plugins.append(pobj)
+                for plugin in actual_plugins:
+                    if int(plugin.cmsplugin_ptr_id) in bases:
+                        bases[int(plugin.cmsplugin_ptr_id)].placeholder = placeholder
+                        bases[int(plugin.cmsplugin_ptr_id)].set_base_attr(plugin)
+                        plugin_list.append(plugin)
+            else:
+                placeholder, created = obj.placeholders.get_or_create(slot=placeholder_name)
+                installed_plugins = plugin_pool.get_all_plugins(placeholder_name, obj)
+                plugin_list = CMSPlugin.objects.filter(language=language, placeholder=placeholder, parent=None).order_by('position')
+                other_plugins = CMSPlugin.objects.filter(placeholder=placeholder, parent=None).exclude(language=language)
+                dict_cms_languages = dict(settings.CMS_LANGUAGES)
+                for plugin in other_plugins:
+                    if (not plugin.language in copy_languages) and (plugin.language in dict_cms_languages):
+                        copy_languages[plugin.language] = dict_cms_languages[plugin.language]
+
+            if copy_languages and len(settings.CMS_LANGUAGES) > 1:
+                show_copy = True
+            widget = PluginEditor(attrs={
+                'installed': installed_plugins,
+                'list': plugin_list,
+                'copy_languages': copy_languages.items(),
+                'show_copy': show_copy,
+                'language': language,
+                'placeholder': placeholder
+            })
+            formfields[placeholder.slot] = CharField(widget=widget, required=False)
+        return formfields
+
     def get_form(self, request, obj=None, **kwargs):
         """
         Get PageForm for the Page model and modify its fields depending on
@@ -406,12 +474,19 @@ class PageAdmin(ModelAdmin):
             if not settings.CMS_SOFTROOT and 'soft_root' in self.exclude:
                 self.exclude.remove('soft_root')
 
-            form = super(PageAdmin, self).get_form(request, obj, **kwargs)
             version_id = None
             versioned = False
             if "history" in request.path or 'recover' in request.path:
                 versioned = True
                 version_id = request.path.split("/")[-2]
+
+            formfields = {}
+            if settings.CMS_TEMPLATES:
+                selected_template = get_template_from_request(request, obj)
+                formfields = self.get_placeholders_formfields(
+                    selected_template, obj, language, version_id, versioned)
+
+            form = type('PageForm', (self.form, ), formfields)
         else:
             self.inlines = []
             form = PageAddForm
@@ -437,75 +512,9 @@ class PageAdmin(ModelAdmin):
             else:
                 form.base_fields['overwrite_url'].initial = ""
             if settings.CMS_TEMPLATES:
-                selected_template = get_template_from_request(request, obj)
                 template_choices = list(settings.CMS_TEMPLATES)
                 form.base_fields['template'].choices = template_choices
                 form.base_fields['template'].initial = force_unicode(selected_template)
-
-            placeholders = self.get_fieldset_placeholders(selected_template)
-            for placeholder_name in placeholders:
-                plugin_list = []
-                show_copy = False
-                copy_languages = {}
-                if versioned:
-                    from reversion.models import Version
-                    version = get_object_or_404(Version, pk=version_id)
-                    installed_plugins = plugin_pool.get_all_plugins()
-                    plugin_list = []
-                    actual_plugins = []
-                    bases = {}
-                    revs = []
-                    for related_version in version.revision.version_set.all():
-                        try:
-                            rev = related_version.object_version
-                        except models.FieldDoesNotExist:
-                            # in case the model has changed in the meantime
-                            continue
-                        else:
-                            revs.append(rev)
-                    for rev in revs:
-                        pobj = rev.object
-                        if pobj.__class__ == Placeholder:
-                            if pobj.slot == placeholder_name:
-                                placeholder = pobj
-                                break
-                    for rev in revs:
-                        pobj = rev.object
-                        if pobj.__class__ == CMSPlugin:
-                            if pobj.language == language and pobj.placeholder_id == placeholder.id and not pobj.parent_id:
-                                if pobj.get_plugin_class() == CMSPlugin:
-                                    plugin_list.append(pobj)
-                                else:
-                                    bases[int(pobj.pk)] = pobj
-                        if hasattr(pobj, "cmsplugin_ptr_id"):
-                            actual_plugins.append(pobj)
-                    for plugin in actual_plugins:
-                        if int(plugin.cmsplugin_ptr_id) in bases:
-                            bases[int(plugin.cmsplugin_ptr_id)].placeholder = placeholder
-                            bases[int(plugin.cmsplugin_ptr_id)].set_base_attr(plugin)
-                            plugin_list.append(plugin)
-                else:
-                    placeholder, created = obj.placeholders.get_or_create(slot=placeholder_name)
-                    installed_plugins = plugin_pool.get_all_plugins(placeholder_name, obj)
-                    plugin_list = CMSPlugin.objects.filter(language=language, placeholder=placeholder, parent=None).order_by('position')
-                    other_plugins = CMSPlugin.objects.filter(placeholder=placeholder, parent=None).exclude(language=language)
-                    dict_cms_languages = dict(settings.CMS_LANGUAGES)
-                    for plugin in other_plugins:
-                        if (not plugin.language in copy_languages) and (plugin.language in dict_cms_languages):
-                            copy_languages[plugin.language] = dict_cms_languages[plugin.language]
-
-                language = get_language_from_request(request, obj)
-                if copy_languages and len(settings.CMS_LANGUAGES) > 1:
-                    show_copy = True
-                widget = PluginEditor(attrs={
-                    'installed': installed_plugins,
-                    'list': plugin_list,
-                    'copy_languages': copy_languages.items(),
-                    'show_copy': show_copy,
-                    'language': language,
-                    'placeholder': placeholder
-                })
-                form.base_fields[placeholder.slot] = CharField(widget=widget, required=False)
         else:
             for name in ['slug','title']:
                 form.base_fields[name].initial = u''
@@ -517,10 +526,9 @@ class PageAdmin(ModelAdmin):
                 del form.base_fields[field]
         return form
 
-    def get_inline_instances(self, request):
-        inlines = super(PageAdmin, self).get_inline_instances(request)
-        if settings.CMS_PERMISSION and hasattr(self, '_current_page')\
-                and self._current_page:
+    def get_inline_instances(self, request, obj=None):
+        inlines = super(PageAdmin, self).get_inline_instances(request, obj)
+        if settings.CMS_PERMISSION and obj:
             filtered_inlines = []
             for inline in inlines:
                 if isinstance(inline, PagePermissionInlineAdmin)\
@@ -528,7 +536,7 @@ class PageAdmin(ModelAdmin):
                     if "recover" in request.path or "history" in request.path:
                         # do not display permissions in recover mode
                         continue
-                    if not self._current_page.has_change_permissions_permission(request):
+                    if not obj.has_change_permissions_permission(request):
                         continue
                 filtered_inlines.append(inline)
             inlines = filtered_inlines
@@ -553,7 +561,7 @@ class PageAdmin(ModelAdmin):
         return super(PageAdmin, self).add_view(request, form_url, extra_context=extra_context)
 
     @mutually_exclusive_on_post
-    def change_view(self, request, object_id, extra_context=None):
+    def change_view(self, request, object_id, form_url='', extra_context=None):
         """
         The 'change' admin view for the Page model.
         """
@@ -593,12 +601,7 @@ class PageAdmin(ModelAdmin):
             extra_context = self.update_language_tab_context(request, obj, extra_context)
         tab_language = request.GET.get("language", None)
 
-        # get_inline_instances will need access to 'obj' so that it can
-        # determine if current user has enough rights to see PagePermissionInlineAdmin
-        # because get_inline_instances doesn't receive 'obj' as a parameter,
-        # the workaround is to set it as an attribute...
-        self._current_page = obj
-        response = super(PageAdmin, self).change_view(request, object_id, extra_context=extra_context)
+        response = super(PageAdmin, self).change_view(request, object_id, form_url=form_url, extra_context=extra_context)
         if tab_language and response.status_code == 302 and response._headers['location'][1] == request.path :
             location = response._headers['location']
             response._headers['location'] = (location[0], "%s?language=%s" % (location[1], tab_language))
@@ -1327,9 +1330,9 @@ class PageAdmin(ModelAdmin):
         if request.method == "POST":
             # set the continue flag, otherwise will plugin_admin make redirect to list
             # view, which actually doesn't exists
-    
-            post_request = request.POST.copy()                                  
-            post_request['_continue'] = True                                    
+
+            post_request = request.POST.copy()
+            post_request['_continue'] = True
             request.POST = post_request
 
         if 'reversion' in settings.INSTALLED_APPS and ('history' in request.path or 'recover' in request.path):

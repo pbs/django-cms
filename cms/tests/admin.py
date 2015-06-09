@@ -1093,12 +1093,11 @@ class PluginPermissionTests(AdminTestsBase):
             can_change_permissions=True, user=user, page=page)
         request = self._get_change_page_request(user, page)
         page_admin = PageAdmin(Page, None)
-        page_admin._current_page = page
         # user has can_change_permission
         # => must see the PagePermissionInline
         self.assertTrue(
             any(type(inline) is PagePermissionInlineAdmin
-                for inline in page_admin.get_inline_instances(request)))
+                for inline in page_admin.get_inline_instances(request, page)))
 
         page = Page.objects.get(pk=page.pk)
         # remove can_change_permission
@@ -1106,11 +1105,10 @@ class PluginPermissionTests(AdminTestsBase):
         page_permission.save()
         request = self._get_change_page_request(user, page)
         page_admin = PageAdmin(Page, None)
-        page_admin._current_page = page
         # => PagePermissionInline is no longer visible
         self.assertFalse(
             any(type(inline) is PagePermissionInlineAdmin
-                for inline in page_admin.get_inline_instances(request)))
+                for inline in page_admin.get_inline_instances(request, page)))
 
 
 class AdminFormsTests(AdminTestsBase):
@@ -1318,7 +1316,7 @@ class ChangePageTemplateTests(TestCase):
                                  language=settings.LANGUAGES[0][0],
                                  parent=parent_page)
         settings.CMS_TEMPLATES = tuple([t for t in settings.CMS_TEMPLATES
-            if t[0] != "col_two.html" and t[0] != "nav_playground.html"])  
+            if t[0] != "col_two.html" and t[0] != "nav_playground.html"])
         # simulates template deletion
 
         request = RequestFactory().get('admin/cms/page/%d/?template=%s' %

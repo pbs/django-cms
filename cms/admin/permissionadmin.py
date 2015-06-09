@@ -58,7 +58,7 @@ class PagePermissionInlineAdmin(TabularInline):
             qs = PagePermission.objects.subordinate_to_user(request.user)
             return qs.filter(can_view=False)
         except NoPermissionsException:
-            return self.objects.get_empty_query_set()
+            return self.objects.none()
 
     def get_formset(self, request, obj=None, **kwargs):
         """

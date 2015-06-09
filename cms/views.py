@@ -5,7 +5,7 @@ from cms.utils import get_template_from_request, get_language_from_request
 from cms.utils.i18n import get_fallback_languages
 from cms.utils.page_resolver import get_page_from_request
 from django.conf import settings
-from django.conf.urls.defaults import patterns
+from django.conf.urls import patterns
 from django.core.urlresolvers import resolve, Resolver404
 
 from django.http import Http404, HttpResponseRedirect
@@ -30,19 +30,19 @@ def details(request, slug):
     page = get_page_from_request(request, use_path=slug)
     if not page:
         return _handle_no_page(request, slug)
-    
+
     current_language = get_language_from_request(request)
-    
+
     # Check that the current page is available in the desired (current) language
     available_languages = page.get_languages()
-    
+
     # We resolve an alternate language for the page if it's not available.
     # Since the "old" details view had an exception for the root page, it is
     # ported here. So no resolution if the slug is ''.
     if (current_language not in available_languages):
         if settings.CMS_LANGUAGE_FALLBACK:
-            # If we didn't find the required page in the requested (current) 
-            # language, let's try to find a suitable fallback in the list of 
+            # If we didn't find the required page in the requested (current)
+            # language, let's try to find a suitable fallback in the list of
             # fallback languages (CMS_LANGUAGE_CONF)
             for alt_lang in get_fallback_languages(current_language):
                 if alt_lang in available_languages:
@@ -52,7 +52,7 @@ def details(request, slug):
                     # preferred language, *redirect* to the fallback page. This
                     # is a design decision (instead of rendering in place)).
                     return HttpResponseRedirect(path)
-        # There is a page object we can't find a proper language to render it 
+        # There is a page object we can't find a proper language to render it
         _handle_no_page(request, slug)
 
     if apphook_pool.get_apphooks():
@@ -75,7 +75,7 @@ def details(request, slug):
             except Resolver404:
                 pass
 
-    # Check if the page has a redirect url defined for this language. 
+    # Check if the page has a redirect url defined for this language.
     redirect_url = page.get_redirect(language=current_language)
     if redirect_url:
         if (settings.i18n_installed and redirect_url[0] == "/"
@@ -90,7 +90,7 @@ def details(request, slug):
         ]
         if redirect_url not in own_urls:
             return HttpResponseRedirect(redirect_url)
-    
+
     # permission checks
     if page.login_required and not request.user.is_authenticated():
         if settings.i18n_installed:
@@ -99,15 +99,15 @@ def details(request, slug):
             path = urlquote(request.get_full_path())
         tup = settings.LOGIN_URL , "next", path
         return HttpResponseRedirect('%s?%s=%s' % tup)
-    
+
     template_name = get_template_from_request(request, page, no_current_page=True)
-    # fill the context 
+    # fill the context
     context['lang'] = current_language
     context['current_page'] = page
     context['has_change_permissions'] = page.has_change_permission(request)
     context['has_view_permissions'] = page.has_view_permission(request)
-    
+
     if not context['has_view_permissions']:
         return _handle_no_page(request, slug)
-    
+
     return render_to_response(template_name, context)
