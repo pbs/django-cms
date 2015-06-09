@@ -1,5 +1,4 @@
 {% extends "admin/cms/page/plugin_change_form.html" %}
-{% load adminmedia %}
 
 {% block fieldsets %}
 {% for fieldset in adminform %}
@@ -8,7 +7,7 @@
 <script type="text/javascript">
 (function unecodeIframe($){
     //this unencodes iframes in the hidden textarea used by tinyMCE
-    //without this the <iframe> will be self closed and break the layout 
+    //without this the <iframe> will be self closed and break the layout
     $('textarea#id_body').val($('textarea#id_body').val().replace(/&lt;iframe/gi, "<iframe").replace(/&gt;&lt;\/iframe&gt;/gi,"></iframe>"))
 })(window.CMS.$);
 (function namespacing(jQuery) {
