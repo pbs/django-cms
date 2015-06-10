@@ -9,7 +9,7 @@
 		// Add Plugin Handler
 		$('span.add-plugin').click(function(){
 		 var select = $(this).parent().children("select[name=plugins]");
-			var pluginvalue = select.attr('value');
+			var pluginvalue = select.val();
 			var placeholder_id = $(this).parent().parent().data('id');
 			//var splits = window.location.href.split("/");
 

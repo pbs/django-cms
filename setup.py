@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import os
 import cms
 
-        
+
 CLASSIFIERS = [
     'Development Status :: 5 - Production/Stable',
     'Environment :: Web Environment',
@@ -28,7 +28,7 @@ setup(
     platforms=['OS Independent'],
     classifiers=CLASSIFIERS,
     install_requires=[
-        'Django>=1.4.1,<1.5',
+        'Django>=1.4.1,<1.7',
         'django-classy-tags>=0.3.4.1',
         'south>=0.7.2',
         'html5lib',
@@ -41,9 +41,8 @@ setup(
         'Sphinx==1.1.3',
         'Jinja2==2.6',
         'Pygments==1.5',
-        
+
     ],
-    setup_requires = ['s3sourceuploader',],
     packages=find_packages(exclude=["project","project.*"]),
     include_package_data=True,
     zip_safe = False,
