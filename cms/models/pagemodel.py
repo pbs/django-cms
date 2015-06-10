@@ -64,7 +64,7 @@ class Page(MPTTModel):
     soft_root = models.BooleanField(_("soft root"), db_index=True, default=False, help_text=_("All ancestors will not be displayed in the navigation"))
     reverse_id = models.CharField(_("id"), max_length=40, db_index=True, blank=True, null=True, help_text=_("An unique identifier that is used with the page_url templatetag for linking to this page"))
     navigation_extenders = models.CharField(_("attached menu"), max_length=80, db_index=True, blank=True, null=True)
-    published = models.BooleanField(_("is published"), blank=True)
+    published = models.BooleanField(_("is published"), blank=True, default=False)
 
     template = models.CharField(_("template"), max_length=100, choices=template_choices, help_text=_('The template used to render the content.'))
     site = models.ForeignKey(Site, help_text=_('The site the page is accessible at.'), verbose_name=_("site"))

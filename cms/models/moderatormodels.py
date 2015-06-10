@@ -47,9 +47,9 @@ class PageModerator(models.Model):
 
     # TODO: permission stuff could be changed to this structure also, this gives
     # better querying performance
-    moderate_page = models.BooleanField(_('Moderate page'), blank=True)
-    moderate_children = models.BooleanField(_('Moderate children'), blank=True)
-    moderate_descendants = models.BooleanField(_('Moderate descendants'), blank=True)
+    moderate_page = models.BooleanField(_('Moderate page'), blank=True, default=False)
+    moderate_children = models.BooleanField(_('Moderate children'), blank=True, default=False)
+    moderate_descendants = models.BooleanField(_('Moderate descendants'), blank=True, default=False)
 
     class Meta:
         verbose_name = _('PageModerator')
