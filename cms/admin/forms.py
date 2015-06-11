@@ -166,7 +166,7 @@ class PageForm(PageAddForm):
     # moderation - message is a fake field
     moderator_message = forms.CharField(max_length=1000, widget=forms.HiddenInput, required=False)
     
-    redirect = forms.CharField(label=_('Redirect'), max_length=255, required=False,
+    redirect = forms.URLField(label=_('Redirect'), max_length=255, required=False,
         help_text=_('Redirects to this URL.'))
     meta_description = forms.CharField(label='Description meta tag', required=False, widget=forms.Textarea,
         help_text=_('A description of the page sometimes used by search engines.'))
