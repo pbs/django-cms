@@ -179,6 +179,8 @@ class PageForm(PageAddForm):
             self.fields['navigation_extenders'].widget = forms.Select({}, [('', "---------")] + menu_pool.get_menus_by_attribute("cms_enabled", True))
         if 'application_urls' in self.fields:
             self.fields['application_urls'].choices = [('', "---------")] + apphook_pool.get_apphooks()
+        self.fields['redirect'].widget.attrs['style'] = "width:221px"
+        self.fields['overwrite_url'].widget.attrs['style'] = "width:221px"
             
     def clean(self):
         cleaned_data = super(PageForm, self).clean()
