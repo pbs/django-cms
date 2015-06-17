@@ -4,6 +4,7 @@ from cms.utils import cms_static_url
 # Uses TinyMCE as editor (no inline plugins). Requires django-tinymce app. 
 # If false, then WYMEditor is used. 
 USE_TINYMCE = getattr(settings, 'CMS_USE_TINYMCE', "tinymce" in settings.INSTALLED_APPS)
+USE_CKEDITOR = getattr(settings, 'CMS_USE_CKEDITOR', "ckeditor" in settings.INSTALLED_APPS)
 
 if USE_TINYMCE:
     import tinymce.settings

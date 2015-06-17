@@ -1,0 +1,182 @@
+{% load i18n %}
+{% load static from staticfiles %}
+<script type="text/javascript">
+// Global var, for storing callbacks, see below.
+var editPluginPopupCallbacks = {};
+var CK_BRIDGE = null;
+
+(function(){
+    var $ = jQuery || djangoJQuery;
+    $('textarea[data-type=ckeditortype]').each(function(){
+        var data = $(this).data('config');
+        //point ckeditor to custom skin folder
+        data.skin = 'bootstrapck,{% static "cms/ckeditor/skins/bootstrapck/" %}';
+        $(this).attr('data-cofnig', data);
+    });
+}());
+
+{% include "cms/plugins/widgets/widget_lib.js" %}
+
+CKEDITOR.plugins.add('cms-plugins', {
+    init: function (editor) {
+        var $ = jQuery || django.jQuery,
+            pluginName = 'cms-plugins',
+            config = editor.config,
+            plugins = [],
+            ckBridge = new CKEditorPlaceholderBridge(editor);
+
+        // Register plugin placeholder bridge
+        PlaceholderEditorRegistry.registerEditor("{{name}}", ckBridge);
+        
+        CK_BRIDGE = get_editor("{{ name }}");
+
+        function pluginDialogHandler(ev){
+            // Take the dialog name and its definition from the event data.
+            var dialogName = ev.data.dialog,
+                dialogDefinition = ev.data.definition,
+                element = ev.data.element,
+                elemId = element.getAttribute('id');
+
+            if(element.is('img') && 
+               /^(plugin_obj_[0-9]{0,6})$/.test(elemId) &&
+               dialogName === 'image'){
+                var plugin_id = elemId.split("plugin_obj_")[1].split('"')[0];
+                edit_plugin(plugin_id);
+                return false;
+            }
+        };
+
+        function toggleEnabledButtons(disable){
+            for(var cmd in editor.commands){
+                if(disable){
+                    editor.getCommand(cmd).disable();
+                }else{
+                    editor.getCommand(cmd).enable();
+                }
+            }
+        }
+
+        function removeControls(){
+            editor.setReadOnly(false);
+            toggleEnabledButtons(false);
+            if(editor.document.findOne('.plugin-controls')){
+                editor.document.findOne('.plugin-controls').remove();
+            }
+
+            $('input[type="submit"][value="Save"]')[$.fn.prop ? 'prop' : 'attr']('disabled','');
+        }
+
+        function attachEdDocEvent(){
+            if(!editor.document){return;}
+
+            editor.document.removeAllListeners();
+            editor.document.on('click', function(ev){
+                var element = ev.data.getTarget(),
+                    elemId = element.getAttribute('id'),
+                    isPlugin = (element.is('img') && 
+                               /^(plugin_obj_[0-9]{0,6})$/.test(elemId));
+                    isDelete = element.hasClass('delete control'),
+                    isEdit = element.hasClass('edit control');
+
+                //dispatch to plugin placeholder
+                if(isPlugin){
+                    var ckeditorBody = editor.document.getBody();
+                    var $target = $(CK_BRIDGE.selectedObject().$);
+                    var $body = $(ckeditorBody.$);
+                    var $window = editor.document.getWindow().$;
+
+                    //set current edititng plugin
+                    editor.currentPlugin = CK_BRIDGE.selectedObject();
+                    insertPluginControls($target, $body, $window, {
+                        append: function(elemHtml){
+                            editor.setReadOnly(true);
+                            toggleEnabledButtons(true);
+                            ckeditorBody.appendHtml(elemHtml);
+
+                            // minor glitch when not showing controls image icons;
+                            // force redraw to fix it
+                            editor.document.findOne('.plugin-controls').hide();
+                            editor.document.findOne('.plugin-controls').show();
+
+                            // disable save button so the controls don't get saved
+                            $('input[type="submit"][value="Save"]')[$.fn.prop ? 'prop' : 'attr']('disabled','disabled');
+
+                            return $(editor.document.findOne('.plugin-controls').$);
+                        },
+                        css: '{{ controls_css }}'
+                    });
+                    return;
+                }
+
+                //dispatch to delete inline control
+                if(isDelete){
+                    editor.currentPlugin.remove();
+                    removeControls();
+                    return;
+                }
+
+                //dispatch to edit inline control
+                if(isEdit){
+                    var plugin_id = editor
+                                        .currentPlugin
+                                        .getAttribute('id')
+                                        .split("plugin_obj_")[1]
+                                        .split('"')[0];
+                    edit_plugin(plugin_id);
+                    removeControls();
+                    return;
+                }
+
+                removeControls();
+
+                return true;
+
+            });
+        }
+
+        editor.on('doubleclick', pluginDialogHandler);
+        editor.on('mode', function(e){
+            attachEdDocEvent();
+        });
+
+        editor.on('instanceReady', function(){
+            //remove default inline style set by django-ckeditor on containier
+            $('.django-ckeditor-widget').attr('style','');
+
+            attachEdDocEvent();
+        });
+
+        editor.ui.addRichCombo('plugins',{
+            label : "Plugins",
+            title : "Plugins",
+            voiceLabel : "Plugins",
+            panel : {
+                css : [ CKEDITOR.skin.path() + 'editor.css',
+                        CKEDITOR.skin.path() + 'custom.css'].concat(config.contentsCss),
+            },
+            multiSelect : false,
+
+            init: function(){
+                // Add plugins select box
+                {% for p in installed_plugins %}
+                    this.add('{{ p.value }}', '{{ p.name }}', '{{ p.name }}');
+                {% endfor %}
+            },
+
+            onClick: function( value ){
+                var pluginvalue = value,
+                    splits = window.location.href.split("?")[0].split("/"),
+                    parent_id = Number(splits[splits.length - 2]);
+
+                if (pluginvalue == "") {
+                    alert("{% filter escapejs %}{% trans "Please select a plugin type." %}{% endfilter %}");
+                    return;
+                }
+
+                // First create db instance using AJAX post back
+                add_plugin(pluginvalue, parent_id);
+            }
+        });
+    }
+});
+</script>
