@@ -11,7 +11,7 @@ class LinkPlugin(CMSPluginBase):
     form = LinkForm
     name = _("Link")
     render_template = "cms/plugins/link.html"
-    text_enabled = False
+    text_enabled = True
 
     def render(self, context, instance, placeholder):
         if instance.mailto:
