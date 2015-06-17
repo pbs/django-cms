@@ -5,21 +5,13 @@
 var editPluginPopupCallbacks = {};
 var CK_BRIDGE = null;
 
-(function(){
-    var $ = CK_jQuery || jQuery || django.jQuery;
-    $('textarea[data-type=ckeditortype]').each(function(){
-        var data = $(this).data('config');
-        //point ckeditor to custom skin folder
-        data.skin = 'bootstrapck,{% static "cms/ckeditor/skins/bootstrapck/" %}';
-        $(this).attr('data-cofnig', data);
-    });
-}());
+CKEDITOR.replace('id_{{ name }}', {{ ck_config|safe }});
 
 {% include "cms/plugins/widgets/widget_lib.js" %}
 
 CKEDITOR.plugins.add('cms-plugins', {
     init: function (editor) {
-        var $ = CK_jQuery || jQuery || django.jQuery,
+        var $ = jQuery || django.jQuery,
             pluginName = 'cms-plugins',
             config = editor.config,
             plugins = [],
@@ -95,8 +87,10 @@ CKEDITOR.plugins.add('cms-plugins', {
 
                             // minor glitch when not showing controls image icons;
                             // force redraw to fix it
-                            editor.document.findOne('.plugin-controls').hide();
-                            editor.document.findOne('.plugin-controls').show();
+                            setTimeout(function(){
+                                editor.document.findOne('.plugin-controls').hide();
+                                editor.document.findOne('.plugin-controls').show();
+                            }, 50);
 
                             // disable save button so the controls don't get saved
                             $('input[type="submit"][value="Save"]')[$.fn.prop ? 'prop' : 'attr']('disabled','disabled');
@@ -151,8 +145,7 @@ CKEDITOR.plugins.add('cms-plugins', {
             title : "Plugins",
             voiceLabel : "Plugins",
             panel : {
-                css : [ CKEDITOR.skin.path() + 'editor.css',
-                        CKEDITOR.skin.path() + 'custom.css'].concat(config.contentsCss),
+                css : [ CKEDITOR.skin.path() + 'editor.css'].concat(config.contentsCss),
             },
             multiSelect : false,
 

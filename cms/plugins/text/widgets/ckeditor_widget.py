@@ -1,26 +1,24 @@
+from django.forms import Textarea
 from django.utils.safestring import mark_safe
 from django.template.loader import render_to_string
-from django import forms
 from cms.utils import cms_static_url
-from ckeditor.widgets import CKEditorWidget
+from ..settings import CKEDITOR_CONFIG
+import json
 
 
-class CKEditor(CKEditorWidget):
+class CKEditor(Textarea):
 
     def __init__(self, installed_plugins=None,  **kwargs):
         super(CKEditor, self).__init__(**kwargs)
         self.installed_plugins = installed_plugins
 
-    @property
-    def media(self):
+    class Media:
         js = [cms_static_url(path) for path in (
+            'ckeditor/ckeditor.js',
+            'ckeditor/adapters/jquery.js',
             'js/placeholder_editor_registry.js',
             'js/ckeditor.placeholdereditor.js',
         )]
-        js += [script for script in CKEditorWidget.Media.js]
-        js += [cms_static_url('js/ckeditor.jquery.patch.js')]
-        media = forms.Media(js=js)
-        return media
 
     def render_editor(self, name, value, attrs=None):
         return super(CKEditor, self).render(name, value, attrs)
@@ -29,7 +27,8 @@ class CKEditor(CKEditorWidget):
         context = {
             'name': name,
             'installed_plugins': self.installed_plugins,
-            'controls_css': cms_static_url('css/tinymce.plugin_controls.css')
+            'controls_css': cms_static_url('css/tinymce.plugin_controls.css'),
+            'ck_config': json.dumps(CKEDITOR_CONFIG)
         }
         return mark_safe(render_to_string(
             'cms/plugins/widgets/ckeditor.html', context))
