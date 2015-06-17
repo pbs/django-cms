@@ -18,6 +18,7 @@ class CKEditor(CKEditorWidget):
             'js/ckeditor.placeholdereditor.js',
         )]
         js += [script for script in CKEditorWidget.Media.js]
+        js += [cms_static_url('js/ckeditor.jquery.patch.js')]
         media = forms.Media(js=js)
         return media
 

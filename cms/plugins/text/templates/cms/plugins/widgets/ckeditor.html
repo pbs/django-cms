@@ -6,7 +6,7 @@ var editPluginPopupCallbacks = {};
 var CK_BRIDGE = null;
 
 (function(){
-    var $ = jQuery || djangoJQuery;
+    var $ = CK_jQuery || jQuery || django.jQuery;
     $('textarea[data-type=ckeditortype]').each(function(){
         var data = $(this).data('config');
         //point ckeditor to custom skin folder
@@ -19,7 +19,7 @@ var CK_BRIDGE = null;
 
 CKEDITOR.plugins.add('cms-plugins', {
     init: function (editor) {
-        var $ = jQuery || django.jQuery,
+        var $ = CK_jQuery || jQuery || django.jQuery,
             pluginName = 'cms-plugins',
             config = editor.config,
             plugins = [],
