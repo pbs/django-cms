@@ -64,11 +64,4 @@ WYM_STYLES = getattr(settings, "WYM_STYLES", WYM_STYLES)
 ##Prepare url for wymeditor.css
 WYM_STYLESHEET = getattr(settings, "WYM_STYLESHEET",  '"%s"' % cms_static_url('css/wymeditor.css'))
 
-
-CKEDITOR_CONFIG = {
-    'default': {
-        'toolbar' : "full",
-    },
-}
-
-CKEDITOR_CONFIG = getattr(settings, "CKEDITOR_CONFIG", CKEDITOR_CONFIG)
+CKEDITOR_CONFIG = getattr(settings, "CKEDITOR_CONFIG", "")
