@@ -134,9 +134,6 @@ CKEDITOR.plugins.add('cms-plugins', {
         });
 
         editor.on('instanceReady', function(){
-            //remove default inline style set by django-ckeditor on containier
-            $('.django-ckeditor-widget').attr('style','');
-
             attachEdDocEvent();
         });
 
