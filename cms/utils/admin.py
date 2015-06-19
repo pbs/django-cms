@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+import json
+
 from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
-from django.utils import simplejson
 from django.contrib.sites.models import Site
 
 from cms.models import Page
@@ -18,7 +19,7 @@ def jsonify_request(response):
          * status: original response status code
          * content: original response content
     """
-    return HttpResponse(simplejson.dumps({'status':response.status_code,'content':response.content}),
+    return HttpResponse(json.dumps({'status':response.status_code,'content':response.content}),
                                 content_type="application/json")
 
 def get_admin_menu_item_context(request, page, filtered=False):
