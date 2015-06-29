@@ -21,6 +21,7 @@ from django.forms.util import ErrorList
 from django.forms.widgets import HiddenInput
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _, get_language
+from django.contrib.admin.widgets import AdminURLFieldWidget
 from menus.menu_pool import menu_pool
 
 
@@ -160,7 +161,7 @@ class PageForm(PageAddForm):
         choices=(), required=False,  
         help_text=_('Hook application to this page.'))
     overwrite_url = forms.CharField(label=_('Overwrite URL'), max_length=255, required=False,
-        help_text=_('Keep this field empty if standard path should be used.'))
+        help_text=_('Keep this field empty if standard path should be used.'), widget=AdminURLFieldWidget())
     # moderation state
     moderator_state = forms.IntegerField(widget=forms.HiddenInput, required=False, initial=Page.MODERATOR_CHANGED) 
     # moderation - message is a fake field
@@ -179,8 +180,6 @@ class PageForm(PageAddForm):
             self.fields['navigation_extenders'].widget = forms.Select({}, [('', "---------")] + menu_pool.get_menus_by_attribute("cms_enabled", True))
         if 'application_urls' in self.fields:
             self.fields['application_urls'].choices = [('', "---------")] + apphook_pool.get_apphooks()
-        self.fields['redirect'].widget.attrs['style'] = "width:221px"
-        self.fields['overwrite_url'].widget.attrs['style'] = "width:221px"
             
     def clean(self):
         cleaned_data = super(PageForm, self).clean()
