@@ -85,3 +85,52 @@ function get_editor(placeholder) {
     }
     return PlaceholderEditorRegistry.retrieveEditor(placeholder);
 }
+
+
+function insertPluginControls($target, $body, $window, options){
+    if(!$target){ return;}
+    var $ = django.jQuery || jQuery;
+    $.fn.extend({
+        getScreenPosition : function(){
+            return {
+                top: (this.get(0).offsetTop - $($window).scrollTop()) + 'px',
+                left: (this.get(0).offsetLeft - $($window).scrollLeft()) + 'px'
+            };
+        }
+    });
+
+    var controls = $('<div class="plugin-controls"></div>')
+                        .append('<link rel="stylesheet" type="text/css" href="'+options.css+'">')
+    controls.append('<div class="edit control"></div>');
+    controls.append('<div class="delete control"></div>');
+    controls.css($($target).getScreenPosition());
+
+    $($window)[$.fn.on ? 'off' : 'unbind']('scroll');
+    $($window)[$.fn.on ? 'on' : 'bind']('scroll', function(){
+        controls.css($($target).getScreenPosition());
+    });
+
+    controls.css({
+        'width': $($target).width(),
+        'height': $($target).height()
+    });
+
+    controls = options.append($("<div />").append(controls.clone()).html());
+    var controlsWH = 70;
+
+    //placeholder image is too small to fit controls
+    if(2 * controlsWH > $($target).width() ||
+       2 * controlsWH > $($target).height()){
+        controls.addClass('small');
+
+        //even worse, the placeholedr is in the top left corner
+        if($target.position().top < controlsWH){
+            controls.addClass('top');
+        }
+
+        //in case the placeholder is too close to the right edge
+        if(controlsWH + $($target).offset().left > $($body).width()){
+            controls.addClass('right');
+        }
+    }
+}
