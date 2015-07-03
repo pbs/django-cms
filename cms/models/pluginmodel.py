@@ -366,3 +366,7 @@ def deferred_class_factory(model, attrs):
 # The above function is also used to unpickle model instances with deferred
 # fields.
 deferred_class_factory.__safe_for_unpickling__ = True
+
+
+def get_plugin_media_path(instance, filename):
+    return instance.get_media_path(filename)

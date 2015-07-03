@@ -15,7 +15,7 @@ class PageManager(PublisherManager):
     instances.
     """
 
-    def get_query_set(self):
+    def get_queryset(self):
         """Change standard model queryset to our own.
         """
         return PageQuerySet(self.model)
@@ -41,30 +41,30 @@ class PageManager(PublisherManager):
     # manager, maybe some of them can be just accessible over queryset...?
 
     def on_site(self, site=None):
-        return self.get_query_set().on_site(site)
+        return self.get_queryset().on_site(site)
 
     def root(self):
         """
         Return a queryset with pages that don't have parents, a.k.a. root. For
         current site - used in frontend
         """
-        return self.get_query_set().root()
+        return self.get_queryset().root()
 
     def all_root(self):
         """
         Return a queryset with pages that don't have parents, a.k.a. root. For
         all sites - used in frontend
         """
-        return self.get_query_set().all_root()
+        return self.get_queryset().all_root()
 
     def valid_targets(self, page_id, request, perms, page=None):
         """
         Give valid targets to move a page into the tree
         """
-        return self.get_query_set().valid_targets(page_id, request, perms, page)
+        return self.get_queryset().valid_targets(page_id, request, perms, page)
 
     def published(self, site=None):
-        return self.get_query_set().published(site)
+        return self.get_queryset().published(site)
 
     def expired(self):
         return self.drafts().expired()
@@ -89,10 +89,10 @@ class PageManager(PublisherManager):
 
         Doesn't cares about the application language.
         """
-        return self.get_query_set().filter(title_set__application_urls__gt='').distinct()
+        return self.get_queryset().filter(title_set__application_urls__gt='').distinct()
 
     def get_home(self, site=None):
-        return self.get_query_set().get_home(site)
+        return self.get_queryset().get_home(site)
 
     def search(self, q, language=None, current_site_only=True):
         """Simple search function
@@ -100,7 +100,7 @@ class PageManager(PublisherManager):
         Plugins can define a 'search_fields' tuple similar to ModelAdmin classes
         """
         from cms.plugin_pool import plugin_pool
-        qs = self.get_query_set()
+        qs = self.get_queryset()
         if settings.CMS_MODERATOR:
             qs = qs.public()
 
@@ -172,10 +172,10 @@ class TitleManager(PublisherManager):
 
     # created new public method to meet test case requirement and to get a list of titles for published pages
     def public(self):
-        return self.get_query_set().filter(page__publisher_is_draft=False, page__published=True)
+        return self.get_queryset().filter(page__publisher_is_draft=False, page__published=True)
 
     def drafts(self):
-        return self.get_query_set().filter(page__publisher_is_draft=True)
+        return self.get_queryset().filter(page__publisher_is_draft=True)
 
     def set_or_create(self, request, page, form, language):
         """

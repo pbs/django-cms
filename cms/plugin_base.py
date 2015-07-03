@@ -4,8 +4,9 @@ from cms.models import CMSPlugin
 from django import forms
 from django.conf import settings
 from django.contrib import admin
+from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
-from django.db.models.options import get_verbose_name
+from django.utils.text import camel_case_to_spaces as get_verbose_name
 from django.forms.models import ModelForm
 from django.utils.encoding import smart_str
 from django.utils.translation import ugettext_lazy as _
@@ -163,23 +164,24 @@ class CMSPluginBase(with_metaclass(CMSPluginBaseMetaclass, admin.ModelAdmin)):
 
         return super(CMSPluginBase, self).save_model(request, obj, form, change)
 
-    def response_change(self, request, obj):
+    def response_change(self, request, obj, **kwargs):
         """
         Just set a flag, so we know something was changed, and can make
         new version if reversion installed.
         New version will be created in admin.views.edit_plugin
         """
         self.object_successfully_changed = True
-        return super(CMSPluginBase, self).response_change(request, obj)
+        return super(CMSPluginBase, self).response_change(request, obj, **kwargs)
 
-    def response_add(self, request, obj):
+    def response_add(self, request, obj, **kwargs):
         """
         Just set a flag, so we know something was changed, and can make
         new version if reversion installed.
         New version will be created in admin.views.edit_plugin
         """
         self.object_successfully_changed = True
-        return super(CMSPluginBase, self).response_add(request, obj)
+        kwargs.setdefault('post_url_continue', reverse('admin:cms_page_edit_plugin', args=[obj.id]))
+        return super(CMSPluginBase, self).response_add(request, obj, **kwargs)
 
     def log_addition(self, request, object):
         pass

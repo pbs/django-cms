@@ -36,8 +36,8 @@ class PageUserAdmin(UserAdmin, GenericCmsPermissionAdmin):
             fieldsets.append((_('Password'), {'fields': ('password1', 'password2'), 'classes': ('collapse',)}))
         return fieldsets
 
-    def queryset(self, request):
-        qs = super(PageUserAdmin, self).queryset(request)
+    def get_queryset(self, request):
+        qs = super(PageUserAdmin, self).get_queryset(request)
         try:
             user_id_set = get_subordinate_users(request.user).values_list('id', flat=True)
             return qs.filter(pk__in=user_id_set)

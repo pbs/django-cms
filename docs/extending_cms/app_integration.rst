@@ -226,16 +226,16 @@ template:
 
 .. code-block:: html+django
 
-    {% url app_main %}
+    {% url 'app_main' %}
 
 If you want to access the same url but in a different language use a language
 namespace:
 
 .. code-block:: html+django
 
-    {% url de:app_main %}
-    {% url en:app_main %}
-    {% url fr:app_main %}
+    {% url 'de:app_main' %}
+    {% url 'en:app_main' %}
+    {% url 'fr:app_main' %}
 
 If you want to add a menu to that page as well that may represent some views
 in your app add it to your apphook like this::

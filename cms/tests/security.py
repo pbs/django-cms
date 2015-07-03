@@ -2,7 +2,7 @@ from __future__ import with_statement
 from cms.api import create_page, add_plugin
 from cms.models.pluginmodel import CMSPlugin
 from cms.plugins.text.models import Text
-from cms.test_utils.testcases import (CMSTestCase, URL_CMS_PLUGIN_ADD, 
+from cms.test_utils.testcases import (CMSTestCase, URL_CMS_PLUGIN_ADD,
     URL_CMS_PLUGIN_EDIT, URL_CMS_PLUGIN_REMOVE)
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -18,7 +18,7 @@ class SecurityTests(CMSTestCase):
         superuser = self.get_superuser()
         staff = self.get_staff_user_with_no_permissions()
         return page, placeholder, superuser, staff
-    
+
     def test_add(self):
         """
         Test adding a plugin to a *PAGE*.
@@ -34,7 +34,7 @@ class SecurityTests(CMSTestCase):
         self.client.logout()
         response = self.client.post(URL_CMS_PLUGIN_ADD, plugin_data)
         # since the user is not logged in, they should be prompted to log in.
-        self.assertTemplateUsed(response, 'admin/login.html')
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(CMSPlugin.objects.count(), 0)
         # now log a staff user without permissions in and do the same as above.
         self.client.login(username='staff', password='staff')
@@ -42,7 +42,7 @@ class SecurityTests(CMSTestCase):
         # the user is logged in and the security check fails, so it should 403.
         self.assertEqual(response.status_code, 403)
         self.assertEqual(CMSPlugin.objects.count(), 0)
-        
+
     def test_edit(self):
         """
         Test editing a *PAGE* plugin
@@ -57,10 +57,10 @@ class SecurityTests(CMSTestCase):
         self.assertEqual(plugin.body, 'body') # check the body is as expected.
         # log the user out, try to edit the plugin
         self.client.logout()
-        url = URL_CMS_PLUGIN_EDIT + '%s/' % plugin.pk
+        url = URL_CMS_PLUGIN_EDIT + ('%s/' % plugin.pk)
         response = self.client.post(url, plugin_data)
         # since the user is not logged in, they should be prompted to log in.
-        self.assertTemplateUsed(response, 'admin/login.html')
+        self.assertEqual(response.status_code, 302)
         plugin = self.reload(plugin)
         self.assertEqual(plugin.body, 'body')
         # now log a staff user without permissions in and do the same as above.
@@ -70,7 +70,7 @@ class SecurityTests(CMSTestCase):
         self.assertEqual(response.status_code, 403)
         plugin = self.reload(plugin)
         self.assertEqual(plugin.body, 'body')
-    
+
     def test_delete(self):
         """
         Test deleting a *PAGE* plugin
@@ -86,7 +86,7 @@ class SecurityTests(CMSTestCase):
         self.client.logout()
         response = self.client.post(URL_CMS_PLUGIN_REMOVE, plugin_data)
         # since the user is not logged in, they should be prompted to log in.
-        self.assertTemplateUsed(response, 'admin/login.html')
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(CMSPlugin.objects.count(), 1)
         plugin = self.reload(plugin)
         self.assertEqual(plugin.body, 'body')
@@ -98,7 +98,7 @@ class SecurityTests(CMSTestCase):
         self.assertEqual(CMSPlugin.objects.count(), 1)
         plugin = self.reload(plugin)
         self.assertEqual(plugin.body, 'body')
-        
+
     def test_add_ph(self):
         """
         Test adding a *NON PAGE* plugin
@@ -115,7 +115,8 @@ class SecurityTests(CMSTestCase):
         self.client.logout()
         response = self.client.post(url, plugin_data)
         # since the user is not logged in, they should be prompted to log in.
-        self.assertTemplateUsed(response, 'admin/login.html')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/en/admin/login/?next=%s' % url)
         self.assertEqual(CMSPlugin.objects.count(), 0)
         # now log a staff user without permissions in and do the same as above.
         self.client.login(username='staff', password='staff')
@@ -123,7 +124,7 @@ class SecurityTests(CMSTestCase):
         # the user is logged in and the security check fails, so it should 403.
         self.assertEqual(response.status_code, 403)
         self.assertEqual(CMSPlugin.objects.count(), 0)
-    
+
     def test_edit_ph(self):
         """
         Test editing a *NON PAGE* plugin
@@ -142,7 +143,8 @@ class SecurityTests(CMSTestCase):
         self.client.logout()
         response = self.client.post(url, plugin_data)
         # since the user is not logged in, they should be prompted to log in.
-        self.assertTemplateUsed(response, 'admin/login.html')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/en/admin/login/?next=%s' % url)
         plugin = self.reload(plugin)
         self.assertEqual(plugin.body, 'body')
         # now log a staff user without permissions in and do the same as above.
@@ -152,7 +154,7 @@ class SecurityTests(CMSTestCase):
         self.assertEqual(response.status_code, 403)
         plugin = self.reload(plugin)
         self.assertEqual(plugin.body, 'body')
-    
+
     def test_delete_ph(self):
         page, placeholder, superuser, staff = self.get_data()
         plugin = add_plugin(placeholder, 'TextPlugin', 'en', body='body')
@@ -166,7 +168,8 @@ class SecurityTests(CMSTestCase):
         self.client.logout()
         response = self.client.post(url, plugin_data)
         # since the user is not logged in, they should be prompted to log in.
-        self.assertTemplateUsed(response, 'admin/login.html')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/en/admin/login/?next=%s' % url)
         self.assertEqual(CMSPlugin.objects.count(), 1)
         # now log a staff user without permissions in and do the same as above.
         self.client.login(username='staff', password='staff')
@@ -174,7 +177,7 @@ class SecurityTests(CMSTestCase):
         # the user is logged in and the security check fails, so it should 403.
         self.assertEqual(response.status_code, 403)
         self.assertEqual(CMSPlugin.objects.count(), 1)
-        
+
     def test_text_plugin_xss(self):
         page, placeholder, superuser, staff = self.get_data()
         with self.login_user_context(superuser):

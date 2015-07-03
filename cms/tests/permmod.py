@@ -915,10 +915,9 @@ class ViewPermissionTests(PermissionTestsBase):
         page.pk = 1
         page.level = 0
         page.tree_id = 1
-        with self.assertNumQueries(3):
+        with self.assertNumQueries(2):
             """
             The queries are:
-            The current Site
             PagePermission query for affected pages
             GlobalpagePermission query for user
             """
@@ -969,10 +968,9 @@ class ViewPermissionTests(PermissionTestsBase):
             page.pk = 1
             page.level = 0
             page.tree_id = 1
-            with self.assertNumQueries(5):
+            with self.assertNumQueries(4):
                 """
                 The queries are:
-                The site
                 PagePermission query for affected pages
                 GlobalpagePermission query for user
                 Generic django permission lookup

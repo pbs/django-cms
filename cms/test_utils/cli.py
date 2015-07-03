@@ -73,6 +73,14 @@ def configure(**extra):
             'cms',
             'menus',
             'mptt',
+            'cms.test_utils.project.sampleapp',
+            'cms.test_utils.project.placeholderapp',
+            'cms.test_utils.project.pluginapp',
+            'cms.test_utils.project.pluginapp.plugins.manytomany_rel',
+            'cms.test_utils.project.pluginapp.plugins.extra_context',
+            'cms.test_utils.project.pluginapp.plugins.meta',
+            'cms.test_utils.project.fakemlng',
+            'cms.test_utils.project.fileapp',
             'cms.plugins.text',
             'cms.plugins.picture',
             'cms.plugins.file',
@@ -84,14 +92,6 @@ def configure(**extra):
             'cms.plugins.video',
             'cms.plugins.twitter',
             'cms.plugins.inherit',
-            'cms.test_utils.project.sampleapp',
-            'cms.test_utils.project.placeholderapp',
-            'cms.test_utils.project.pluginapp',
-            'cms.test_utils.project.pluginapp.plugins.manytomany_rel',
-            'cms.test_utils.project.pluginapp.plugins.extra_context',
-            'cms.test_utils.project.fakemlng',
-            'cms.test_utils.project.fileapp',
-            'south',
             'reversion',
             'sekizai',
         ],
@@ -175,7 +175,6 @@ def configure(**extra):
         CMS_PLUGIN_CONTEXT_PROCESSORS = tuple(),
         CMS_SITE_CHOICES_CACHE_KEY = 'CMS:site_choices',
         CMS_PAGE_CHOICES_CACHE_KEY = 'CMS:page_choices',
-        SOUTH_TESTS_MIGRATE = False,
         CMS_NAVIGATION_EXTENDERS = (
             ('cms.test_utils.project.sampleapp.menu_extender.get_nodes', 'SampleApp Menu'),
         ),
@@ -187,11 +186,20 @@ def configure(**extra):
             'django.contrib.auth.hashers.MD5PasswordHasher',
         )
     )
+
+    # Disable migrations for Django 1.7+
+    class DisableMigrations(object):
+
+        def __contains__(self, item):
+            return True
+
+        def __getitem__(self, item):
+            return "notmigrations"
+
+    defaults['MIGRATION_MODULES'] = DisableMigrations()
+
+
     defaults.update(extra)
     settings.configure(**defaults)
-    from cms.conf import patch_settings
-    patch_settings()
-    from south.management.commands import patch_for_test_db_setup
-    patch_for_test_db_setup()
-    from django.contrib import admin
-    admin.autodiscover()
+    import django
+    django.setup()

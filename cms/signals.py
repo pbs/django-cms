@@ -7,7 +7,7 @@ from django.dispatch import Signal
 from cms.cache.permissions import (
     clear_user_permission_cache, clear_permission_cache)
 from cms.exceptions import NoHomeFound
-from cms.models import (Page, Title, CMSPlugin, PagePermission, 
+from cms.models import (Page, Title, CMSPlugin, PagePermission,
     GlobalPagePermission, PageUser, PageUserGroup)
 
 from menus.menu_pool import menu_pool
@@ -21,7 +21,7 @@ application_post_changed = Signal(providing_args=["instance"])
 # fired after page gets published - copied to public model - there may be more
 # than one instances published before this signal gets called
 post_publish = Signal(providing_args=["instance"])
-        
+
 def update_plugin_positions(**kwargs):
     plugin = kwargs['instance']
     plugins = CMSPlugin.objects.filter(language=plugin.language, placeholder=plugin.placeholder).order_by("position")
@@ -38,12 +38,12 @@ signals.post_delete.connect(update_plugin_positions, sender=CMSPlugin, dispatch_
 def pre_save_title(instance, raw, **kwargs):
     """Save old state to instance and setup path
     """
-    
+
     menu_pool.clear(instance.page.site_id)
-    
+
     instance.tmp_path = None
     instance.tmp_application_urls = None
-    
+
     if instance.id:
         try:
             tmp_title = Title.objects.get(pk=instance.id)
@@ -51,87 +51,87 @@ def pre_save_title(instance, raw, **kwargs):
             instance.tmp_application_urls = tmp_title.application_urls
         except:
             pass # no Titles exist for this page yet
-    
+
     # Build path from parent page's path and slug
     instance.update_path()
-        
+
 signals.pre_save.connect(pre_save_title, sender=Title, dispatch_uid="cms.title.presave")
 
 
 def post_save_title(instance, raw, created, **kwargs):
     # Update descendants only if path changed
     application_changed = False
-    
+
     if instance.path != getattr(instance,'tmp_path',None) and not hasattr(instance, 'tmp_prevent_descendant_update'):
         descendant_titles = Title.objects.filter(
-            page__lft__gt=instance.page.lft, 
-            page__rght__lt=instance.page.rght, 
+            page__lft__gt=instance.page.lft,
+            page__rght__lt=instance.page.rght,
             page__tree_id__exact=instance.page.tree_id,
             language=instance.language,
             has_url_overwrite=False,
         ).order_by('page__tree_id', 'page__parent', 'page__lft')
-        
+
         for descendant_title in descendant_titles:
             descendant_title.path = '' # just reset path
             descendant_title.tmp_prevent_descendant_update = True
             if descendant_title.application_urls:
                 application_changed = True
             descendant_title.save()
-        
+
     if not hasattr(instance, 'tmp_prevent_descendant_update') and \
         (instance.application_urls != getattr(instance, 'tmp_application_urls', None) or application_changed):
         # fire it if we have some application linked to this page or some descendant
         application_post_changed.send(sender=Title, instance=instance)
-    
+
     # remove temporary attributes
     if getattr( instance, 'tmp_path', None):
         del(instance.tmp_path)
     if getattr( instance, 'tmp_application_urls' , None):
         del(instance.tmp_application_urls)
-    
+
     try:
         del(instance.tmp_prevent_descendant_update)
     except AttributeError:
         pass
 
-signals.post_save.connect(post_save_title, sender=Title, dispatch_uid="cms.title.postsave")        
+signals.post_save.connect(post_save_title, sender=Title, dispatch_uid="cms.title.postsave")
 
 
 def post_save_user(instance, raw, created, **kwargs):
     """Signal called when new user is created, required only when CMS_PERMISSION.
-    Asignes creator of the user to PageUserInfo model, so we now who had created 
+    Asignes creator of the user to PageUserInfo model, so we now who had created
     this user account.
-    
+
     requires: CurrentUserMiddleware
     """
     from cms.utils.permissions import get_current_user
     # read current user from thread locals
     creator = get_current_user()
-    if not creator or not created or not hasattr(creator, 'pk'):
+    if not creator or not created or not getattr(creator, 'pk', None):
         return
     from django.db import connection
-    
+
     # i'm not sure if there is a workaround for this, somebody any ideas? What
-    # we are doing here is creating PageUser on Top of existing user, i'll do it 
+    # we are doing here is creating PageUser on Top of existing user, i'll do it
     # through plain SQL, its not nice, but...
-    
+
     # TODO: find a better way than an raw sql !!
-    
+
     cursor = connection.cursor()
     query = "INSERT INTO %s (user_ptr_id, created_by_id) VALUES (%d, %d)" % (
         PageUser._meta.db_table,
-        instance.pk, 
+        instance.pk,
         creator.pk
     )
-    cursor.execute(query) 
+    cursor.execute(query)
     cursor.close()
-    
+
 def post_save_user_group(instance, raw, created, **kwargs):
-    """The same like post_save_user, but for Group, required only when 
+    """The same like post_save_user, but for Group, required only when
     CMS_PERMISSION.
     Asignes creator of the group to PageUserGroupInfo model, so we now who had
     created this user account.
-    
+
     requires: CurrentUserMiddleware
     """
     from cms.utils.permissions import get_current_user
@@ -140,18 +140,18 @@ def post_save_user_group(instance, raw, created, **kwargs):
     if not creator or not created or creator.is_anonymous():
         return
     from django.db import connection
-    
+
     # TODO: same as in post_save_user - raw sql is just not nice - workaround...?
-    
+
     cursor = connection.cursor()
     query = "INSERT INTO %s (group_ptr_id, created_by_id) VALUES (%d, %d)" % (
         PageUserGroup._meta.db_table,
-        instance.pk, 
+        instance.pk,
         creator.pk
     )
-    cursor.execute(query) 
+    cursor.execute(query)
     cursor.close()
-    
+
 if settings.CMS_PERMISSION:
     # only if permissions are in use
     from django.contrib.auth.models import User, Group
@@ -171,12 +171,12 @@ def pre_save_page(instance, raw, **kwargs):
         pass
 
 
-def post_save_page_moderator(instance, raw, created, **kwargs):   
+def post_save_page_moderator(instance, raw, created, **kwargs):
     """Helper post save signal, cleans old_page attribute.
     """
     old_page = instance.old_page
     del(instance.old_page)
-    
+
     if settings.CMS_MODERATOR:
         # tell moderator something was happen with this page
         from cms.utils.moderator import page_changed

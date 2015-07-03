@@ -39,11 +39,11 @@ class PlaceholderAdmin(ModelAdmin):
             ]
         ]
 
-    def get_fieldsets(self, request, obj=None):
+    def get_form(self, request, obj=None, **kwargs):
         """
         Get fieldsets to enforce correct fieldsetting of placeholder fields
         """
-        form = self.get_form(request, obj)
+        form = super(PlaceholderAdmin, self).get_form(request, obj, **kwargs)
         placeholder_fields = self._get_placeholder_fields(form)
         if self.declared_fieldsets:
             # check those declared fieldsets
@@ -69,7 +69,8 @@ class PlaceholderAdmin(ModelAdmin):
                         'fields': (placeholder,),
                         'classes': ('plugin-holder', 'plugin-holder-nopage',),
                     },))
-            return fieldsets
+            self.fieldsets = fieldsets
+            return super(PlaceholderAdmin, self).get_form(request, obj, **kwargs)
         fieldsets = []
         fieldsets.append((None, {'fields': [f for f in form.base_fields.keys() if not f in placeholder_fields]}))
         for placeholder in placeholder_fields:
@@ -80,7 +81,8 @@ class PlaceholderAdmin(ModelAdmin):
         readonly_fields = self.get_readonly_fields(request, obj)
         if readonly_fields:
             fieldsets.append((None, {'fields': list(readonly_fields)}))
-        return fieldsets
+        self.fieldsets = fieldsets
+        return super(PlaceholderAdmin, self).get_form(request, obj, **kwargs)
 
     def get_label_for_placeholder(self, placeholder):
         return ' '.join([x.capitalize() for x in self.model._meta.get_field_by_name(placeholder)[0].verbose_name.split(' ')])
@@ -112,7 +114,7 @@ class PlaceholderAdmin(ModelAdmin):
         Register the plugin specific urls (add/edit/copy/remove/move)
         """
         from django.conf.urls import patterns, url
-        info = "%s_%s" % (self.model._meta.app_label, self.model._meta.module_name)
+        info = "%s_%s" % (self.model._meta.app_label, self.model._meta.model_name)
         pat = lambda regex, fn: url(regex, self.admin_site.admin_view(fn), name='%s_%s' % (info, fn.__name__))
 
         url_patterns = patterns('',

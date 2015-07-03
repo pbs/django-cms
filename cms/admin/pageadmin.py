@@ -53,11 +53,9 @@ DJANGO_1_3 = LooseVersion(django.get_version()) < LooseVersion('1.4')
 
 if 'reversion' in settings.INSTALLED_APPS:
     import reversion
-    from reversion.admin import VersionAdmin as ModelAdmin
-    create_on_success = reversion.revision.create_on_success
-else: # pragma: no cover
-    from django.contrib.admin import ModelAdmin
-    create_on_success = lambda x: x
+
+from django.contrib.admin import ModelAdmin
+create_on_success = lambda x: x
 
 if DJANGO_1_3:
     """
@@ -155,22 +153,16 @@ def _get_request_from_varags(args, kwargs):
             return v
     raise ValueError('This decorator should be used on views (=> at least one request obj)')
 
+
 def mutually_exclusive_on_post(func):
 
-    @transaction.commit_manually
+    @transaction.atomic
     def wrap(*args, **kwargs):
         request = _get_request_from_varags(args, kwargs)
-        transaction.commit()
-        try:
-            if request.method == 'POST':
-                Page.objects.select_for_update().using(router.db_for_write(Page))\
-                    .all().exists()
-            ret_value = func(*args, **kwargs)
-            transaction.commit()
-            return ret_value
-        except:
-            transaction.rollback()
-            raise
+        if request.method == 'POST':
+            Page.objects.select_for_update().using(router.db_for_write(Page))\
+                .all().exists()
+        return func(*args, **kwargs)
 
     functools.update_wrapper(wrap, func)
     return wrap
@@ -225,7 +217,7 @@ class PageAdmin(ModelAdmin):
         """Get the admin urls
         """
         from django.conf.urls import patterns, url
-        info = "%s_%s" % (self.model._meta.app_label, self.model._meta.module_name)
+        info = "%s_%s" % (self.model._meta.app_label, self.model._meta.model_name)
         pat = lambda regex, fn: url(regex, self.admin_site.admin_view(fn), name='%s_%s' % (info, fn.__name__))
 
         url_patterns = patterns('',
@@ -923,7 +915,7 @@ class PageAdmin(ModelAdmin):
         }
         return render_to_response('admin/cms/page/moderation_messages.html', context)
 
-    @transaction.commit_on_success
+    @transaction.atomic
     def approve_page(self, request, page_id):
         """Approve changes on current page by user from request.
         """
@@ -948,7 +940,7 @@ class PageAdmin(ModelAdmin):
         return HttpResponseRedirect( path )
 
 
-    @transaction.commit_on_success
+    @transaction.atomic
     def publish_page(self, request, page_id):
         page = get_object_or_404(Page, id=page_id)
         # ensure user has permissions to publish this page
@@ -1000,7 +992,7 @@ class PageAdmin(ModelAdmin):
         pluginopts = CMSPlugin._meta
 
         try:
-            obj = self.queryset(request).get(pk=unquote(object_id))
+            obj = self.get_queryset(request).get(pk=unquote(object_id))
         except self.model.DoesNotExist:
             # Don't raise Http404 just yet, because we haven't checked
             # permissions yet. We don't want an unauthenticated user to be able
@@ -1242,7 +1234,7 @@ class PageAdmin(ModelAdmin):
         return HttpResponse(str(plugin.pk))
 
     @create_on_success
-    @transaction.commit_on_success
+    @transaction.atomic
     def copy_plugins(self, request):
         if 'history' in request.path or 'recover' in request.path:
             return HttpResponse(str("error"))

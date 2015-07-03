@@ -18,7 +18,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils.translation import get_language, ugettext_lazy as _
 from menus.menu_pool import menu_pool
-from mptt.models import MPTTModel
+from mptt.models import MPTTModel, TreeForeignKey
 from os.path import join
 import copy
 
@@ -55,7 +55,7 @@ class Page(MPTTModel):
 
     created_by = models.CharField(_("created by"), max_length=70, editable=False)
     changed_by = models.CharField(_("changed by"), max_length=70, editable=False)
-    parent = models.ForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
+    parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
     creation_date = models.DateTimeField(auto_now_add=True)
     changed_date = models.DateTimeField(auto_now=True)
     publication_date = models.DateTimeField(_("publication date"), null=True, blank=True, help_text=_('When the page should go live. Status must be "Published" for page to go live.'), db_index=True)
@@ -71,11 +71,6 @@ class Page(MPTTModel):
 
     moderator_state = models.SmallIntegerField(_('moderator state'), choices=moderator_state_choices, default=MODERATOR_NEED_APPROVEMENT, blank=True)
 
-    level = models.PositiveIntegerField(db_index=True, editable=False)
-    lft = models.PositiveIntegerField(db_index=True, editable=False)
-    rght = models.PositiveIntegerField(db_index=True, editable=False)
-    tree_id = models.PositiveIntegerField(db_index=True, editable=False)
-
     login_required = models.BooleanField(_("login required"), default=False)
     limit_visibility_in_menu = models.SmallIntegerField(_("menu visibility"), default=None, null=True, blank=True, choices=LIMIT_VISIBILITY_IN_MENU_CHOICES, db_index=True, help_text=_("limit when this page is visible in the menu"))
 
@@ -83,7 +78,6 @@ class Page(MPTTModel):
     placeholders = models.ManyToManyField(Placeholder, editable=False)
 
     # Publisher fields
-
     publisher_is_draft = models.BooleanField(default=1, editable=False, db_index=True)
     publisher_public = models.OneToOneField('self', related_name='publisher_draft',  null=True, editable=False)
     publisher_state = models.SmallIntegerField(default=0, editable=False, db_index=True)

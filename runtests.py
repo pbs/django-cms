@@ -25,8 +25,10 @@ def main(test_runner='cms.test_utils.runners.NormalTestRunner', junit_output_dir
             from django.conf import settings
             from django.test.utils import get_runner
             TestRunner = get_runner(settings)
-        
-            test_runner = TestRunner(verbosity=verbosity, interactive=False, failfast=failfast)
+
+            test_runner = TestRunner(
+                verbosity=1, pattern="*.py", top_level='cms',
+                interactive=False, failfast=failfast)
             failures = test_runner.run_tests(test_labels)
     sys.exit(failures)
 
@@ -54,4 +56,4 @@ if __name__ == '__main__':
     test_labels = ['cms.%s' % label for label in args.test_labels]
     main(test_runner=test_runner, junit_output_dir=junit_output_dir, time_tests=time_tests,
          verbosity=args.verbosity, failfast=args.failfast, test_labels=test_labels)
-    
+

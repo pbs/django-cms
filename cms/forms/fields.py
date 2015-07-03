@@ -9,7 +9,7 @@ from cms.forms.utils import get_site_choices, get_page_choices
 class SuperLazyIterator(object):
     def __init__(self, func):
         self.func = func
-        
+
     def __iter__(self):
         return iter(self.func())
 
@@ -31,12 +31,13 @@ class PageSelectFormField(forms.MultiValueField):
             forms.ChoiceField(choices=site_choices, required=False, error_messages={'invalid': errors['invalid_site']}),
             forms.ChoiceField(choices=page_choices, required=False, error_messages={'invalid': errors['invalid_page']}),
         )
+        kwargs.pop('limit_choices_to', None)
         super(PageSelectFormField, self).__init__(fields, *args, **kwargs)
-    
+
     def compress(self, data_list):
         if data_list:
             page_id = data_list[1]
-            
+
             if page_id in EMPTY_VALUES:
                 if not self.required:
                     return None

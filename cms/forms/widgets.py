@@ -5,6 +5,7 @@ from cms.plugin_pool import plugin_pool
 from cms.utils import get_language_from_request, cms_static_url
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.contrib.auth import get_permission_codename
 from django.forms.widgets import Select, MultiWidget, Widget
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
@@ -34,7 +35,7 @@ class PageSelectWidget(MultiWidget):
                    Select(choices=self.choices, attrs={'style': "display:none;"} ),
         )
         super(PageSelectWidget, self).__init__(widgets, attrs)
-    
+
     def decompress(self, value):
         """
         receives a page_id in value and returns the site_id and page_id
@@ -46,11 +47,11 @@ class PageSelectWidget(MultiWidget):
             return [site.pk, page.pk, page.pk]
         site = Site.objects.get_current()
         return [site.pk,None,None]
-    
+
     def _has_changed(self, initial, data):
         # THIS IS A COPY OF django.forms.widgets.Widget._has_changed()
         # (except for the first if statement)
-        
+
         """
         Return True if data differs from initial.
         """
@@ -68,11 +69,11 @@ class PageSelectWidget(MultiWidget):
         if force_unicode(initial_value) != force_unicode(data_value):
             return True
         return False
-    
+
     def render(self, name, value, attrs=None):
         # THIS IS A COPY OF django.forms.widgets.MultiWidget.render()
         # (except for the last line)
-        
+
         # value is a list of values, each corresponding to a widget
         # in self.widgets.
         if not isinstance(value, list):
@@ -119,18 +120,18 @@ class PageSelectWidget(MultiWidget):
 })(django.jQuery);
 </script>''' % {'name': name})
         return mark_safe(self.format_output(output))
-    
+
     def format_output(self, rendered_widgets):
         return u' '.join(rendered_widgets)
-    
-    
+
+
 class PluginEditor(Widget):
     def __init__(self, attrs=None):
         if attrs is not None:
             self.attrs = attrs.copy()
         else:
             self.attrs = {}
-        
+
     class Media:
         js = [cms_static_url(path) for path in (
             'js/libs/jquery.ui.core.js',
@@ -144,7 +145,7 @@ class PluginEditor(Widget):
         }
 
     def render(self, name, value, attrs=None):
-        
+
         context = {
             'plugin_list': self.attrs['list'],
             'installed_plugins': self.attrs['installed'],
@@ -161,35 +162,36 @@ class UserSelectAdminWidget(Select):
     """Special widget used in page permission inlines, because we have to render
     an add user (plus) icon, but point it somewhere else - to special user creation
     view, which is accessible only if user haves "add user" permissions.
-    
-    Current user should be assigned to widget in form constructor as an user 
+
+    Current user should be assigned to widget in form constructor as an user
     attribute.
     """
     def render(self, name, value, attrs=None, choices=()):
-        output = [super(UserSelectAdminWidget, self).render(name, value, attrs, choices)]    
+        output = [super(UserSelectAdminWidget, self).render(name, value, attrs, choices)]
+        opts = PageUser._meta
         if hasattr(self, 'user') and (self.user.is_superuser or \
-            self.user.has_perm(PageUser._meta.app_label + '.' + PageUser._meta.get_add_permission())):
+            self.user.has_perm(opts.app_label + '.' + get_permission_codename('add', opts))):
             # append + icon
             add_url = '../../../cms/pageuser/add/'
             output.append(u'<a href="%s" class="add-another" id="add_id_%s" onclick="return showAddAnotherPopup(this);"> ' % \
                     (add_url, name))
             output.append(u'<img src="%sicon_addlink.gif" width="10" height="10" alt="%s"/></a>' % (CMS_ADMIN_ICON_BASE, _('Add Another')))
         return mark_safe(u''.join(output))
-    
-    
+
+
 class PlaceholderPluginEditorWidget(PluginEditor):
     attrs = {}
     def __init__(self, request, filter_func):
         self.request = request
         self.filter_func = filter_func
-            
+
     def __deepcopy__(self, memo):
         obj = copy.copy(self)
         obj.request = copy.copy(self.request)
         obj.filter_func = self.filter_func
         memo[id(self)] = obj
         return obj
-        
+
     def render(self, name, value, attrs=None):
         try:
             ph = Placeholder.objects.get(pk=value)
@@ -210,7 +212,7 @@ class PlaceholderPluginEditorWidget(PluginEditor):
             context = {
                 'plugin_list': plugin_list,
                 'installed_plugins': plugin_pool.get_all_plugins(ph.slot, include_page_only=False),
-                'copy_languages': copy_languages, 
+                'copy_languages': copy_languages,
                 'language': language,
                 'show_copy': bool(copy_languages) and ph.actions.can_copy,
                 'urloverride': True,
