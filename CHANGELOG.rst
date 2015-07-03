@@ -1,6 +1,20 @@
 CHANGELOG
 =========
 
+Revision 203ba1e (03.07.2015, 08:43 UTC)
+----------------------------------------
+
+* LUN-2297
+
+  * re-enable link plugin in ckeditor
+  * remove unused code
+  * no need for default ckeditor config
+  * remove django-ckeditor use plain js ckeditor
+  * CKEditor uses it's own jQuery, release it from global namespace
+  * integrate CKEditor into CMS
+
+No other commits.
+
 Revision 1566109 (05.05.2015, 16:04 UTC)
 ----------------------------------------
 
