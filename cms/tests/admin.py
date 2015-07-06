@@ -33,7 +33,7 @@ from django.test.client import Client, RequestFactory
 from django.utils.encoding import smart_str
 from menus.menu_pool import menu_pool
 from types import MethodType
-from unittest import TestCase
+from django.test.testcases import TestCase
 import contextlib
 
 
