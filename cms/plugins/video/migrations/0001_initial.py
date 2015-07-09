@@ -36,6 +36,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'abstract': False,
+                'db_table': 'cmsplugin_video',
             },
             bases=('cms.cmsplugin',),
         ),

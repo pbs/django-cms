@@ -24,6 +24,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'abstract': False,
+                'db_table': 'cmsplugin_teaser',
             },
             bases=('cms.cmsplugin',),
         ),

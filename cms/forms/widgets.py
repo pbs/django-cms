@@ -15,6 +15,19 @@ from django.utils.translation import ugettext as _
 import copy
 from cms.templatetags.cms_admin import CMS_ADMIN_ICON_BASE
 
+
+class LazySelect(Select):
+
+    def __init__(self, *args, **kwargs):
+        choices = kwargs['choices']
+        from cms.forms.fields import SuperLazyIterator
+        if isinstance(choices, SuperLazyIterator):
+            self.choices = kwargs.pop('choices')
+            super(Select, self).__init__(*args, **kwargs)
+        else:
+            super(LazySelect, self).__init__(*args, **kwargs)
+
+
 class PageSelectWidget(MultiWidget):
     """A widget that allows selecting a page by first selecting a site and then
     a page on that site in a two step process.
@@ -30,9 +43,9 @@ class PageSelectWidget(MultiWidget):
             page_choices = SuperLazyIterator(get_page_choices)
         self.site_choices = site_choices
         self.choices = page_choices
-        widgets = (Select(choices=site_choices ),
-                   Select(choices=[('', '----')]),
-                   Select(choices=self.choices, attrs={'style': "display:none;"} ),
+        widgets = (LazySelect(choices=site_choices ),
+                   LazySelect(choices=[('', '----')]),
+                   LazySelect(choices=self.choices, attrs={'style': "display:none;"} ),
         )
         super(PageSelectWidget, self).__init__(widgets, attrs)
 

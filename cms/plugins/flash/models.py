@@ -10,6 +10,9 @@ class Flash(CMSPlugin):
     width = models.CharField(_('width'), max_length=6)
     height = models.CharField(_('height'), max_length=6)
 
+    class Meta:
+        db_table = 'cmsplugin_flash'
+
     def get_height(self):
         return fix_unit(self.height)
 

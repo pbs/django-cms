@@ -47,6 +47,9 @@ class File(CMSPlugin):
     def get_ext(self):
         return os.path.splitext(self.get_file_name())[1][1:].lower()
 
+    class Meta:
+        db_table = 'cmsplugin_file'
+
     def __unicode__(self):
         if self.title:
             return self.title;

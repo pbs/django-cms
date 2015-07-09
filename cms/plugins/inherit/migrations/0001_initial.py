@@ -20,6 +20,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'abstract': False,
+                'db_table': 'cmsplugin_inheritpageplaceholder'
             },
             bases=('cms.cmsplugin',),
         ),

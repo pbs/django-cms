@@ -34,6 +34,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'verbose_name': 'Snippet',
+                'db_table': 'cmsplugin_snippetptr',
             },
             bases=('cms.cmsplugin',),
         ),

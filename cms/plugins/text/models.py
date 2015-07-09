@@ -65,3 +65,6 @@ class Text(AbstractText):
     """
     Actual Text Class
     """
+
+    class Meta:
+        db_table = 'cmsplugin_text'

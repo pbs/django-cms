@@ -70,7 +70,7 @@ class TinyMCEEditor(TinyMCE):
         if mce_config['theme'] == "simple":
             mce_config['theme'] = "advanced"
         mce_config['theme_advanced_buttons1_add_before'] = "cmsplugins,cmspluginsedit"
-        json = json.dumps(mce_config)
+        json_data = json.dumps(mce_config)
         html = [u'<textarea%s>%s</textarea>' % (flatatt(final_attrs), escape(value))]
         if tinymce.settings.USE_COMPRESSOR:
             compressor_config = {
@@ -83,7 +83,7 @@ class TinyMCEEditor(TinyMCE):
             c_json = json.dumps(compressor_config)
             html.append(u'<script type="text/javascript">//<![CDATA[\ntinyMCE_GZ.init(%s);\n//]]></script>' % (c_json))
         html.append(u'<link id="plugin-controls" type="text/css" rel="stylesheet" href="%s">' % (cms_static_url('css/tinymce.plugin_controls.css')))
-        html.append(u'<script type="text/javascript">//<![CDATA[\n%s;\ntinyMCE.init(%s);\n//]]></script>' % (self.render_additions(name, value, attrs), json))
+        html.append(u'<script type="text/javascript">//<![CDATA[\n%s;\ntinyMCE.init(%s);\n//]]></script>' % (self.render_additions(name, value, attrs), json_data))
         return mark_safe(u'\n'.join(html))
 
 

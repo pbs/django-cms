@@ -29,6 +29,8 @@ class Video(CMSPlugin):
     buttonovercolor = models.CharField(_('button over color'), max_length=6, default=settings.VIDEO_BUTTON_OVER_COLOR, help_text=_('Hexadecimal, eg ff00cc'))
     buttonhighlightcolor = models.CharField(_('button highlight color'), max_length=6, default=settings.VIDEO_BUTTON_HIGHLIGHT_COLOR, help_text=_('Hexadecimal, eg ff00cc'))
 
+    class Meta:
+        db_table = 'cmsplugin_video'
 
     def __unicode__(self):
         if self.movie:

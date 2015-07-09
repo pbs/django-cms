@@ -22,6 +22,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'abstract': False,
+                'db_table': 'cmsplugin_flash'
             },
             bases=('cms.cmsplugin',),
         ),

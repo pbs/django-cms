@@ -30,6 +30,7 @@ class SnippetPtr(CMSPlugin):
 
     class Meta:
         verbose_name = _("Snippet")
+        db_table = 'cmsplugin_snippetptr'
 
     search_fields = ('snippet__html',)
 

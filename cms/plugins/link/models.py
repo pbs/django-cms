@@ -18,6 +18,9 @@ class Link(CMSPlugin):
         ("_top", _("topmost frame")),
     )))
 
+    class Meta:
+        db_table = 'cmsplugin_link'
+
     def __unicode__(self):
         return self.name
 

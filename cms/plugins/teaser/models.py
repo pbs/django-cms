@@ -20,6 +20,9 @@ class Teaser(CMSPlugin):
     url = models.CharField(_("link"), max_length=255, blank=True, null=True, help_text=_("If present image will be clickable."))
     description = models.TextField(_("description"), blank=True, null=True)
 
+    class Meta:
+        db_table = 'cmsplugin_teaser'
+
     def __unicode__(self):
         return self.title
 

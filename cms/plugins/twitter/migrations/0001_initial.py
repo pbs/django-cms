@@ -22,6 +22,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'abstract': False,
+                'db_table': 'cmsplugin_twitterrecententries',
             },
             bases=('cms.cmsplugin',),
         ),
@@ -35,6 +36,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'abstract': False,
+                'db_table': 'cmsplugin_twittersearch',
             },
             bases=('cms.cmsplugin',),
         ),
