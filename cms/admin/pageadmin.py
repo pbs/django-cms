@@ -472,13 +472,33 @@ class PageAdmin(ModelAdmin):
                 versioned = True
                 version_id = request.path.split("/")[-2]
 
-            formfields = {}
+            parent = (object,)
+            if hasattr(self.form, 'Meta'):
+                parent = (self.form.Meta, object)
+
+            attrs = {}
+            accepted_attrs = [
+                'fields', 'exclude', 'widgets', 'localized_fields',
+                'labels', 'help_texts', 'error_messages', 'model'
+            ]
+            for attr_name in accepted_attrs:
+                val = getattr(parent, attr_name, None)
+                if val is not None:
+                    attrs[attr_name] = val
+
+            form_class_attrs = {
+                'Meta': type(str('Meta'), parent, attrs),
+                'formfield_callback': functools.partial(
+                    self.formfield_for_dbfield, request=request
+                )
+            }
+
             if settings.CMS_TEMPLATES:
                 selected_template = get_template_from_request(request, obj)
-                formfields = self.get_placeholders_formfields(
-                    selected_template, obj, language, version_id, versioned)
+                form_class_attrs.update(self.get_placeholders_formfields(
+                    selected_template, obj, language, version_id, versioned))
 
-            form = type('PageForm', (self.form, ), formfields)
+            form = type('PageForm', (self.form, ), form_class_attrs)
         else:
             self.inlines = []
             form = PageAddForm
