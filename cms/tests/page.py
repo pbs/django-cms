@@ -323,7 +323,22 @@ class PagesTestCase(CMSTestCase):
             self.assertEqual(page2.get_path(), page_data2['slug'])
             page3 = Page.objects.get(pk=page3.pk)
             self.assertEqual(page3.get_path(), page_data2['slug']+"/"+page_data3['slug'])
-        
+
+    def test_create_incorrect_slug(self):
+        self.assertEqual(Page.objects.all().count(), 0)
+        superuser = self.get_superuser()
+        with self.login_user_context(superuser):
+            page_data1 = self.get_new_page_data()
+            response = self.client.post(URL_CMS_PAGE_ADD, page_data1, follow=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(Page.objects.all().count(), 1)
+            page_data2 = self.get_new_page_data()
+            page_data2['slug'] = page_data1['slug']
+            response = self.client.post(URL_CMS_PAGE_ADD, page_data2, follow=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue("Another page with this slug already exists" in response.content)
+            self.assertEqual(Page.objects.all().count(), 1, "New page was created anyway!")
+
     def test_move_page_inherit(self):
         parent = create_page("Parent", 'col_three.html', "en")
         child = create_page("Child", settings.CMS_TEMPLATE_INHERITANCE_MAGIC,
