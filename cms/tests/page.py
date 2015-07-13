@@ -16,7 +16,7 @@ from cms.test_utils.util.context_managers import (LanguageOverride,
                                                   SettingsOverride)
 from cms.utils.page_resolver import get_page_from_request
 from cms.test_utils.testcases import (CMSTestCase, URL_CMS_PAGE,
-    URL_CMS_PAGE_ADD, URL_CMS_PAGE_DELETE)
+                                      URL_CMS_PAGE_ADD, URL_CMS_PAGE_DELETE, URL_CMS_PAGE_CHANGE)
 from cms.test_utils.util.context_managers import (LanguageOverride, 
     SettingsOverride)
 from cms.utils.page_resolver import get_page_from_request, is_valid_url
@@ -338,6 +338,33 @@ class PagesTestCase(CMSTestCase):
             self.assertEqual(response.status_code, 200)
             self.assertTrue("Another page with this slug already exists" in response.content)
             self.assertEqual(Page.objects.all().count(), 1, "New page was created anyway!")
+
+    def test_move_page_with_duplicate_override_url(self):
+        superuser = self.get_superuser()
+        with self.login_user_context(superuser):
+            page_data1 = self.get_new_page_data()
+            self.client.post(URL_CMS_PAGE_ADD, page_data1)
+            page_data2 = self.get_new_page_data()
+            self.client.post(URL_CMS_PAGE_ADD, page_data2)
+            page1, page2 = Page.objects.all()
+            page_data2['title'] = 'changed'
+            page_data2['overwrite_url'] = page_data1['slug']
+            self.edit_page(page2.id, page_data2)
+            page2 = Page.objects.get(id=page2.id)
+            self.assertEqual(page2.get_title_obj().title, 'changed')
+            self.assertEqual(page2.get_title_obj().path, page_data1['slug'])
+            response = self.client.post("/admin/cms/page/%s/move-page/" % page2.pk,
+                                        {"target": page1.pk, "position": "right"})
+            self.assertEqual(response.status_code, 200)
+            page2 = Page.objects.get(id=page2.id)
+            page2_title = page2.get_title_obj()
+            self.assertEqual(page2_title.title, 'changed')
+            self.assertEqual(page2_title.path, page_data1['slug'])
+            self.assertTrue(page2_title.has_url_overwrite)
+
+    def edit_page(self, page_id, page_data):
+        edit_response = self.client.post(URL_CMS_PAGE_CHANGE % page_id, page_data, follow=True)
+        self.assertEqual(edit_response.status_code, 200)
 
     def test_move_page_inherit(self):
         parent = create_page("Parent", 'col_three.html', "en")

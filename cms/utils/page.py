@@ -61,6 +61,10 @@ def get_available_slug(title, new_slug=None):
     # This is a simpler check than in page_resolver.is_valid_url which
     # takes into account actualy page URL
     if not is_valid_page_slug(title.page, title.page.parent, title.language, slug, title.page.site, path):
+        if title.has_url_overwrite and is_valid_page_slug(title.page, title.page.parent, title.language, slug, title.page.site, None):
+            # The title has an overwrite url so a slug change will not change the path and
+            # the validation fails only because the path already exists.
+            return slug
         # add nice copy attribute, first is -copy, then -copy-2, -copy-3, ....
         match = COPY_SLUG_REGEX.match(slug)
         if match:
