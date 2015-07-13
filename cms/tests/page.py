@@ -64,7 +64,6 @@ class PagesTestCase(CMSTestCase):
             # were public instances created?
             title = Title.objects.drafts().get(slug=page_data['slug'])
 
-        
     def test_slug_collision(self):
         """
         Test a slug collision
@@ -75,21 +74,12 @@ class PagesTestCase(CMSTestCase):
         with self.login_user_context(superuser):
             response = self.client.post(URL_CMS_PAGE_ADD, page_data)
             self.assertRedirects(response, URL_CMS_PAGE)
-            
-            #page1 = Title.objects.get(slug=page_data['slug']).page
-            # create page with the same page_data
-            
+
             response = self.client.post(URL_CMS_PAGE_ADD, page_data)
-            
-            if settings.i18n_installed:
-                self.assertEqual(response.status_code, 302)
-                # did we got right redirect?
-                self.assertEqual(response['Location'].endswith(URL_CMS_PAGE), True)
-            else:
-                self.assertEqual(response.status_code, 200)
-                self.assertEqual(response['Location'].endswith(URL_CMS_PAGE_ADD), True)
-            # TODO: check for slug collisions after move
-            # TODO: check for slug collisions with different settings         
+
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(response.request['PATH_INFO'].endswith(URL_CMS_PAGE_ADD))
+            self.assertContains(response, '<ul class="errorlist"><li>Another page with this slug already exists</li></ul>')
 
     def test_slug_collisions_api_1(self):
         """ Checks for slug collisions on sibling pages - uses API to create pages
@@ -323,21 +313,6 @@ class PagesTestCase(CMSTestCase):
             self.assertEqual(page2.get_path(), page_data2['slug'])
             page3 = Page.objects.get(pk=page3.pk)
             self.assertEqual(page3.get_path(), page_data2['slug']+"/"+page_data3['slug'])
-
-    def test_create_incorrect_slug(self):
-        self.assertEqual(Page.objects.all().count(), 0)
-        superuser = self.get_superuser()
-        with self.login_user_context(superuser):
-            page_data1 = self.get_new_page_data()
-            response = self.client.post(URL_CMS_PAGE_ADD, page_data1, follow=True)
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(Page.objects.all().count(), 1)
-            page_data2 = self.get_new_page_data()
-            page_data2['slug'] = page_data1['slug']
-            response = self.client.post(URL_CMS_PAGE_ADD, page_data2, follow=True)
-            self.assertEqual(response.status_code, 200)
-            self.assertTrue("Another page with this slug already exists" in response.content)
-            self.assertEqual(Page.objects.all().count(), 1, "New page was created anyway!")
 
     def test_move_page_with_duplicate_override_url(self):
         superuser = self.get_superuser()
