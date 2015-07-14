@@ -25,7 +25,7 @@
 
 			var target_div = $(this).parent().parent().parent().children('div.plugin-editor');
 			if (pluginvalue) {
-				var pluginname = select.children('[selected]').text();
+				var pluginname = select.find(':selected').text();
 				var ul_list = $(this).parent().parent().children("ul.plugin-list");
 				$.ajax({
 					url: "add-plugin/", dataType: "html", type: "POST",
