@@ -44,7 +44,7 @@ class PagePermissionInlineAdmin(TabularInline):
     exclude = ['can_view']
     extra = 0 # edit page load time boost
 
-    def queryset(self, request):
+    def get_queryset(self, request):
         """
         Queryset change, so user with global change permissions can see
         all permissions. Otherwise can user see only permissions for
@@ -58,7 +58,7 @@ class PagePermissionInlineAdmin(TabularInline):
             qs = PagePermission.objects.subordinate_to_user(request.user)
             return qs.filter(can_view=False)
         except NoPermissionsException:
-            return self.objects.get_empty_query_set()
+            return self.objects.none()
 
     def get_formset(self, request, obj=None, **kwargs):
         """
@@ -83,8 +83,8 @@ class PagePermissionInlineAdmin(TabularInline):
             if not settings.CMS_MODERATOR or not obj.has_moderate_permission(request):
                 exclude.append('can_moderate')
         formset_cls = super(PagePermissionInlineAdmin, self
-            ).get_formset(request, obj=None, exclude=exclude, *kwargs)
-        qs = self.queryset(request)
+            ).get_formset(request, obj=None, **kwargs)
+        qs = self.get_queryset(request)
         if obj is not None:
             qs = qs.filter(page=obj)
         formset_cls._queryset = qs
@@ -108,13 +108,13 @@ class ViewRestrictionInlineAdmin(PagePermissionInlineAdmin):
         flag, he can't change assign can_publish permissions.
         """
         formset_cls = super(PagePermissionInlineAdmin, self).get_formset(request, obj, **kwargs)
-        qs = self.queryset(request)
+        qs = self.get_queryset(request)
         if obj is not None:
             qs = qs.filter(page=obj)
         formset_cls._queryset = qs
         return formset_cls
 
-    def queryset(self, request):
+    def get_queryset(self, request):
         """
         Returns a QuerySet of all model instances that can be edited by the
         admin site. This is used by changelist_view.

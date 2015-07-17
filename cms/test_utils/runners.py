@@ -1,6 +1,6 @@
 from django.conf import settings
-from django.test.simple import DjangoTestSuiteRunner
-from django.utils.unittest.suite import TestSuite
+from django.test.runner import DiscoverRunner
+from django.utils.unittest import TestSuite
 import operator
 import time
 
@@ -21,16 +21,16 @@ class TimingSuite(TestSuite):
     def addTest(self, test):
         test = time_it(test)
         super(TimingSuite, self).addTest(test)
-        
-        
-class JenkinsTestRunner(DjangoTestSuiteRunner):
+
+
+class JenkinsTestRunner(DiscoverRunner):
     def run_suite(self, suite, **kwargs):
         from xmlrunner import XMLTestRunner
         return XMLTestRunner(output=settings.JUNIT_OUTPUT_DIR).run(suite)
 
 
 
-class NormalTestRunner(DjangoTestSuiteRunner):
+class NormalTestRunner(DiscoverRunner):
     def build_suite(self, test_labels, extra_tests=None, **kwargs):
         suite = super(NormalTestRunner, self).build_suite(test_labels, extra_tests, **kwargs)
         if settings.TIME_TESTS:

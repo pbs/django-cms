@@ -4,7 +4,7 @@ from cms import plugin_rendering
 from cms.api import create_page, add_plugin
 from cms.models.placeholdermodel import Placeholder
 from cms.models.pluginmodel import CMSPlugin
-from cms.plugin_rendering import (render_plugins, PluginContext, 
+from cms.plugin_rendering import (render_plugins, PluginContext,
     render_placeholder_toolbar)
 from cms.test_utils.testcases import SettingsOverrideTestCase
 from cms.test_utils.util.context_managers import SettingsOverride, ChangeModel
@@ -16,20 +16,20 @@ from sekizai.context import SekizaiContext
 
 TEMPLATE_NAME = 'tests/rendering/base.html'
 
-def test_plugin_processor(instance, placeholder, rendered_content, original_context):
+def sample_plugin_processor(instance, placeholder, rendered_content, original_context):
     original_context_var = original_context['original_context_var']
-    return '%s|test_plugin_processor_ok|%s|%s|%s' % (rendered_content,
+    return '%s|sample_plugin_processor_ok|%s|%s|%s' % (rendered_content,
                                                    instance.body,
                                                    placeholder.slot,
                                                    original_context_var)
 
-def test_plugin_context_processor(instance, placeholder):
-    content = 'test_plugin_context_processor_ok|'+instance.body+'|'+placeholder.slot
-    return {'test_plugin_context_processor': content}
+def sample_plugin_context_processor(instance, placeholder):
+    content = 'sample_plugin_context_processor_ok|'+instance.body+'|'+placeholder.slot
+    return {'sample_plugin_context_processor': content}
 
 
 class RenderingTestCase(SettingsOverrideTestCase):
-    
+
     settings_overrides = {
         'CMS_TEMPLATES': [(TEMPLATE_NAME, TEMPLATE_NAME), ('extra_context.html', 'extra_context.html')],
         'CMS_MODERATOR': False,
@@ -41,7 +41,7 @@ class RenderingTestCase(SettingsOverrideTestCase):
         self.test_user.set_password("test")
         self.test_user.save()
         with self.login_user_context(self.test_user):
-    
+
             self.test_data = {
                 'title': u'RenderingTestCase-title',
                 'slug': u'renderingtestcase-slug',
@@ -98,7 +98,7 @@ class RenderingTestCase(SettingsOverrideTestCase):
         # # Insert some test Text plugins
         add_plugin(self.test_placeholders3['sub'], 'TextPlugin', 'en',
                    body=self.test_data3['text_sub'])
-                   
+
         # Insert another page that is not the home
         p4 = create_page(self.test_data4['title'], 'extra_context.html', 'en', parent=p)
         # Placeholders have been inserted on post_save signal:
@@ -106,14 +106,14 @@ class RenderingTestCase(SettingsOverrideTestCase):
         for placeholder in p4.placeholders.all():
             self.test_placeholders4[placeholder.slot] = placeholder
         # Insert some test plugins
-        add_plugin(self.test_placeholders4['extra_context'], 'ExtraContextPlugin', 'en')        
+        add_plugin(self.test_placeholders4['extra_context'], 'ExtraContextPlugin', 'en')
 
         # Reload test pages
         self.test_page = self.reload(p)
         self.test_page2 = self.reload(p2)
         self.test_page3 = self.reload(p3)
         self.test_page4 = self.reload(p4)
-        
+
     def get_context(self, page, context_vars={}):
         request = self.get_request(page)
         return RequestContext(request, context_vars)
@@ -141,31 +141,31 @@ class RenderingTestCase(SettingsOverrideTestCase):
             from cms.views import details
             response = details(self.get_request(self.test_page), '')
             r = self.strip_rendered(response.content)
-            self.assertEqual(r, u'|'+ self.get_text_plugin_wrapper(self.test_data['text_main']) + 
+            self.assertEqual(r, u'|'+ self.get_text_plugin_wrapper(self.test_data['text_main']) +
                              u'|' +self.get_text_plugin_wrapper(self.test_data['text_sub'])+u'|')
-        
+
     def test_processors(self):
         """
         Tests that default plugin context processors are working, that plugin processors and plugin context processors
         can be defined in settings and are working and that extra plugin context processors can be passed to PluginContext.
         """
         with SettingsOverride(
-                CMS_PLUGIN_PROCESSORS = ('cms.tests.rendering.test_plugin_processor',),
-                CMS_PLUGIN_CONTEXT_PROCESSORS = ('cms.tests.rendering.test_plugin_context_processor',),
+                CMS_PLUGIN_PROCESSORS = ('cms.tests.rendering.sample_plugin_processor',),
+                CMS_PLUGIN_CONTEXT_PROCESSORS = ('cms.tests.rendering.sample_plugin_context_processor',),
             ):
             def test_passed_plugin_context_processor(instance, placeholder):
                 return {'test_passed_plugin_context_processor': 'test_passed_plugin_context_processor_ok'}
             t = u'{% load cms_tags %}'+ \
-                u'{{ plugin.counter }}|{{ plugin.instance.body }}|{{ test_passed_plugin_context_processor }}|{{ test_plugin_context_processor }}'
+                u'{{ plugin.counter }}|{{ plugin.instance.body }}|{{ test_passed_plugin_context_processor }}|{{ sample_plugin_context_processor }}'
             instance, plugin = CMSPlugin.objects.all()[0].get_plugin_instance()
             instance.render_template = Template(t)
             context = PluginContext({'original_context_var': 'original_context_var_ok'}, instance, self.test_placeholders['main'], processors=(test_passed_plugin_context_processor,))
             plugin_rendering._standard_processors = {}
             c = render_plugins((instance,), context, self.test_placeholders['main'])
-            r = "".join(c) 
-            self.assertEqual(r, u'1|'+self.test_data['text_main']+'|test_passed_plugin_context_processor_ok|test_plugin_context_processor_ok|'+self.test_data['text_main']+'|main|test_plugin_processor_ok|'+self.test_data['text_main']+'|main|original_context_var_ok')
+            r = "".join(c)
+            self.assertEqual(r, u'1|'+self.test_data['text_main']+'|test_passed_plugin_context_processor_ok|sample_plugin_context_processor_ok|'+self.test_data['text_main']+'|main|sample_plugin_processor_ok|'+self.test_data['text_main']+'|main|original_context_var_ok')
             plugin_rendering._standard_processors = {}
-    
+
     def test_placeholder(self):
         """
         Tests the {% placeholder %} templatetag.
@@ -174,7 +174,7 @@ class RenderingTestCase(SettingsOverrideTestCase):
             u'|{% placeholder "main" %}|{% placeholder "empty" %}'
         r = self.render(t, self.test_page)
         self.assertEqual(r, u'|'+self.get_text_plugin_wrapper(self.test_data['text_main'])+'|')
-        
+
 
     def test_placeholder_extra_context(self):
         t = u'{% load cms_tags %}{% placeholder "extra_context" %}'
@@ -204,7 +204,7 @@ class RenderingTestCase(SettingsOverrideTestCase):
             u'|{% show_placeholder "sub" test_page %}'
         r = self.render(t, self.test_page, {'test_page': self.test_page, 'test_dict': {'pk': self.test_page.pk}})
         self.assertEqual(r, (u'|'+self.get_text_plugin_wrapper(self.test_data['text_main']))*2+(u'|'+self.get_text_plugin_wrapper(self.test_data['text_sub']))*2)
-        
+
     def test_show_placeholder_extra_context(self):
         t = u'{% load cms_tags %}{% show_placeholder "extra_context" '+str(self.test_page4.pk)+' %}'
         r = self.render(t, self.test_page4)
@@ -212,7 +212,7 @@ class RenderingTestCase(SettingsOverrideTestCase):
         with SettingsOverride(CMS_PLACEHOLDER_CONF=self.test_data4['placeholderconf']):
             r = self.render(t, self.test_page4)
         self.assertEqual(r, self.test_data4['extra'])
-            
+
     def test_show_uncached_placeholder_by_pk(self):
         """
         Tests the {% show_uncached_placeholder %} templatetag, using lookup by pk.
@@ -235,27 +235,27 @@ class RenderingTestCase(SettingsOverrideTestCase):
         template = u'{% load cms_tags %}{% show_uncached_placeholder "sub" test_page %}'
         output = self.render(template, self.test_page, {'test_page': self.test_page})
         self.assertEqual(output, self.get_text_plugin_wrapper(self.test_data['text_sub']))
-        
+
     def test_page_url_by_pk(self):
         template = u'{%% load cms_tags %%}{%% page_url %s %%}' % self.test_page2.pk
         output = self.render(template, self.test_page)
         self.assertEqual(output, self.test_page2.get_absolute_url())
-        
+
     def test_page_url_by_dictionary(self):
         template = u'{% load cms_tags %}{% page_url test_dict %}'
         output =  self.render(template, self.test_page, {'test_dict': {'pk': self.test_page2.pk}})
         self.assertEqual(output, self.test_page2.get_absolute_url())
-        
+
     def test_page_url_by_reverse_id(self):
         template = u'{%% load cms_tags %%}{%% page_url "%s" %%}' % self.test_page2.reverse_id
         output = self.render(template, self.test_page)
         self.assertEqual(output, self.test_page2.get_absolute_url())
-        
+
     def test_page_url_by_reverse_id_not_on_a_page(self):
         template = u'{%% load cms_tags %%}{%% page_url "%s" %%}' % self.test_page2.reverse_id
         output = self.render(template, None)
         self.assertEqual(output, self.test_page2.get_absolute_url())
-    
+
     def test_page_url_by_page(self):
         template = u'{% load cms_tags %}{% page_url test_page %}'
         output = self.render(template, self.test_page, {'test_page': self.test_page2})
@@ -290,7 +290,7 @@ class RenderingTestCase(SettingsOverrideTestCase):
         r = self.render(t, self.test_page3)
         self.assertEqual(r, u'|'+self.get_text_plugin_wrapper(self.test_data['text_main'])
                          +'|'+self.get_text_plugin_wrapper(self.test_data3['text_sub']))
-        
+
     def test_detail_view_404_when_no_language_is_found(self):
         with SettingsOverride(TEMPLATE_CONTEXT_PROCESSORS=[],
                               CMS_LANGUAGES=[
@@ -335,7 +335,7 @@ class RenderingTestCase(SettingsOverrideTestCase):
 
             response = details(request, '')
             self.assertTrue(isinstance(response,HttpResponseRedirect))
-            
+
     def test_extra_context_isolation(self):
         with ChangeModel(self.test_page, template='extra_context.html'):
             response = self.client.get(self.test_page.get_absolute_url())

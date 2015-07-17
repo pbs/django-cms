@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
+import json
+
 from cms.toolbar.constants import ALIGNMENTS
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.utils import simplejson
 from django.utils.encoding import force_unicode
 from django.utils.functional import Promise
 
@@ -16,18 +17,18 @@ class Serializable(object):
     base_attributes = []
     # additional attributes to serialize only on this type
     extra_attributes = []
-    
+
     def as_json(self, context, **kwargs):
         """
         Converts the (serialized) data to JSON
         """
         data = self.serialize(context, **kwargs)
-        return simplejson.dumps(data)
-        
+        return json.dumps(data)
+
     def serialize(self, context, **kwargs):
         """
         Serializes it's data. Uses self.base_attributes, self.extra_attributes
-        and self.get_extra_data to 
+        and self.get_extra_data to
         """
         data = {}
         for python, javascript in self.base_attributes:
@@ -36,7 +37,7 @@ class Serializable(object):
             self._populate(data, python, javascript, context, **kwargs)
         data.update(self.get_extra_data(context, **kwargs))
         return data
-    
+
     def _populate(self, container, python, javascript, context, **kwargs):
         """
         Populates the *container* using the key *javascript* by accessing the
@@ -51,7 +52,7 @@ class Serializable(object):
         if isinstance(value, Promise):
             value = force_unicode(value)
         container[javascript] = value
-    
+
     def get_extra_data(self, context, **kwargs):
         """
         Hook for subclasses to add more data.
@@ -65,10 +66,10 @@ class Toolbar(Serializable):
     """
     def __init__(self, request):
         self.request = request
-        
+
     def get_items(self, context, **kwargs):
         return []
-    
+
     def get_extra_data(self, context, **kwargs):
         raw_items = self.get_items(context, **kwargs)
         items = []
@@ -78,7 +79,7 @@ class Toolbar(Serializable):
             'debug': settings.TEMPLATE_DEBUG,
             'items': items,
         }
-        
+
     def request_hook(self):
         """
         May return a HttpResponse instance
@@ -98,11 +99,11 @@ class BaseItem(Serializable):
     ]
     extra_attributes = []
     alignment = 'left'
-    
-    
+
+
     def __init__(self, alignment, css_class_suffix):
         """
-        alignment: either cms.toolbar.constants.LEFT or 
+        alignment: either cms.toolbar.constants.LEFT or
             cms.toolbar.constants.RIGHT
         css_class_suffix: suffix for the cms class to put on this item, prefix
             is always 'cms_toolbar-item'
@@ -114,7 +115,7 @@ class BaseItem(Serializable):
         self.alignment = alignment
         self.css_class_suffix = css_class_suffix
         self.css_class = 'cms_toolbar-item_%s' % self.css_class_suffix
-    
+
     def serialize(self, context, toolbar, **kwargs):
         counter_attr = 'counter_%s' % self.alignment
         current = getattr(toolbar, counter_attr, 0)

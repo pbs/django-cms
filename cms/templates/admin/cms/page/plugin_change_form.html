@@ -1,5 +1,5 @@
 {% extends "admin/base_site.html" %}
-{% load i18n admin_modify adminmedia cms_admin %}
+{% load i18n admin_modify cms_admin %}
 {% load url from future %}
 {% block extrahead %}
 <script type="text/javascript">
@@ -30,10 +30,10 @@
 	runOnLoad.loaded = false;
 	runOnLoad.run = function() {
 		if (runOnLoad.loaded) return;
-	
+
 		for(var i = 0; i < runOnLoad.funcs.length; i++) {
-			try { 
-				runOnLoad.funcs[i](); 
+			try {
+				runOnLoad.funcs[i]();
 			}catch(e) { }
 		}
 		runOnLoad.loaded = true;
@@ -55,7 +55,7 @@
 			var href = $(sign).attr("href");
 			if (href.substr(0,2) == ".."){
 				href = "../../"+href;
-				$(sign).attr("href", href); 
+				$(sign).attr("href", href);
 			}
 		});
 	});
@@ -65,13 +65,13 @@
 
 
 {% endblock %}
- 
+
 {% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% admin_static_url %}css/forms.css" />{% endblock %}
- 
+
 {% block coltype %}{% if ordered_objects %}colMS{% else %}colM{% endif %}{% endblock %}
- 
+
 {% block bodyclass %}{{ opts.app_label }}-{{ opts.object_name.lower }} change-form{% endblock %}
- 
+
 {% block breadcrumbs %}{% if not is_popup %}
 <div class="breadcrumbs">
      <a href="../../../">{% trans "Home" %}</a> &rsaquo;
@@ -80,12 +80,12 @@
      {% if add %}{% trans "Add" %} {{ opts.verbose_name }}{% else %}{{ original|truncatewords:"18" }}{% endif %}
 </div>
 {% endif %}{% endblock %}
- 
+
 {% block content_title %}<h2>{{ plugin.get_plugin_name }}</h2>{% endblock %}
- 
+
 {% block content %}<div id="content-main">
 {% block top %}{% if preview %}{% render_plugin plugin %}{% endif %}{% endblock %}
-<form {% if has_file_field %}enctype="multipart/form-data" {% endif %}action="{{ form_url }}" method="post" id="{{ opts.module_name }}_form">{% csrf_token %}{% block form_top %}{% endblock %}
+<form {% if has_file_field %}enctype="multipart/form-data" {% endif %}action="{{ form_url }}" method="post" id="{{ opts.model_name }}_form">{% csrf_token %}{% block form_top %}{% endblock %}
 <div>
 {% if is_popup %}<input type="hidden" name="_popup" value="1" />{% endif %}
 {% if current_site %}<input type="hidden" name="_current_site" value="{{current_site}}" />{% endif %}
@@ -102,23 +102,23 @@
   {% include "admin/includes/fieldset.html" %}
 {% endfor %}
 {% endblock %}
- 
+
 {% block after_field_sets %}{% endblock %}
- 
+
 {% for inline_admin_formset in inline_admin_formsets %}
     {% include inline_admin_formset.opts.template %}
 {% endfor %}
- 
+
 {% block after_related_objects %}{% endblock %}
 
- 
+
 {% if add %}
    <script type="text/javascript">document.getElementById("{{ adminform.first_field.auto_id }}").focus();</script>
 {% endif %}
- 
+
 {# JavaScript for prepopulated fields #}
 {% prepopulated_fields_js %}
- 
+
 </div>
 <span class="plugin-submit-row"{% if is_popup %} style="overflow: auto;"{% endif %}>
 	<input type="submit" style="float:none;" name="_save" class="default" value="{% trans "Save" %}" {{ onclick_attrib }}/>

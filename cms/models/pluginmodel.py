@@ -6,7 +6,7 @@ from datetime import date
 from django.conf import settings
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db import models
-from django.db.models.base import (model_unpickle, simple_class_factory)
+from django.db.models.base import model_unpickle
 from django.db.models.query_utils import DeferredAttribute
 from django.utils.translation import ugettext_lazy as _
 
@@ -15,6 +15,7 @@ from cms.models.placeholdermodel import Placeholder
 from cms.plugin_rendering import PluginContext, render_plugin
 from cms.utils.helpers import reversion_register
 from cms.utils import timezone
+from cms.utils.compat.metaclasses import with_metaclass
 
 from mptt.models import MPTTModel, MPTTModelBase
 
@@ -63,7 +64,7 @@ class PluginModelBase(MPTTModelBase):
         return new_class
 
 
-class CMSPlugin(MPTTModel):
+class CMSPlugin(with_metaclass(PluginModelBase, MPTTModel)):
     '''
     The base class for a CMS plugin model. When defining a new custom plugin, you should
     store plugin-instance specific information on a subclass of this class.
@@ -75,7 +76,6 @@ class CMSPlugin(MPTTModel):
     2. Subclasses of CMSPlugin cannot define a "text" field.
 
     '''
-    __metaclass__ = PluginModelBase
 
     placeholder = models.ForeignKey(Placeholder, editable=False, null=True)
     parent = models.ForeignKey('self', blank=True, null=True, editable=False)
@@ -126,7 +126,7 @@ class CMSPlugin(MPTTModel):
                         obj = self.__class__.__dict__[field.attname]
                         model = obj.model_ref()
         else:
-            factory = simple_class_factory
+            factory = lambda x, y: x
         return (model_unpickle, (model, defers, factory), data)
 
     def __unicode__(self):
@@ -366,3 +366,7 @@ def deferred_class_factory(model, attrs):
 # The above function is also used to unpickle model instances with deferred
 # fields.
 deferred_class_factory.__safe_for_unpickling__ = True
+
+
+def get_plugin_media_path(instance, filename):
+    return instance.get_media_path(filename)

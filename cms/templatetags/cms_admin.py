@@ -23,28 +23,28 @@ else:
 class ShowAdminMenu(InclusionTag):
     name = 'show_admin_menu'
     template = 'admin/cms/page/menu.html'
-    
+
     options = Options(
         Argument('page')
     )
-    
+
     def get_context(self, context, page):
         request = context['request']
 
-        
+
         if context.has_key("cl"):
             filtered = context['cl'].is_filtered()
         elif context.has_key('filtered'):
             filtered = context['filtered']
-        
-        
-        
+
+
+
         # following function is newly used for getting the context per item (line)
         # if something more will be required, then get_admin_menu_item_context
-        # function have to be updated. 
+        # function have to be updated.
         # This is done because item can be reloaded after some action over ajax.
         context.update(get_admin_menu_item_context(request, page, filtered))
-        
+
         # this here is just context specific for menu rendering - items itself does
         # not use any of following variables
         #context.update({
@@ -56,28 +56,28 @@ register.tag(ShowAdminMenu)
 class ShowLazyAdminMenu(InclusionTag):
     name = 'show_lazy_admin_menu'
     template = 'admin/cms/page/lazy_child_menu.html'
-    
+
     options = Options(
         Argument('page')
     )
-    
+
     def get_context(self, context, page):
         request = context['request']
 
-        
+
         if context.has_key("cl"):
             filtered = context['cl'].is_filtered()
         elif context.has_key('filtered'):
             filtered = context['filtered']
-        
-        
-        
+
+
+
         # following function is newly used for getting the context per item (line)
         # if something more will be required, then get_admin_menu_item_context
-        # function have to be updated. 
+        # function have to be updated.
         # This is done because item can be reloaded after some action over ajax.
         context.update(get_admin_menu_item_context(request, page, filtered))
-        
+
         # this here is just context specific for menu rendering - items itself does
         # not use any of following variables
         #context.update({
@@ -94,12 +94,12 @@ class CleanAdminListFilter(InclusionTag):
     """
     name = 'clean_admin_list_filter'
     template = 'admin/filter.html'
-    
+
     options = Options(
         Argument('cl'),
         Argument('spec'),
     )
-    
+
     def get_context(self, context, cl, spec):
         choices = sorted(list(spec.choices(cl)), key=lambda k: k['query_string'])
         query_string = None
@@ -137,24 +137,24 @@ def is_restricted(page, request):
             })
 
 @register.filter
-def moderator_choices(page, user):    
+def moderator_choices(page, user):
     """Returns simple moderator choices used for checkbox rendering, as a value
     is used mask value. Optimized, uses caching from change list.
     """
     moderation_value = page.get_moderation_value(user)
-    
+
     moderate = (
-        (MASK_PAGE, _('Moderate page'), _('Unbind page moderation'), 'page'), 
+        (MASK_PAGE, _('Moderate page'), _('Unbind page moderation'), 'page'),
         (MASK_CHILDREN, _('Moderate children'), _('Unbind children moderation'), 'children'),
         (MASK_DESCENDANTS, _('Moderate descendants'), _('Unbind descendants moderation'), 'descendants'),
     )
-    
+
     choices = []
     for mask_value, title_yes, title_no, kind in moderate:
         active = moderation_value and moderation_value & mask_value
         title = active and title_no or title_yes
         choices.append((mask_value, title, active, kind))
-    
+
     return choices
 
 @register.filter
@@ -177,11 +177,11 @@ def preview_link(page, language):
 
 class RenderPlugin(InclusionTag):
     template = 'cms/content.html'
-    
+
     options = Options(
         Argument('plugin')
     )
-    
+
     def get_context(self, context, plugin):
         return {'content': plugin.render_plugin(context, admin=True)}
 register.tag(RenderPlugin)
@@ -190,21 +190,19 @@ register.tag(RenderPlugin)
 class PageSubmitRow(InclusionTag):
     name = 'page_submit_row'
     template = 'admin/page_submit_line.html'
-    
+
     def get_context(self, context):
         opts = context['opts']
         change = context['change']
         is_popup = context['is_popup']
         save_as = context['save_as']
-        show_delete_translation = context.get('show_delete_translation')  
+        show_delete_translation = context.get('show_delete_translation')
         language = context['language']
         return {
-            'onclick_attrib': (opts.get_ordered_objects() and change
-                                and 'onclick="submitOrderForm();"' or ''),
             'show_delete_link': (not is_popup and context['has_delete_permission']
                                   and (change or context['show_delete'])),
             'show_save_as_new': not is_popup and change and save_as,
-            'show_save_and_add_another': context['has_add_permission'] and 
+            'show_save_and_add_another': context['has_add_permission'] and
                                 not is_popup and (not save_as or context['add']),
             'show_save_and_continue': not is_popup and context['has_change_permission'],
             'is_popup': is_popup,

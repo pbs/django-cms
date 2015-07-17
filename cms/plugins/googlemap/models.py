@@ -38,6 +38,9 @@ class GoogleMap(CMSPlugin):
     height = models.CharField(_('height'), max_length=6, default='400px',
                               help_text=_('Plugin height (in pixels).'))
 
+    class Meta:
+      db_table = 'cmsplugin_googlemap'
+
     def __unicode__(self):
         return u"%s (%s, %s %s)" % (self.get_title(), self.address,
                                     self.zipcode, self.city,)

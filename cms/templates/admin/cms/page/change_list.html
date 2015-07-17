@@ -1,11 +1,11 @@
 {% extends "admin/change_list.html" %}
-{% load adminmedia admin_list i18n cms_admin cms_js_tags %}
+{% load admin_list i18n cms_admin cms_js_tags %}
 {% block title %}{% trans "List of pages" %}{% endblock %}
 {% block bodyclass %}change-list{% endblock %}
 
 {% if not is_popup %}{% block breadcrumbs %}
     <div class="breadcrumbs">
-    <a href="../../">{% trans "Home" %}</a> &rsaquo; 
+    <a href="../../">{% trans "Home" %}</a> &rsaquo;
     <a href="../">{{ app_label|capfirst|escape }}</a> &rsaquo; {{ opts.verbose_name_plural|capfirst|escape }}
     </div>
 {% endblock %}{% endif %}
@@ -44,14 +44,14 @@
 
 {% block content %}
 <script type="text/javascript">
-//<![CDATA[	
+//<![CDATA[
 (function namespacing($) {
 	$(document).ready(function() {
 		{% if not cl.is_filtered %}
 			initTree();
-		{% endif %}		
+		{% endif %}
 	});
-	
+
 	showchangelistfilter = function(){
 		$("#changelist-filter").toggle();
 	}
@@ -93,7 +93,7 @@
 		<li><a href="add/{% if is_popup %}?_popup=1{% endif %}" class="addlink">{% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}</a></li>
 		{% endif %}
 	</ul>
-	
+
 	{% include "admin/cms/page/loading.html" %}
 
 {% endblock %}

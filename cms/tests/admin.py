@@ -33,7 +33,7 @@ from django.test.client import Client, RequestFactory
 from django.utils.encoding import smart_str
 from menus.menu_pool import menu_pool
 from types import MethodType
-from unittest import TestCase
+from django.test.testcases import TestCase
 import contextlib
 
 
@@ -288,7 +288,7 @@ class AdminTestCase(AdminTestsBase):
                     continue
                 if not admin.search_fields:
                     continue
-                url = reverse('admin:cms_%s_changelist' % model._meta.module_name)
+                url = reverse('admin:cms_%s_changelist' % model._meta.model_name)
                 response = self.client.get('%s?q=1' % url)
                 errmsg = response.content
                 self.assertEqual(response.status_code, 200, errmsg)
@@ -326,8 +326,8 @@ class AdminTestCase(AdminTestsBase):
         page = create_page('test-page', 'nav_playground.html', 'en')
         url = reverse('admin:cms_page_get_permissions', args=(page.pk,))
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'admin/login.html')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/en/admin/login/?next=/admin/cms/page/%s/permissions/' % page.pk)
         admin = self._get_guys(True)
         with self.login_user_context(admin):
             response = self.client.get(url)
@@ -345,7 +345,7 @@ class AdminTestCase(AdminTestsBase):
                             created_by=admin, published=True, parent= second_level_page_top)
         self.assertEquals(Page.objects.all().count(), 4)
 
-        url = reverse('admin:cms_%s_changelist' % Page._meta.module_name)
+        url = reverse('admin:cms_%s_changelist' % Page._meta.model_name)
         request = self.request_factory.get(url)
 
         request.session = {}
@@ -387,7 +387,7 @@ class AdminTestCase(AdminTestsBase):
         third_level_page = create_page('level3', "nav_playground.html", "en",
                             created_by=admin, published=True, parent= second_level_page_top)
 
-        url = reverse('admin:cms_%s_changelist' % Page._meta.module_name)
+        url = reverse('admin:cms_%s_changelist' % Page._meta.model_name)
         client = Client()
         client.login(username='admin', password='admin')
         client.cookies['djangocms_nodes_open'] = 'page_1%2Cpage_2'
@@ -415,7 +415,7 @@ class AdminTestCase(AdminTestsBase):
             'two',  'nav_playground.html', 'en', site=site_two)
         with contextlib.nested(SettingsOverride(CMS_PERMISSION=True),
                                self.login_user_context(normal_guy)):
-            url = reverse('admin:cms_%s_changelist' % Page._meta.module_name)
+            url = reverse('admin:cms_%s_changelist' % Page._meta.model_name)
             request = self.request_factory.get(url)
             request.session = {}
             request.user = normal_guy
@@ -1093,12 +1093,11 @@ class PluginPermissionTests(AdminTestsBase):
             can_change_permissions=True, user=user, page=page)
         request = self._get_change_page_request(user, page)
         page_admin = PageAdmin(Page, None)
-        page_admin._current_page = page
         # user has can_change_permission
         # => must see the PagePermissionInline
         self.assertTrue(
             any(type(inline) is PagePermissionInlineAdmin
-                for inline in page_admin.get_inline_instances(request)))
+                for inline in page_admin.get_inline_instances(request, page)))
 
         page = Page.objects.get(pk=page.pk)
         # remove can_change_permission
@@ -1106,11 +1105,10 @@ class PluginPermissionTests(AdminTestsBase):
         page_permission.save()
         request = self._get_change_page_request(user, page)
         page_admin = PageAdmin(Page, None)
-        page_admin._current_page = page
         # => PagePermissionInline is no longer visible
         self.assertFalse(
             any(type(inline) is PagePermissionInlineAdmin
-                for inline in page_admin.get_inline_instances(request)))
+                for inline in page_admin.get_inline_instances(request, page)))
 
 
 class AdminFormsTests(AdminTestsBase):
@@ -1318,7 +1316,7 @@ class ChangePageTemplateTests(TestCase):
                                  language=settings.LANGUAGES[0][0],
                                  parent=parent_page)
         settings.CMS_TEMPLATES = tuple([t for t in settings.CMS_TEMPLATES
-            if t[0] != "col_two.html" and t[0] != "nav_playground.html"])  
+            if t[0] != "col_two.html" and t[0] != "nav_playground.html"])
         # simulates template deletion
 
         request = RequestFactory().get('admin/cms/page/%d/?template=%s' %
