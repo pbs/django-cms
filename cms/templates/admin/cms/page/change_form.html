@@ -289,8 +289,14 @@
 	{% if not moderation_delete_request %}{% page_submit_row %}{% endif %}
 {% endif %}
 
-{% if add %}
-   <script type="text/javascript">document.getElementById("{{ adminform.first_field.auto_id }}").focus();</script>
+{% if adminform and add %}
+    <script type="text/javascript">
+        (function($) {
+            $(document).ready(function() {
+                $('form#{{ opts.model_name }}_form :input:visible:enabled:first').focus()
+            });
+        })(django.jQuery);
+    </script>
 {% endif %}
 
 {# JavaScript for prepopulated fields #}
