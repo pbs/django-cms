@@ -1,44 +1,30 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
-from south.db import db
-from django.db import models
-from cms.plugins.link.models import *
+from django.db import models, migrations
 
-class Migration:
-    
-    depends_on = (
-        ("cms", "0001_initial"),
-    )
 
-    def forwards(self, orm):
-        
-        # Adding model 'Link'
-        db.create_table('link_link', (
-            ('link', models.URLField(_("link"), blank=True, null=True, verify_exists=True)),
-            ('cmsplugin_ptr', models.OneToOneField(orm['cms.CMSPlugin'])),
-            ('name', models.CharField(_("name"), max_length=40)),
-            ('page', models.ForeignKey(orm['cms.Page'], null=True, verbose_name=_("page"), blank=True)),
-        ))
-        db.send_create_signal('link', ['Link'])
-        
-    
-    
-    def backwards(self, orm):
-        
-        # Deleting model 'Link'
-        db.delete_table('link_link')
-        
-    
-    
-    models = {
-        'cms.cmsplugin': {
-            '_stub': True,
-            'id': ('models.AutoField', [], {'primary_key': 'True'})
-        },
-        'cms.page': {
-            'Meta': {'ordering': "('tree_id','lft')"},
-            '_stub': True,
-            'id': ('models.AutoField', [], {'primary_key': 'True'})
-        }
-    }
-    
-    
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('cms', '0001_initial'),
+    ]
+
+    operations = [
+        migrations.CreateModel(
+            name='Link',
+            fields=[
+                ('cmsplugin_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='cms.CMSPlugin')),
+                ('name', models.CharField(max_length=256, verbose_name='name')),
+                ('url', models.URLField(null=True, verbose_name='link', blank=True)),
+                ('mailto', models.EmailField(help_text='An email address has priority over a text link.', max_length=75, null=True, verbose_name='email address', blank=True)),
+                ('target', models.CharField(blank=True, max_length=100, verbose_name='target', choices=[(b'', 'same window'), (b'_blank', 'new window'), (b'_parent', 'parent window'), (b'_top', 'topmost frame')])),
+                ('page_link', models.ForeignKey(blank=True, to='cms.Page', help_text='A link to a page has priority over a text link.', null=True, verbose_name='page')),
+            ],
+            options={
+                'abstract': False,
+                'db_table': 'cmsplugin_link',
+            },
+            bases=('cms.cmsplugin',),
+        ),
+    ]

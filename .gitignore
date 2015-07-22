@@ -40,3 +40,4 @@ share/
 echo .tox
 *.pyo
 *.egg
+*.db

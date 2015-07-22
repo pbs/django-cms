@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Global cms settings, are applied if there isn't value defined in project
-settings. All available settings are listed here. Please don't put any 
-functions / test inside, if you need to create some dynamic values / tests, 
+settings. All available settings are listed here. Please don't put any
+functions / test inside, if you need to create some dynamic values / tests,
 take look at cms.conf.patch
 """
 import os
@@ -59,10 +59,10 @@ CMS_REDIRECTS = False
 
 # Allow the description, title and keywords meta tags to be edited from the
 # admin
-CMS_SEO_FIELDS = False 
+CMS_SEO_FIELDS = False
 
 # a tuple of python path to AppHook Classes. Overwrites the auto-discovered apphooks.
-CMS_APPHOOKS = ()  
+CMS_APPHOOKS = ()
 
 #Should the tree of the pages be also be displayed in the urls? or should a flat slug structure be used?
 CMS_FLAT_URLS = False
@@ -109,7 +109,7 @@ CMS_PAGE_MEDIA_PATH = 'cms_page_media/'
 
 # moderator mode - if True, approve path can be setup for every page, so there
 # will be some control over the published stuff
-CMS_MODERATOR = False 
+CMS_MODERATOR = False
 
 # Defines what character will be used for the __unicode__ handling of cms pages
 CMS_TITLE_CHARACTER = '+'

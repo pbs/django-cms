@@ -1,44 +1,32 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
-from south.db import db
-from django.db import models
-from cms.plugins.picture.models import *
+from django.db import models, migrations
+import cms.models.pluginmodel
 
-class Migration:
-    
-    depends_on = (
-        ("cms", "0001_initial"),
-    )
 
-    def forwards(self, orm):
-        
-        # Adding model 'Picture'
-        db.create_table('picture_picture', (
-            ('link', models.CharField(_("link"), max_length=255, null=True, blank=True)),
-            ('image', models.ImageField(_("image"), upload_to=CMSPlugin.get_media_path)),
-            ('cmsplugin_ptr', models.OneToOneField(orm['cms.CMSPlugin'])),
-            ('alt', models.CharField(_("alternate text"), max_length=255, null=True, blank=True)),
-        ))
-        db.send_create_signal('picture', ['Picture'])
-        
-    
-    
-    def backwards(self, orm):
-        
-        # Deleting model 'Picture'
-        db.delete_table('picture_picture')
-        
-    
-    
-    models = {
-        'cms.cmsplugin': {
-            '_stub': True,
-            'id': ('models.AutoField', [], {'primary_key': 'True'})
-        },
-        'cms.page': {
-            'Meta': {'ordering': "('tree_id','lft')"},
-            '_stub': True,
-            'id': ('models.AutoField', [], {'primary_key': 'True'})
-        }
-    }
-    
-    
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('cms', '0001_initial'),
+    ]
+
+    operations = [
+        migrations.CreateModel(
+            name='Picture',
+            fields=[
+                ('cmsplugin_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='cms.CMSPlugin')),
+                ('image', models.ImageField(upload_to=cms.models.pluginmodel.get_plugin_media_path, verbose_name='image')),
+                ('url', models.CharField(help_text='if present image will be clickable', max_length=255, null=True, verbose_name='link', blank=True)),
+                ('alt', models.CharField(help_text='textual description of the image', max_length=255, null=True, verbose_name='alternate text', blank=True)),
+                ('longdesc', models.CharField(help_text='additional description of the image', max_length=255, null=True, verbose_name='long description', blank=True)),
+                ('float', models.CharField(blank=True, max_length=10, null=True, verbose_name='side', choices=[(b'center', 'center'), (b'left', 'left'), (b'right', 'right')])),
+                ('page_link', models.ForeignKey(blank=True, to='cms.Page', help_text='if present image will be clickable', null=True, verbose_name='page')),
+            ],
+            options={
+                'abstract': False,
+                'db_table': 'cmsplugin_picture',
+            },
+            bases=('cms.cmsplugin',),
+        ),
+    ]

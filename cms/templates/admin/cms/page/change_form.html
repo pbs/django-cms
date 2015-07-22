@@ -1,5 +1,5 @@
 {% extends "admin/change_form.html" %}
-{% load i18n admin_modify adminmedia cms_tags cms_admin %}
+{% load i18n admin_modify cms_tags cms_admin %}
 {% load url from future %}
 {% block title %}{% trans "Change a page" %}{% endblock %}
 
@@ -15,7 +15,7 @@
 
 {% if add %}
 <script type="text/javascript">
-//<![CDATA[	
+//<![CDATA[
 
 	jQuery(document).ready(function (){
 		jQuery("#id_title").keyup(function () {
@@ -32,7 +32,7 @@
 
 <style type="text/css">
 <!--
-.language_button { 
+.language_button {
 	font-weight:bold;
 	margin-bottom:-1px;
 	border-color:#ddd #aaa #ccc #ddd !important;
@@ -63,8 +63,8 @@
 {% block breadcrumbs %}{% if not is_popup %}
 <div class="breadcrumbs">
      <a href="../../../">{% trans "Home" %}</a> &rsaquo;
-     <a href="../../">{{ app_label|capfirst|escape }}</a> &rsaquo; 
-     {% if has_change_permission %}<a href="../">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %} &rsaquo; 
+     <a href="../../">{{ app_label|capfirst|escape }}</a> &rsaquo;
+     {% if has_change_permission %}<a href="../">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %} &rsaquo;
      {% if add %}{% trans "Add" %} {{ opts.verbose_name }}{% else %}{{ original.get_title|truncatewords:"18" }}{% endif %}
 </div>
 {% endif %}{% endblock %}
@@ -83,7 +83,7 @@
 	{% endif %}
 	</h1>
 	{% endif %}
-	
+
 {% endblock %}
 
 {% block content %}<div id="content-main">
@@ -91,12 +91,12 @@
 {% block object-tools %}
 {% if change %}{% if not is_popup %}
   <ul class="object-tools">
-	{% if moderation_delete_request %}<li><a href="remove-delete-state/" class="approvelink">{% trans "Remove delete request" %}</a></li>{% endif %}  	
+	{% if moderation_delete_request %}<li><a href="remove-delete-state/" class="approvelink">{% trans "Remove delete request" %}</a></li>{% endif %}
 	{% if moderator_should_approve %}
 	<li><a href="approve/" class="approvelink">{% if moderation_delete_request %}{% trans "Approve delete" %}{% else %}{% trans "Approve" %} {% trans "draft" %}{% endif %}</a></li>
 	<li><a href="{% if current_site_id %}{% ifnotequal current_site_id page.site.id %}http{% if request.is_secure %}s{% endif %}://{{ page.site.domain }}{% endifnotequal %}{% endif %}{{ page.get_absolute_url }}?preview&draft=1" class="previewdraftlink">{% trans "Preview" %} {% trans "draft" %}</a></li>
 	{% endif %}
-	
+
 	<li><a href="history/" class="historylink">{% trans "History" %}</a></li>
   	{% if has_absolute_url %}<li><a href="{% if current_site_id %}{% ifnotequal current_site_id page.site.id %}http{% if request.is_secure %}s{% endif %}://{{ page.site.domain }}{% endifnotequal %}{% endif %}{{ page|preview_link:language }}?preview" class="viewsitelink">{% trans "View on site" %}</a></li>{% endif%}
   </ul>
@@ -114,7 +114,7 @@
     {% for lang_code, lang_name in language_tabs %}
         <input type="button" onclick="trigger_lang_button(this,'./?language={{lang_code}}');"
             class="language_button {% ifequal lang_code language %}selected{% else %}{% if not lang_code in filled_languages %} notfilled{% endif %}{% endifequal %}"
-            id="debutton" name="{{lang_code}}" value="{{lang_name}}" /> 
+            id="debutton" name="{{lang_code}}" value="{{lang_name}}" />
     {% endfor %}
 </div>
 {% endif %}
@@ -191,10 +191,10 @@
 		</div>
 
 		<script type="text/javascript">
-		//<![CDATA[	
+		//<![CDATA[
 		(function($) {
 			$(function(){
-			
+
 				var submitActor;
 				var forceSubmit = false;
 				var seen = false;
@@ -226,7 +226,7 @@
 					// assign values from dialog form to real form
 					$('#id_moderator_message').val($('#id_df_moderator_message').val());
 					$('#id_moderator_state').val(
-						$('#id_df_moderator_state').is(':checked') ? $('#id_df_moderator_state').val() : 0 
+						$('#id_df_moderator_state').is(':checked') ? $('#id_df_moderator_state').val() : 0
 					);
 					$('#dialog').dialog('close');
 					forceSubmit = true;
@@ -289,8 +289,14 @@
 	{% if not moderation_delete_request %}{% page_submit_row %}{% endif %}
 {% endif %}
 
-{% if add %}
-   <script type="text/javascript">document.getElementById("{{ adminform.first_field.auto_id }}").focus();</script>
+{% if adminform and add %}
+    <script type="text/javascript">
+        (function($) {
+            $(document).ready(function() {
+                $('form#{{ opts.model_name }}_form :input:visible:enabled:first').focus()
+            });
+        })(django.jQuery);
+    </script>
 {% endif %}
 
 {# JavaScript for prepopulated fields #}

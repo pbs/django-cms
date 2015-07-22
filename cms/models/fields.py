@@ -17,6 +17,8 @@ class PlaceholderField(models.ForeignKey):
         self.default_width = default_width
         self.actions = actions()
         kwargs.update({'null': True})  # always allow Null
+        if 'to' in kwargs:
+            del(kwargs['to'])
         super(PlaceholderField, self).__init__(Placeholder, **kwargs)
 
     def formfield(self, **kwargs):
@@ -50,6 +52,11 @@ class PlaceholderField(models.ForeignKey):
                 data = self._get_new_placeholder()
         super(PlaceholderField, self).save_form_data(instance, data)
 
+    def deconstruct(self):
+        name, path, args, kwargs = super(PlaceholderField, self).deconstruct()
+        kwargs['slotname'] = self.slotname
+        return name, path, args, kwargs
+
     def south_field_triple(self):
         "Returns a suitable description of this field for South."
         # We'll just introspect ourselves, since we inherit.
@@ -77,7 +84,8 @@ class PageField(models.ForeignKey):
     def __init__(self, **kwargs):
         # we call ForeignKey.__init__ with the Page model as parameter...
         # a PageField can only be a ForeignKey to a Page
-        super(PageField, self).__init__(self.default_model_class, **kwargs)
+        kwargs['to'] = self.default_model_class
+        super(PageField, self).__init__(**kwargs)
 
     def formfield(self, **kwargs):
         defaults = {

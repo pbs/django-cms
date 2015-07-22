@@ -7,7 +7,7 @@ class TeaserPlugin(CMSPluginBase):
     model = Teaser
     name = _("Teaser")
     render_template = "cms/plugins/teaser.html"
-    
+
     def render(self, context, instance, placeholder):
         if instance.url:
             link = instance.url
@@ -16,10 +16,10 @@ class TeaserPlugin(CMSPluginBase):
         else:
             link = ""
         context.update({
-            'object':instance, 
+            'object':instance,
             'placeholder':placeholder,
             'link':link
         })
-        return context 
- 
+        return context
+
 plugin_pool.register_plugin(TeaserPlugin)

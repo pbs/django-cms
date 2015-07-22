@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from cms.models import Page
-from cms.test_utils.util.context_managers import (UserLoginContext, 
+from cms.test_utils.util.context_managers import (UserLoginContext,
     SettingsOverride)
 from django.conf import settings
 from django.contrib.auth.models import User, AnonymousUser
@@ -109,7 +109,7 @@ class CMSTestCase(testcases.TestCase):
 
     def get_text_plugin_wrapper(self, body):
         return '<div class="text-plugin clearfix">%s</div>' % body
-    
+
     def get_new_page_data(self, parent_id=''):
         page_data = {
             'title': 'test page %d' % self.counter,
@@ -128,7 +128,7 @@ class CMSTestCase(testcases.TestCase):
         page_data['pagepermission_set-2-MAX_NUM_FORMS'] = 0
         self.counter = self.counter + 1
         return page_data
-    
+
     def get_new_page_data_dbfields(self, parent=None, site=None,
                                    language=None,
                                    template='nav_playground.html',):
@@ -142,7 +142,7 @@ class CMSTestCase(testcases.TestCase):
         }
         self.counter = self.counter + 1
         return page_data
-    
+
     def get_pagedata_from_dbfields(self, page_data):
         """Converts data created by get_new_page_data_dbfields to data
         created from get_new_page_data so you can switch between test cases
@@ -157,7 +157,7 @@ class CMSTestCase(testcases.TestCase):
         page_data['pagepermission_set-2-INITIAL_FORMS'] = 0
         page_data['pagepermission_set-2-MAX_NUM_FORMS'] = 0
         return page_data
-    
+
     def print_page_structure(self, qs):
         """Just a helper to see the page struct.
         """
@@ -205,7 +205,7 @@ class CMSTestCase(testcases.TestCase):
         self.assertEquals(response.status_code, 200)
         # Altered to reflect the new django-js jsonified response messages
         self.assertEquals(response.content, '{"status": 200, "content": "ok"}')
-        
+
         title = page.title_set.all()[0]
         copied_slug = get_available_slug(title)
 

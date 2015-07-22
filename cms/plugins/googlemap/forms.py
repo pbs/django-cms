@@ -12,6 +12,7 @@ CSS_HEIGHT_RE = re.compile(r'^\d+px$')
 class GoogleMapForm(ModelForm):
     class Meta:
         model = GoogleMap
+        exclude = ()
 
     def clean(self):
         cleaned_data = super(GoogleMapForm, self).clean()
