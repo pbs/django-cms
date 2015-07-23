@@ -38,6 +38,7 @@ CMS.$(document).ready(function () {
 	window.$ = _$ || jQuery;
 </script>
 {% endaddtoblock %}
+{% addtoblock "js" %}
 <div id="cms_toolbar" class="cms_reset" style="display:none;">
 	<!-- start: toolbar -->
 	<div class="cms_toolbar">
@@ -93,3 +94,4 @@ CMS.$(document).ready(function () {
 	<!-- item: html - login -->
 	{% include "cms/toolbar/items/login.html" %}
 </div>
+{% endaddtoblock %}
