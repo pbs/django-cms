@@ -305,7 +305,7 @@ CMS.$(document).ready(function ($) {
 						   .replace('<span>', '<span'+icon_styles+'>');
 			});
 			// add items
-			template.find('.cms_toolbar-item_list').html($(tmp));
+			template.find('.cms_toolbar-item_list').html(tmp);
 
 			// add events
 			var container = template.find('.cms_toolbar-item_list');
