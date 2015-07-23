@@ -4,6 +4,13 @@
 	CMS.$(document).ready(function ($) {
 		// assign correct jquery to $ namespace
 		$ = CMS.$ || $;
+		if ($.browser === undefined){
+			$.browser = {};
+			$.browser.mozilla = /mozilla/.test(navigator.userAgent.toLowerCase()) && !/webkit/.test(navigator.userAgent.toLowerCase());
+			$.browser.webkit = /webkit/.test(navigator.userAgent.toLowerCase());
+			$.browser.opera = /opera/.test(navigator.userAgent.toLowerCase());
+			$.browser.msie = /msie/.test(navigator.userAgent.toLowerCase());
+		}
 
 		// the following is added because IE is stupid
 		// $.ajax requests in IE8 fail without this hack
@@ -32,8 +39,8 @@
 					beforeSend: function (xhr, settings) {
 						if (typeof(settings.csrfTokenSet) != undefined && settings.csrfTokenSet) {
 							// CSRF token has already been set elsewhere so we won't touch it.
-							return true; 
-						} 
+							return true;
+						}
 						// get cookies without jquery.cookie.js
 						function getCookie(name) {
 							var cookieValue = null;
@@ -65,9 +72,9 @@
 				});
 				return 'ready';
 			}
-		
+
 		};
-		
+
 		/*!
 		 * Adds helper methods to api namespace
 		 * @public_methods:
@@ -76,7 +83,7 @@
 		 *	- CMS.API.Helpers.setUrl(urlString, options);
 		 */
 		CMS.API.Helpers = {
-		
+
 			reloadBrowser: function () {
 				window.location.reload();
 			},
@@ -91,7 +98,7 @@
 						'loose':  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
 					}
 				};
-				
+
 				var m = o.parser[o.strictMode ? 'strict' : 'loose'].exec(str), uri = {}, i = 14;
 
 				while(i--) uri[o.key[i]] = m[i] || '';
@@ -134,7 +141,7 @@
 
 				return uri;
 			}
-		
+
 		};
 
 	});
