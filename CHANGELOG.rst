@@ -1,6 +1,19 @@
 CHANGELOG
 =========
 
+Revision 4e3b183 (24.07.2015, 14:42 UTC)
+----------------------------------------
+
+* LUN-2467
+
+  * fix CMS toolbar
+
+* Misc commits
+
+  * Fixed browser property for cms jquery
+  * Django 1.7 upgrade: updated change form template from django
+  * emergency fix for jstree
+
 Revision f80e81f (17.07.2015, 10:45 UTC)
 ----------------------------------------
 
