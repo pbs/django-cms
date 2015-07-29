@@ -21,6 +21,7 @@ from django.forms.util import ErrorList
 from django.forms.widgets import HiddenInput
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _, get_language
+from django.contrib.admin.widgets import AdminURLFieldWidget
 from menus.menu_pool import menu_pool
 
 
@@ -160,7 +161,7 @@ class PageForm(PageAddForm):
         choices=(), required=False,
         help_text=_('Hook application to this page.'))
     overwrite_url = forms.CharField(label=_('Overwrite URL'), max_length=255, required=False,
-        help_text=_('Keep this field empty if standard path should be used.'))
+        help_text=_('Keep this field empty if standard path should be used.'), widget=AdminURLFieldWidget())
     # moderation state
     moderator_state = forms.IntegerField(widget=forms.HiddenInput, required=False, initial=Page.MODERATOR_CHANGED)
     # moderation - message is a fake field
