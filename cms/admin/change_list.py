@@ -72,6 +72,10 @@ class CMSChangeList(ChangeList):
     def get_queryset(self, request=None):
         if COPY_VAR in self.params:
             del self.params[COPY_VAR]
+        # remove site__exact from params if it is different than the current site
+        from cms.utils.plugins import SITE_VAR
+        if SITE_VAR in self.params and self.params[SITE_VAR] != str(self._current_site.id):
+            del self.params[SITE_VAR]
         if django.VERSION[1] > 3:
             qs = super(CMSChangeList, self).get_queryset(request).drafts()
         else:

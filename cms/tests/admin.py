@@ -404,7 +404,7 @@ class AdminTestCase(AdminTestsBase):
         # but not any further down the tree
         self.assertFalse('id="page_4"' in response.content)
 
-    def test_changelist_site_items(self):
+    def _test_changelist_site_items(self, site_lookup=False):
         site_one = Site.objects.get_current()
         site_two = Site.objects.create(
             domain='django-cms2.org', name='django-cms2')
@@ -432,8 +432,14 @@ class AdminTestCase(AdminTestsBase):
             changelist = CMSChangeList(*tuple(cl_params))
             changelist.set_items(request)
             self.assertItemsEqual(changelist.get_items(), [one_page])
+
             # change working site
             request.session['cms_admin_site'] = site_two.id
+            if site_lookup:
+                copied_params = request.GET.copy()
+                copied_params.__setitem__('site__exact', site_two.id)
+                request.GET = copied_params
+
             changelist = CMSChangeList(*tuple(cl_params))
             changelist.set_items(request)
             self.assertItemsEqual(changelist.get_items(), [second_page])
@@ -444,6 +450,12 @@ class AdminTestCase(AdminTestsBase):
             changelist = CMSChangeList(*tuple(cl_params))
             changelist.set_items(request)
             self.assertItemsEqual(changelist.get_items(), [one_page])
+
+    def test_changelist_site_items(self):
+        self._test_changelist_site_items()
+
+    def test_changelist_site_items_with_site_lookup(self):
+        self._test_changelist_site_items(True)
 
     def test_pages_admin_access_with_global_permissions(self):
         site_one = Site.objects.get_current()
