@@ -5,18 +5,20 @@ from django.core.exceptions import ValidationError
 import re
 
 APPEND_TO_SLUG = "-copy"
-COPY_SLUG_REGEX = re.compile(r'^.*-copy(?:-(\d)*)?$')
+COPY_SLUG_REGEX = re.compile(r'^.*-copy(?:-(\d+)*)?$')
 
 def is_valid_page_slug(page, parent, lang, slug, site, path=None):
     """Validates given slug depending on settings.
     """
     from cms.models import Title
     # Exclude the page with the publisher_state == page.PUBLISHER_STATE_DELETE
-    qs = Title.objects.filter(page__site=site).exclude(
-        Q(page=page) |
-        Q(page=page.publisher_public) |
-        Q(page__publisher_state=page.PUBLISHER_STATE_DELETE)
-    )
+    qs = Title.objects.filter(page__site=site)
+    if page.id:
+        qs = qs.exclude(
+            Q(page=page) |
+            Q(page=page.publisher_public) |
+            Q(page__publisher_state=page.PUBLISHER_STATE_DELETE)
+        )
 
     if settings.i18n_installed:
         qs = qs.filter(language=lang)
@@ -59,6 +61,10 @@ def get_available_slug(title, new_slug=None):
     # This is a simpler check than in page_resolver.is_valid_url which
     # takes into account actualy page URL
     if not is_valid_page_slug(title.page, title.page.parent, title.language, slug, title.page.site, path):
+        if title.has_url_overwrite and is_valid_page_slug(title.page, title.page.parent, title.language, slug, title.page.site, None):
+            # The title has an overwrite url so a slug change will not change the path and
+            # the validation fails only because the path already exists.
+            return slug
         # add nice copy attribute, first is -copy, then -copy-2, -copy-3, ....
         match = COPY_SLUG_REGEX.match(slug)
         if match:
