@@ -48,7 +48,7 @@ function edit_plugin(obj_id) {
     var newWin = window.open("edit-plugin/" + obj_id + "/?_popup=1",
                 "Edit_plugin_object" + obj_id,
                 "menubar=no,titlebar=no,toolbar=no,resizable=yes"
-                  + ",width=800,height=300,top=0,left=0,scrollbars=yes"
+                  + ",width=1200,height=660,top=0,left=0,scrollbars=yes"
                   + ",location=no"
                );
     if (!newWin) {
