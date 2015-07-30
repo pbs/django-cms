@@ -1,6 +1,31 @@
 CHANGELOG
 =========
 
+Revision 38d0bd2 (30.07.2015, 09:06 UTC)
+----------------------------------------
+
+* LUN-1966
+
+  * Reverting stripping whitespaces
+  * Fix for having query param site__exact point to a site where the user has no role
+
+* LUN-2162
+
+  * Set URL widget for the overwrite url field.
+  * Increase width of CMS Page "Redirect" and "Overwrite URL" fields to match the width of the "Id" field.
+
+* LUN-2418
+
+  * Removed deprecated test and used exactly the same test from divio/django-cms.
+  * Allow slug validation for existing pages with overwrite urls.
+  * Fixed slug validation for newly created slugs.
+
+* Misc commits
+
+  * Fix docstring
+  * Add test for cms.utils.get_available_slug infinite recursion
+  * Fix COPY_SLUG_REGEX
+
 Revision 4e3b183 (24.07.2015, 14:42 UTC)
 ----------------------------------------
 
