@@ -1,6 +1,23 @@
 CHANGELOG
 =========
 
+Revision f46db92 (06.08.2015, 13:40 UTC)
+----------------------------------------
+
+* LUN-2417
+
+  * make pop-up window bigger for all plugins
+
+* LUN-2503
+
+  * Resolve decompress 500 error.
+
+* LUN-2506
+
+  * Remove validations so relative urls are allowed for the redirect and overwrite fields.
+
+No other commits.
+
 Revision 38d0bd2 (30.07.2015, 09:06 UTC)
 ----------------------------------------
 
