@@ -129,20 +129,6 @@
 {% endblock %}
 {% block date_hierarchy %}{% date_hierarchy cl %}{% endblock %}
 
-{% block filters %}
-{% if cl.has_filters %}
-
-
-<a href="javascript:showchangelistfilter();" id="changelist-filter-button">{% trans "Filter:" %} {% if cl.is_filtered %}{% trans "on" %}{% else %}{% trans "off" %}{% endif %}</a>
-<div id="changelist-filter" style="display:none;">
-<h2>{% trans 'Filter' %}</h2>
-{% for spec in cl.filter_specs %}
-   {% clean_admin_list_filter cl spec %}
-{% endfor %}
-</div>
-{% endif %}
-{% endblock %}
-
 {% include "admin/cms/page/change_list_tree.html" %}
 
 </div>
