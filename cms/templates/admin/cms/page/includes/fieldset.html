@@ -1,28 +1,50 @@
-<fieldset class="module aligned {{ fieldset.classes }}">
-  {% if fieldset.name %}<h2>{{ fieldset.name }}</h2>{% endif %}
-  {% if fieldset.description %}
-  	<div class="description">{{ fieldset.description|safe }}</div>
-  {% endif %}
-  {% for line in fieldset %}
-      <div class="form-row{% if line.errors %} errors{% endif %}{% for field in line %} {{ field.field.name }}{% endfor %}">
-      {{ line.errors }}
-      {% for field in line %}
-	      {% if not field.field.is_hidden %}
-	      <div{% if not line.fields|length_is:"1" %} class="field-box"{% endif %}>{% endif %}
-	          {% if field.is_checkbox %}
-	              {{ field.field }}{{ field.label_tag }}
-	          {% else %}
-			  		{% if field.field.is_hidden %}
-						{{ field.field }}
-					{% else %}
-	              		{{ field.label_tag }}{{ field.field }}
-				  	{% endif %}
-	          {% endif %}
-			  {% if not field.field.is_hidden %}
-	          {% if field.field.field.help_text %}<p class="help">{{ field.field.field.help_text|safe }}</p>{% endif %}
-	      </div>
-	      {% endif %}
-      {% endfor %}
-      </div>
-  {% endfor %}
+<fieldset class="module aligned form-horizontal {{ fieldset.classes }}">
+    {% if fieldset.name %}
+        <h2 class="header h4 smaller lighter blue block">{{ fieldset.name }}</h2>
+    {% endif %}
+    <div class="widget-body">
+        {% if fieldset.description %}
+        <div class="form-row form-group">
+        		<div class="col-sm-9 col-md-offset-3">
+            		<div class="description alert alert-info"><i class="ace-icon fa fa-info-circle"></i>{{ fieldset.description|safe }}</div>
+		        </div>
+        </div>
+        {% endif %}
+        {% for line in fieldset %}
+            <div class="form-row form-group{% if line.fields|length_is:'1' and line.errors %} errors{% endif %}{% for field in line %} {{ field.field.name }}{% endfor %}">
+                {% if line.fields|length_is:'1' %}{{ line.errors }}{% endif %}
+
+                {% for field in line %}
+                    <div class="row{% if not line.fields|length_is:'1' %} field-box{% if not field.is_readonly and field.errors %} errors{% endif %}{% endif %}">
+                        {% if not line.fields|length_is:'1' and not field.is_readonly %}{{ field.errors }}{% endif %}
+                        {% if field.is_checkbox %}
+                            <div class="col-sm-3 control-label no-padding">{{ field.label_tag }}</div>
+                            <div class="col-sm-9">
+                                <label>
+                                    {{ field.field }}
+                                    <span class="lbl"></span>
+                                </label>
+                            </div>
+                        {% else %}
+                            <div class="col-sm-3 control-label no-padding-right">{{ field.label_tag }}</div>
+                            <div class="col-sm-9">
+                                {% if field.is_readonly %}
+                                    <p>{{ field.contents }}</p>
+                                {% else %}
+                                    {{ field.field }}                                
+                                {% endif %}
+                                 {% if field.field.help_text %}
+                                    {% if '<a href=' in field.field.help_text %}
+                                        <span class="help-block">{{ field.field.help_text|safe }}</span>
+                                    {% else %}
+                                      <span class="help-button" data-rel="popover" data-trigger="hover" data-placement="right" data-content='{{ field.field.help_text|safe|escape }}'>?</span>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
 </fieldset>

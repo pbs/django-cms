@@ -80,7 +80,7 @@
 			}
 		});
 		// inline group loader
-		$('h2 a').click(function() {
+		$('fieldset.custom-collapse i.ace-icon').click(function() {
 			// reqest content - do it this way, so we can save some time which
 			// this operation may need
 			var parent = $(this).parent().parent();
