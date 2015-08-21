@@ -80,7 +80,7 @@
 			}
 		});
 		// inline group loader
-		$('fieldset.custom-collapse i.ace-icon').click(function() {
+		$('fieldset.custom-collapse i.ace-icon, fieldset.collapse a.collapse-toggle').click(function() {
 			// reqest content - do it this way, so we can save some time which
 			// this operation may need
 			var parent = $(this).parent().parent();
@@ -91,7 +91,7 @@
 				pathHolder.remove();
 				$(parent).find('div.loading').load(url);
 			}
-			return false;	
+			return true;	
 		});	
 			
 	});
