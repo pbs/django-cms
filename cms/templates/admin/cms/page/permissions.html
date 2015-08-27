@@ -1,18 +1,19 @@
 {% load i18n cms_admin %}
 {% if permission_set %}
-	<table>
+	<table class="table no-margin-bottom">
 		<thead><tr>
 			<th>{% trans 'Page' %}</th>
 			<th>{% trans 'User' %}</th>
 			<th>{% trans 'Group' %}</th>
-			<th>{% trans 'Can edit' %}</th>
-			<th>{% trans 'Can add' %}</th>
-			<th>{% trans 'Can delete' %}</th>
-			<th>{% trans 'Can publish' %}</th>
-			<th>{% trans 'Can change permissions' %}</th>
-			<th>{% trans 'Can move' %}</th>
-			<th>{% trans 'Can view' %}</th>
-			<th>{% trans 'Grant on' %}</th>
+			<th class="center">{% trans 'Can edit' %}</th>
+			<th class="center">{% trans 'Can add' %}</th>
+			<th class="center">{% trans 'Can delete' %}</th>
+			<th class="center">{% trans 'Can publish' %}</th>
+			<th class="center">{% trans 'Can set navigation' %}</th>
+			<th class="center">{% trans 'Can change permissions' %}</th>
+			<th class="center">{% trans 'Can move' %}</th>
+			<th class="center">{% trans 'Can view' %}</th>
+			<th class="center">{% trans 'Grant on' %}</th>
 		</tr></thead>
 		<tbody>
 			{% for meta, permission in permission_set %}<tr class="{% cycle 'row1' 'row2' %}">
@@ -33,15 +34,15 @@
 					</td>
 					<td class="user">{{ permission.user|default_if_none:"-" }}</td>
 					<td class="group">{{ permission.group|default_if_none:"-" }}</td>
-					<td class="can_change">{{ permission.can_change|boolean_icon }}</td>
-					<td class="can_add">{{ permission.can_add|boolean_icon }}</td>
-					<td class="can_delete">{{ permission.can_delete|boolean_icon }}</td>
-					<td class="can_publish">{{ permission.can_publish|boolean_icon }}</td>
-					<td class="can_set_navigation">{{ permission.can_set_navigation|boolean_icon }}</td>
-					<td class="can_change_permissions">{{ permission.can_change_permissions|boolean_icon }}</td>
-					<td class="can_move_page">{{ permission.can_move_page|boolean_icon }}</td>
-					<td class="can_view">{{ permission.can_view|boolean_icon }}</td>
-					<td class="grant_on">{% if meta.0 %}{% trans 'All' %}
+					<td class="can_change center">{{ permission.can_change|boolean_icon }}</td>
+					<td class="can_add center">{{ permission.can_add|boolean_icon }}</td>
+					<td class="can_delete center">{{ permission.can_delete|boolean_icon }}</td>
+					<td class="can_publish center">{{ permission.can_publish|boolean_icon }}</td>
+					<td class="can_set_navigation center">{{ permission.can_set_navigation|boolean_icon }}</td>
+					<td class="can_change_permissions center">{{ permission.can_change_permissions|boolean_icon }}</td>
+					<td class="can_move_page center">{{ permission.can_move_page|boolean_icon }}</td>
+					<td class="can_view center">{{ permission.can_view|boolean_icon }}</td>
+					<td class="grant_on center">{% if meta.0 %}{% trans 'All' %}
 						{% else %}{{ permission.get_grant_on_display }}
 					{% endif%}</td>
 				</tr>

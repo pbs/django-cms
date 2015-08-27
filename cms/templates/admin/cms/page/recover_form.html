@@ -11,11 +11,16 @@
 
 {% block breadcrumbs %}
 	<div class="breadcrumbs">
-		<a href="../../../../">{% trans "Home" %}</a> &rsaquo;
-		<a href="../../../">{{app_label|capfirst|escape}}</a> &rsaquo; 
-		<a href="../../">{{opts.verbose_name_plural|capfirst}}</a> &rsaquo;
-		<a href="../">{% blocktrans with opts.verbose_name as verbose_name %}Recover deleted {{verbose_name}}{% endblocktrans %}</a> &rsaquo;
-		{{title}}
+		<ul class="breadcrumb">
+	        <li>
+		        <i class="ace-icon fa fa-home home-icon"></i>
+	            <a href="../../../../">{% trans 'Home' %}</a>
+	        </li>
+			<li><a href="../../../">{{app_label|capfirst|escape}}</a> </li>
+			<li><a href="../../">{{opts.verbose_name_plural|capfirst}}</a></li>
+			<li><a href="../">{% blocktrans with opts.verbose_name as verbose_name %}Recover deleted {{verbose_name}}{% endblocktrans %}</a></li>
+			<li>{{title}}</li>
+		</ul>
 	</div>
 {% endblock %}
 

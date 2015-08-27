@@ -1,26 +1,38 @@
 {% extends "admin/change_list.html" %}
-{% load admin_list i18n cms_admin cms_js_tags %}
+{% load admin_list i18n cms_admin cms_js_tags sekizai_tags%}
 {% block title %}{% trans "List of pages" %}{% endblock %}
 {% block bodyclass %}change-list{% endblock %}
 
 {% if not is_popup %}{% block breadcrumbs %}
     <div class="breadcrumbs">
-    <a href="../../">{% trans "Home" %}</a> &rsaquo;
-    <a href="../">{{ app_label|capfirst|escape }}</a> &rsaquo; {{ opts.verbose_name_plural|capfirst|escape }}
+    	<ul class="breadcrumb">
+	        <li>
+		        <i class="ace-icon fa fa-home home-icon"></i>
+	            <a href="../../">{% trans 'Home' %}</a>
+	        </li>
+	        <li><a href="../">{{ app_label|capfirst|escape }}</a></li>
+	        <li> {{ opts.verbose_name_plural|capfirst|escape }}</li>
+	    </ul>
     </div>
 {% endblock %}{% endif %}
 
 {% block coltype %}flex{% endblock %}
-{% block extrahead %}
+
+{% block extrastyle %}
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}cms/css/pages.css"/>
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}cms/jstree/tree_component.css" />
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}cms/css/jquery.dialog.css" />
-
 {{ block.super }}
+
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+
+{% addtoblock "js" %}
 <script type="text/javascript" src="{% admin_static_url %}js/jquery.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}cms/js/csrf.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}cms/js/libs/jquery.livequery.js"></script>
-
 <script type="text/javascript" src="{{ STATIC_URL }}cms/js/libs/jquery.ui.core.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}cms/js/libs/jquery.bind.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}cms/js/libs/jquery.ui.checkbox.js"></script>
@@ -36,13 +48,15 @@
 <script type="text/javascript" src="{{ STATIC_URL }}cms/js/plugins/cms.base.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}cms/js/change_list.js"></script>
 
-
+{% endaddtoblock %}
 {% if cl.is_filtered %}
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}cms/jstree/themes/default/style.css" />
 {% endif %}
 {% endblock %}
 
 {% block content %}
+
+{% addtoblock "js" %}
 <script type="text/javascript">
 //<![CDATA[
 (function namespacing($) {
@@ -79,7 +93,7 @@
 })(window.CMS.$);
 //]]>
 </script>
-
+{% endaddtoblock %}
 
 <div id="content-main"{% if cl.is_filtered %} class="activ-filter"{% endif %}>
 
@@ -114,20 +128,6 @@
 {% search_form cl %}
 {% endblock %}
 {% block date_hierarchy %}{% date_hierarchy cl %}{% endblock %}
-
-{% block filters %}
-{% if cl.has_filters %}
-
-
-<a href="javascript:showchangelistfilter();" id="changelist-filter-button">{% trans "Filter:" %} {% if cl.is_filtered %}{% trans "on" %}{% else %}{% trans "off" %}{% endif %}</a>
-<div id="changelist-filter" style="display:none;">
-<h2>{% trans 'Filter' %}</h2>
-{% for spec in cl.filter_specs %}
-   {% clean_admin_list_filter cl spec %}
-{% endfor %}
-</div>
-{% endif %}
-{% endblock %}
 
 {% include "admin/cms/page/change_list_tree.html" %}
 
