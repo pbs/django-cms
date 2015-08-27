@@ -5,7 +5,7 @@ from django.db.models import signals
 from django.dispatch import Signal
 
 from cms.cache.permissions import (
-    clear_user_permission_cache, clear_permission_cache)
+    clear_user_permission_cache, clear_permission_cache, enable_clear_cache, disable_clear_cache)
 from cms.exceptions import NoHomeFound
 from cms.models import (Page, Title, CMSPlugin, PagePermission,
     GlobalPagePermission, PageUser, PageUserGroup)
@@ -34,11 +34,9 @@ def update_plugin_positions(**kwargs):
 
 signals.post_delete.connect(update_plugin_positions, sender=CMSPlugin, dispatch_uid="cms.plugin.update_position")
 
-
 def pre_save_title(instance, raw, **kwargs):
     """Save old state to instance and setup path
     """
-
     menu_pool.clear(instance.page.site_id)
 
     instance.tmp_path = None
@@ -207,7 +205,9 @@ def update_placeholders(instance, **kwargs):
     instance.rescan_placeholders()
 
 def invalidate_menu_cache(instance, **kwargs):
-    menu_pool.clear(instance.site_id)
+    if not getattr(invalidate_menu_cache, '_disable', False):
+        # Prevent repeated cache clears during long delete operations
+        menu_pool.clear(instance.site_id)
 
 def attach_home_page_deletion_attr(instance, **kwargs):
     """Pre-delete signal handler that attaches  a magic attribute that shows
@@ -216,6 +216,7 @@ def attach_home_page_deletion_attr(instance, **kwargs):
     the path of the new home page.
     """
     instance._home_page_deletion = instance.is_home()
+
 
 def adjust_path_of_new_home_page(instance, **kwargs):
     """Post-delete signal handler. If the page that got deleted was the home page,
@@ -229,6 +230,7 @@ def adjust_path_of_new_home_page(instance, **kwargs):
         else:
             for title in new_home.title_set.all():
                 title.save()
+
 
 if settings.CMS_MODERATOR:
     # tell moderator, there is something happening with this page
@@ -276,8 +278,32 @@ def pre_save_globalpagepermission(instance, raw, **kwargs):
 def pre_delete_globalpagepermission(instance, **kwargs):
     _clear_users_permissions(instance)
 
+
 def pre_save_delete_page(instance, **kwargs):
     clear_permission_cache()
+
+
+def clear_cache_for_sites(site_ids):
+    for site_id in site_ids:
+        menu_pool.clear(site_id)
+    clear_permission_cache()
+
+
+def disable_cache_deletion_for_sites():
+    """
+    Disable cache clearing during long operations that would trigger them unnecessarily.
+    """
+    disable_clear_cache()
+    invalidate_menu_cache._disable = True
+
+
+def enable_cache_deletion_for_sites():
+    """
+    Reenable cache clearing operations after they were disabled.
+    """
+    enable_clear_cache()
+    del invalidate_menu_cache._disable
+
 
 if settings.CMS_PERMISSION:
     signals.pre_save.connect(pre_save_user, sender=User)

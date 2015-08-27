@@ -37,13 +37,29 @@ def clear_user_permission_cache(user):
     """
     Cleans permission cache for given user.
     """
+    if getattr(clear_permission_cache, '_disable', False):
+        # Cache clearing operations are disabled
+        return
     for key in PERMISSION_KEYS:
         cache.delete(get_cache_key(user, key))
 
 
 def clear_permission_cache():
+    if getattr(clear_permission_cache, '_disable', False):
+        # Cache clearing operations are disabled
+        return
     users = User.objects.filter(is_active=True)
     for user in users:
         for key in PERMISSION_KEYS:
             cache_key = get_cache_key(user, key)
             cache.delete(cache_key)
+
+
+def disable_clear_cache():
+    """ Disable cache clearing during long operations. """
+    clear_permission_cache._disable = True
+
+
+def enable_clear_cache():
+    """ Enable cache clearing """
+    del clear_permission_cache._disable
