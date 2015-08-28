@@ -1219,7 +1219,7 @@ class AdminFormsTests(AdminTestsBase):
             # reverse_id form row has an errors class. Django's admin avoids
             # collapsing these, so that the error is visible.
             resp = self.client.post(base.URL_CMS_PAGE_CHANGE % page2.pk, page2_data)
-            self.assertTrue('<div class="form-row errors reverse_id">' in resp.content)
+            self.assertTrue(len(resp.context['errors']) > 0)
 
 
 class AdminPageEditContentSizeTests(AdminTestsBase):
