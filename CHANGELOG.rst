@@ -1,6 +1,25 @@
 CHANGELOG
 =========
 
+Revision 9494d2b (28.08.2015, 07:20 UTC)
+----------------------------------------
+
+* LUN-2310
+
+  * updated if condition for tooltip to appear
+  * error messages fix
+  * fixed conflict with custom collapse.js
+  * remaining of fieldset classes
+  * error msgs styled
+  * collapsible fieldsets updates
+  * published labels updated + removed filters
+  * title updates and resources ordering
+  * breadcrumb updated
+
+* Misc commits
+
+  * Fix failing test - Rely on context['errors'] instead of checking for the presence of a css class to detect if an error occurred.
+
 Revision f46db92 (06.08.2015, 13:40 UTC)
 ----------------------------------------
 
