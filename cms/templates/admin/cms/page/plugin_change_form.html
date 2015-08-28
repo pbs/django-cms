@@ -142,9 +142,9 @@
 {% prepopulated_fields_js %}
 
 </div>
-<span class="plugin-submit-row"{% if is_popup %} style="overflow: auto;"{% endif %}>
-	<input type="submit" style="float:none;" name="_save" class="default" value="{% trans "Save" %}" {{ onclick_attrib }}/>
-	<input type="submit" style="margin-left: 8px;" value="{% trans "Cancel" %}" name="_cancel" class="cancel-btn">
+<span class="plugin-submit-row form-actions text-right no-margin-bottom no-background"{% if is_popup %} style="overflow: auto;"{% endif %}>
+	<input type="submit" name="_save" class="default btn btn-primary pull-right" value="{% trans "Save" %}" {{ onclick_attrib }}/>
+	<input type="submit" style="margin-left: 8px;" value="{% trans "Cancel" %}" name="_cancel" class="cancel-btn btn pull-right">
 </span>
 </form>
 
