@@ -4,6 +4,8 @@ from django.core.cache import cache
 
 from django.contrib.auth.models import User
 
+from cms.conf import global_settings
+
 PERMISSION_KEYS = [
     'can_change', 'can_add', 'can_delete',
     'can_change_advanced_settings', 'can_publish', 'can_set_navigation',
@@ -37,29 +39,21 @@ def clear_user_permission_cache(user):
     """
     Cleans permission cache for given user.
     """
-    if getattr(clear_permission_cache, '_disable', False):
-        # Cache clearing operations are disabled
+    if global_settings.CMS_DISABLE_SITE_CACHE_CLEAR:
+        # Cache clearing is temporarily disabled, see
+        # global_settings.CMS_DISABLE_SITE_CACHE_CLEAR for more info.
         return
     for key in PERMISSION_KEYS:
         cache.delete(get_cache_key(user, key))
 
 
 def clear_permission_cache():
-    if getattr(clear_permission_cache, '_disable', False):
-        # Cache clearing operations are disabled
+    if global_settings.CMS_DISABLE_SITE_CACHE_CLEAR:
+        # Cache clearing is temporarily disabled, see
+        # global_settings.CMS_DISABLE_SITE_CACHE_CLEAR for more info.
         return
     users = User.objects.filter(is_active=True)
     for user in users:
         for key in PERMISSION_KEYS:
             cache_key = get_cache_key(user, key)
             cache.delete(cache_key)
-
-
-def disable_clear_cache():
-    """ Disable cache clearing during long operations. """
-    clear_permission_cache._disable = True
-
-
-def enable_clear_cache():
-    """ Enable cache clearing """
-    del clear_permission_cache._disable

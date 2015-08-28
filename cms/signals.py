@@ -5,7 +5,8 @@ from django.db.models import signals
 from django.dispatch import Signal
 
 from cms.cache.permissions import (
-    clear_user_permission_cache, clear_permission_cache, enable_clear_cache, disable_clear_cache)
+    clear_user_permission_cache, clear_permission_cache)
+from cms.conf import global_settings
 from cms.exceptions import NoHomeFound
 from cms.models import (Page, Title, CMSPlugin, PagePermission,
     GlobalPagePermission, PageUser, PageUserGroup)
@@ -205,9 +206,11 @@ def update_placeholders(instance, **kwargs):
     instance.rescan_placeholders()
 
 def invalidate_menu_cache(instance, **kwargs):
-    if not getattr(invalidate_menu_cache, '_disable', False):
-        # Prevent repeated cache clears during long delete operations
-        menu_pool.clear(instance.site_id)
+    if global_settings.CMS_DISABLE_SITE_CACHE_CLEAR:
+        # Cache clearing is temporarily disabled, see
+        # global_settings.CMS_DISABLE_SITE_CACHE_CLEAR for more info.
+        return
+    menu_pool.clear(instance.site_id)
 
 def attach_home_page_deletion_attr(instance, **kwargs):
     """Pre-delete signal handler that attaches  a magic attribute that shows
@@ -284,25 +287,24 @@ def pre_save_delete_page(instance, **kwargs):
 
 
 def clear_cache_for_sites(site_ids):
+    """ Clear all site related cached data (menus and user permissions) for the given sites. """
     for site_id in site_ids:
         menu_pool.clear(site_id)
     clear_permission_cache()
 
 
-def disable_cache_deletion_for_sites():
+def with_site_cache_clear_disabled(func):
     """
-    Disable cache clearing during long operations that would trigger them unnecessarily.
+    Decorator to prevent cache clearing operations on site related data.
+    Should see global_settings.CMS_DISABLE_SITE_CACHE_CLEAR for information.
     """
-    disable_clear_cache()
-    invalidate_menu_cache._disable = True
-
-
-def enable_cache_deletion_for_sites():
-    """
-    Reenable cache clearing operations after they were disabled.
-    """
-    enable_clear_cache()
-    del invalidate_menu_cache._disable
+    def _decorator(*args, **kwargs):
+        try:
+            global_settings.CMS_DISABLE_SITE_CACHE_CLEAR = True
+            return func(*args, **kwargs)
+        finally:
+            global_settings.CMS_DISABLE_SITE_CACHE_CLEAR = False
+    return _decorator
 
 
 if settings.CMS_PERMISSION:
