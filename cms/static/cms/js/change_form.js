@@ -80,10 +80,10 @@
 			}
 		});
 		// inline group loader
-		$('fieldset.custom-collapse i.ace-icon, fieldset.collapse a.collapse-toggle').click(function() {
+		$('fieldset.custom-collapse .header, fieldset.collapse a.collapse-toggle').click(function() {
 			// reqest content - do it this way, so we can save some time which
 			// this operation may need
-			var parent = $(this).parent().parent();
+			var parent = $(this).closest('fieldset');
 			var pathHolder = $(parent).find('div.load');
 			if (pathHolder.length) {
 				var url = pathHolder.text();
