@@ -109,7 +109,6 @@ def contribute_fieldsets(cls):
         (_('Basic Settings'), {
             'fields': template_fields,
             'classes': ('low',),
-            'description': _('Note: This page reloads if you change the selection. Save it first.'),
         }),
         (_('Hidden'), {
             'fields': hidden_fields + additional_hidden_fields,
