@@ -693,6 +693,15 @@ class AdminTests(AdminTestsBase):
     def get_page(self):
         return Page.objects.get(pk=1)
 
+    def test_handling_incorrect_page_id(self):
+        with self.login_user_context(self.get_permless()):
+            self.assertRaises(PermissionDenied, self.admin_class.change_view,
+                              self.get_request(), 'incorrect_pk')
+
+        with self.login_user_context(self.get_admin()):
+            self.assertRaises(Http404, self.admin_class.change_view,
+                              self.get_request(), 'incorrect_pk')
+
     def test_get_moderation_state(self):
         page = self.get_page()
         permless = self.get_permless()

@@ -579,7 +579,7 @@ class PageAdmin(ModelAdmin):
         """
         try:
             obj = self.model.objects.get(pk=object_id)
-        except self.model.DoesNotExist:
+        except (self.model.DoesNotExist, ValueError):
             # Don't raise Http404 just yet, because we haven't checked
             # permissions yet. We don't want an unauthenticated user to be able
             # to determine whether a given object exists.
@@ -1410,7 +1410,6 @@ class PageAdmin(ModelAdmin):
                 'alt': force_escape(saved_object.get_instance_icon_alt()),
             }
             return render_to_response('admin/cms/page/plugin_forms_ok.html', context, RequestContext(request))
-
         return response
 
     @create_on_success
