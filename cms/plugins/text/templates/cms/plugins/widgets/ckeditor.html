@@ -9,8 +9,8 @@ CKEDITOR.on("instanceReady", function(event){
     if(window.self !== window.parent){
         //inside iframe
         try{
-            var url = window.location.href.replace(/\/$/, ''),
-                pluginID = url.split('/').pop();
+            var $ = jQuery || django.jQuery,
+                pluginID = $('#id_{{ name }}').closest('fieldset').data('plugin-id');
             parent.setiframeheight($('body').height()+20, pluginID);
         }catch(e){}
     }
