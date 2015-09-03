@@ -9,9 +9,7 @@ CKEDITOR.on("instanceReady", function(event){
     if(window.self !== window.parent){
         //inside iframe
         try{
-            var $ = jQuery || django.jQuery,
-                pluginID = $('#id_{{ name }}').closest('fieldset').data('plugin-id');
-            parent.setiframeheight($('body').height()+20, pluginID);
+            parent.setiframeheight($('body').height()+20, '{{plugin_id}}');
         }catch(e){}
     }
 });
