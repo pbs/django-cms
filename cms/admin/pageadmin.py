@@ -1041,16 +1041,16 @@ class PageAdmin(ModelAdmin):
             'user': request.user,
             'using': using
         }
-        deleted_objects, perms_needed =  get_deleted_objects(
+        deleted_objects, __, perms_needed = get_deleted_objects(
             [titleobj],
             titleopts,
             **kwargs
-        )[:2]
-        to_delete_plugins, perms_needed_plugins = get_deleted_objects(
+        )[:3]
+        to_delete_plugins, __, perms_needed_plugins = get_deleted_objects(
             saved_plugins,
             pluginopts,
             **kwargs
-        )[:2]
+        )[:3]
 
         deleted_objects.append(to_delete_plugins)
         perms_needed = set( list(perms_needed) + list(perms_needed_plugins) )

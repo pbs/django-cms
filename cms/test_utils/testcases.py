@@ -228,15 +228,16 @@ class CMSTestCase(testcases.TestCase):
     def get_pages_root(self):
         return urllib.unquote(reverse("pages-root"))
 
-    def get_context(self, path=None):
+    def get_context(self, path=None, page=None):
         if not path:
             path = self.get_pages_root()
         context = {}
-        request = self.get_request(path)
+        request = self.get_request(path, page=page)
         context['request'] = request
         return Context(context)
 
-    def get_request(self, path=None, language=None, post_data=None, enforce_csrf_checks=False):
+    def get_request(self, path=None, language=None, post_data=None,
+                    enforce_csrf_checks=False, page=None):
         factory = RequestFactory()
 
         if not path:
@@ -253,6 +254,11 @@ class CMSTestCase(testcases.TestCase):
         request.user = getattr(self, 'user', AnonymousUser())
         request.LANGUAGE_CODE = language
         request._dont_enforce_csrf_checks = not enforce_csrf_checks
+
+        if page:
+            request.current_page = page
+        else:
+            request.current_page = None
 
         class MockStorage(object):
 
@@ -275,24 +281,25 @@ class CMSTestCase(testcases.TestCase):
         public_page = page.publisher_public
 
         if page.parent:
-            self.assertEqual(page.parent_id, public_page.parent.publisher_draft.id)
+            self.assertEqual(page.parent_id,
+                             public_page.parent.publisher_draft.id)
 
         self.assertEqual(page.level, public_page.level)
 
         # TODO: add check for siblings
         draft_siblings = list(page.get_siblings(True).filter(
-                publisher_is_draft=True
-            ).order_by('tree_id', 'parent', 'lft'))
+            publisher_is_draft=True
+        ).order_by('tree_id', 'parent', 'lft'))
         public_siblings = list(public_page.get_siblings(True).filter(
-                publisher_is_draft=False
-            ).order_by('tree_id', 'parent', 'lft'))
+            publisher_is_draft=False
+        ).order_by('tree_id', 'parent', 'lft'))
         skip = 0
         for i, sibling in enumerate(draft_siblings):
             if not sibling.publisher_public_id:
                 skip += 1
                 continue
             self.assertEqual(sibling.id,
-                public_siblings[i - skip].publisher_draft.id)
+                             public_siblings[i - skip].publisher_draft.id)
 
     def request_moderation(self, page, level):
         """Assign current logged in user to the moderators / change moderation

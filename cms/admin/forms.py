@@ -13,6 +13,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import Permission, User
+from django.contrib.auth import get_permission_codename
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
@@ -49,8 +50,9 @@ def save_permissions(data, obj):
         content_type = ContentType.objects.get_for_model(model)
         for t in ('add', 'change', 'delete'):
             # add permission `t` to model `model`
-            codename = getattr(model._meta, 'get_%s_permission' % t)()
-            permission = Permission.objects.get(content_type=content_type, codename=codename)
+            codename = get_permission_codename(t, model._meta)
+            permission = Permission.objects.get(
+                content_type=content_type, codename=codename)
             if data.get('can_%s_%s' % (t, name), None):
                 permission_acessor.add(permission)
             else:
@@ -307,7 +309,7 @@ class GenericCmsPermissionForm(forms.ModelForm):
             content_type = ContentType.objects.get_for_model(model)
             permissions = permission_acessor.filter(content_type=content_type).values_list('codename', flat=True)
             for t in ('add', 'change', 'delete'):
-                codename = getattr(model._meta, 'get_%s_permission' % t)()
+                codename = get_permission_codename(t, model._meta)
                 initials['can_%s_%s' % (t, name)] = codename in permissions
         return initials
 

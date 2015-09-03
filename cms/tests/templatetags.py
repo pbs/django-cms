@@ -128,18 +128,14 @@ class TemplatetagDatabaseTests(TwoPagesFixture, SettingsOverrideTestCase):
         Verify ``show_placeholder`` correctly handles being given an
         invalid identifier.
         """
-        settings.DEBUG = True # So we can see the real exception raised
-        request = HttpRequest()
-        request.REQUEST = {}
-        self.assertRaises(Placeholder.DoesNotExist,
-                          _show_placeholder_for_page,
-                          RequestContext(request),
-                          'does_not_exist',
-                          'myreverseid')
-        settings.DEBUG = False # Now test the non-debug output
-        content = _show_placeholder_for_page(RequestContext(request),
-                                            'does_not_exist', 'myreverseid')
-        self.assertEqual(content['content'], '')
+        with self.settings(DEBUG=True):
+            context = self.get_context('/')
+
+            self.assertRaises(Placeholder.DoesNotExist, _show_placeholder_for_page,
+                              context, 'does_not_exist', 'myreverseid')
+        with self.settings(DEBUG=False):
+            content = _show_placeholder_for_page(context, 'does_not_exist', 'myreverseid')
+            self.assertEqual(content['content'], '')
 
     def test_untranslated_language_url(self):
         """ Tests page_language_url templatetag behavior when used on a page

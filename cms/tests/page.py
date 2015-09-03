@@ -17,7 +17,7 @@ from cms.test_utils.util.context_managers import (LanguageOverride,
 from cms.utils.page_resolver import get_page_from_request
 from cms.test_utils.testcases import (CMSTestCase, URL_CMS_PAGE,
                                       URL_CMS_PAGE_ADD, URL_CMS_PAGE_DELETE, URL_CMS_PAGE_CHANGE)
-from cms.test_utils.util.context_managers import (LanguageOverride, 
+from cms.test_utils.util.context_managers import (LanguageOverride,
     SettingsOverride)
 from cms.utils.page_resolver import get_page_from_request, is_valid_url
 from cms.utils import timezone
@@ -25,6 +25,7 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
+from django.template import Engine
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
 import datetime
 import os.path
@@ -32,7 +33,7 @@ from cms.utils.page import is_valid_page_slug, get_available_slug
 
 
 class PagesTestCase(CMSTestCase):
-    
+
     def test_add_page(self):
         """
         Test that the add admin page could be displayed via the admin
@@ -60,7 +61,7 @@ class PagesTestCase(CMSTestCase):
             self.assertEqual(page.get_title(), page_data['title'])
             self.assertEqual(page.get_slug(), page_data['slug'])
             self.assertEqual(page.placeholders.all().count(), 2)
-            
+
             # were public instances created?
             title = Title.objects.drafts().get(slug=page_data['slug'])
 
@@ -151,7 +152,7 @@ class PagesTestCase(CMSTestCase):
             response = self.client.get(self.get_pages_root())
             self.assertEqual(response.status_code, 404)
             self.assertTrue(page.publish())
-            create_page("test page 2", "nav_playground.html", "en", 
+            create_page("test page 2", "nav_playground.html", "en",
                                            parent=page, published=True)
             homepage = Page.objects.get_home()
             self.assertTrue(homepage.get_slug(), 'test-page-1')
@@ -236,11 +237,11 @@ class PagesTestCase(CMSTestCase):
             req = HttpRequest()
             page.published = True
             page.save()
-            req.current_page = page 
+            req.current_page = page
             req.REQUEST = {}
             self.assertEqual(t.render(template.Context({"request": req})), "Hello I am a page page,cms,stuff")
-    
-    
+
+
     def test_copy_page(self):
         """
         Test that a page can be copied via the admin
@@ -249,20 +250,20 @@ class PagesTestCase(CMSTestCase):
         page_a_a = create_page("page_a_a", "nav_playground.html", "en",
                                     parent=page_a)
         create_page("page_a_a_a", "nav_playground.html", "en", parent=page_a_a)
-        
+
         page_b = create_page("page_b", "nav_playground.html", "en")
-        page_b_a = create_page("page_b", "nav_playground.html", "en", 
+        page_b_a = create_page("page_b", "nav_playground.html", "en",
                                     parent=page_b)
-        
+
         count = Page.objects.drafts().count()
-        
+
         superuser = self.get_superuser()
         with self.login_user_context(superuser):
             self.copy_page(page_a, page_b_a)
-        
+
         self.assertEqual(Page.objects.drafts().count() - count, 3)
-        
-        
+
+
     def test_language_change(self):
         superuser = self.get_superuser()
         with self.login_user_context(superuser):
@@ -273,7 +274,7 @@ class PagesTestCase(CMSTestCase):
             self.assertEqual(response.status_code, 200)
             response = self.client.get("/admin/cms/page/%s/" % pk, {"language":"de" })
             self.assertEqual(response.status_code, 200)
-        
+
     def test_move_page(self):
         superuser = self.get_superuser()
         with self.login_user_context(superuser):
@@ -357,8 +358,8 @@ class PagesTestCase(CMSTestCase):
         self.assertEqual(child.get_template(), parent.get_template())
         child.move_page(parent, 'left')
         self.assertEqual(child.get_template(), parent.get_template())
-        
-        
+
+
     def test_add_placeholder(self):
         # create page
         page = create_page("Add Placeholder", "nav_playground.html", "en",
@@ -368,7 +369,7 @@ class PagesTestCase(CMSTestCase):
         url = page.get_absolute_url()
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
-        path = os.path.join(settings.TEMPLATE_DIRS[0], 'add_placeholder.html')
+        path = os.path.join(Engine.get_default().dirs[0], 'add_placeholder.html')
         f = open(path, 'r')
         old = f.read()
         f.close()
@@ -433,7 +434,7 @@ class PagesTestCase(CMSTestCase):
             page = Page.objects.get(title_set__slug=page_data['slug'])
             with LanguageOverride(TESTLANG):
                 self.assertEqual(page.get_title(), 'changed title')
-        
+
     def test_flat_urls(self):
         with SettingsOverride(CMS_FLAT_URLS=True):
             home_slug = "home"
@@ -483,7 +484,7 @@ class PagesTestCase(CMSTestCase):
         self.assertEqual(parent.template, settings.CMS_TEMPLATE_INHERITANCE_MAGIC)
         self.assertEqual(parent.get_template(), settings.CMS_TEMPLATES[0][0])
         self.assertEqual(parent.get_template_name(), settings.CMS_TEMPLATES[0][1])
-        
+
     def test_delete_with_plugins(self):
         """
         Check that plugins and placeholders get correctly deleted when we delete
@@ -494,12 +495,12 @@ class PagesTestCase(CMSTestCase):
         placeholder = page.placeholders.all()[0]
         plugin_base = CMSPlugin(
             plugin_type='TextPlugin',
-            placeholder=placeholder, 
-            position=1, 
+            placeholder=placeholder,
+            position=1,
             language=settings.LANGUAGES[0][0]
         )
         plugin_base.insert_at(None, position='last-child', save=False)
-                
+
         plugin = Text(body='')
         plugin_base.set_base_attr(plugin)
         plugin.save()
@@ -510,14 +511,14 @@ class PagesTestCase(CMSTestCase):
         self.assertEqual(CMSPlugin.objects.count(), 0)
         self.assertEqual(Text.objects.count(), 0)
         self.assertEqual(Placeholder.objects.count(), 0)
-        
+
     def test_get_page_from_request_on_non_cms_admin(self):
         request = self.get_request(
             reverse('admin:sampleapp_category_change', args=(1,))
         )
         page = get_page_from_request(request)
         self.assertEqual(page, None)
-        
+
     def test_get_page_from_request_on_cms_admin(self):
         page = create_page("page", "nav_playground.html", "en")
         request = self.get_request(
@@ -526,14 +527,14 @@ class PagesTestCase(CMSTestCase):
         found_page = get_page_from_request(request)
         self.assertTrue(found_page)
         self.assertEqual(found_page.pk, page.pk)
-        
+
     def test_get_page_from_request_on_cms_admin_nopage(self):
         request = self.get_request(
             reverse('admin:cms_page_change', args=(1,))
         )
         page = get_page_from_request(request)
         self.assertEqual(page, None)
-        
+
     def test_get_page_from_request_cached(self):
         mock_page = 'hello world'
         request = self.get_request(
@@ -542,12 +543,12 @@ class PagesTestCase(CMSTestCase):
         request._current_page_cache = mock_page
         page = get_page_from_request(request)
         self.assertEqual(page, mock_page)
-        
+
     def test_get_page_from_request_nopage(self):
         request = self.get_request('/')
         page = get_page_from_request(request)
         self.assertEqual(page, None)
-    
+
     def test_get_page_from_request_with_page_404(self):
         page = create_page("page", "nav_playground.html", "en", published=True)
         page.publish()
@@ -556,16 +557,16 @@ class PagesTestCase(CMSTestCase):
         self.assertEqual(found_page, None)
 
     def test_get_page_without_final_slash(self):
-        root = create_page("root", "nav_playground.html", "en", slug="root", 
+        root = create_page("root", "nav_playground.html", "en", slug="root",
                            published=True)
-        page = create_page("page", "nav_playground.html", "en", slug="page", 
+        page = create_page("page", "nav_playground.html", "en", slug="page",
                            published=True, parent=root)
         root.publish()
         page.publish()
         request = self.get_request('/page')
         found_page = get_page_from_request(request)
         self.assertFalse(found_page is None)
-    
+
     def test_get_page_from_request_with_page_preview(self):
         page = create_page("page", "nav_playground.html", "en")
         request = self.get_request('%s?preview' % page.get_absolute_url())
@@ -578,7 +579,7 @@ class PagesTestCase(CMSTestCase):
             found_page = get_page_from_request(request)
             self.assertTrue(found_page)
             self.assertEqual(found_page.pk, page.pk)
-        
+
     def test_get_page_from_request_on_cms_admin_with_editplugin(self):
         page = create_page("page", "nav_playground.html", "en")
         request = self.get_request(
@@ -587,14 +588,14 @@ class PagesTestCase(CMSTestCase):
         found_page = get_page_from_request(request)
         self.assertTrue(found_page)
         self.assertEqual(found_page.pk, page.pk)
-        
+
     def test_get_page_from_request_on_cms_admin_with_editplugin_nopage(self):
         request = self.get_request(
             reverse('admin:cms_page_change', args=(1,)) + 'edit-plugin/42/'
         )
         page = get_page_from_request(request)
         self.assertEqual(page, None)
-    
+
     def test_page_already_expired(self):
         """
         Test that a page which has a end date in the past gives a 404, not a
@@ -606,7 +607,7 @@ class PagesTestCase(CMSTestCase):
                                publication_end_date=yesterday, published=True)
             resp = self.client.get(page.get_absolute_url('en'))
             self.assertEqual(resp.status_code, 404)
-    
+
     def test_existing_overwrite_url(self):
         with SettingsOverride(CMS_MODERATOR=False, CMS_PERMISSION=False):
             create_page('home', 'nav_playground.html', 'en', published=True)
@@ -622,7 +623,7 @@ class PagesTestCase(CMSTestCase):
             form = PageForm(data)
             self.assertFalse(form.is_valid())
             self.assertTrue('overwrite_url' in form.errors)
-        
+
     def test_page_urls(self):
         page1 = create_page('test page 1', 'nav_playground.html', 'en',
             published=True)
@@ -800,7 +801,7 @@ class PagesTestCase(CMSTestCase):
         response = self.client.post(URL_CMS_PAGE_ADD, page_data)
         self.assertEqual(302, response.status_code)
         # since we:
-        #  * didn't expliclty provide the id 
+        #  * didn't expliclty provide the id
         #  * since id is auto_increment
         #  * page_data['published'] = False (a single page object is created)
         # => the newly added page has the biggest pk
@@ -820,7 +821,7 @@ class PagesTestCase(CMSTestCase):
         |-- root2 (not published)
               |
               |-- child2 (not published)
-        
+
         """
         root1 = self._create_page('root1', parent_pk=None)
         self.assertEqual('root1', root1.get_path())
@@ -860,7 +861,7 @@ class PagesTestCase(CMSTestCase):
                     self.assertEqual(expected_child1, child1.publisher_public.get_path())
                     self.assertEqual(expected_root2, root2.publisher_public.get_path())
                     self.assertEqual(expected_child2, child2.publisher_public.get_path())
-            
+
 
     def _create_pages_and_switch_status_1(self, moderated):
 
@@ -998,20 +999,22 @@ class PagesTestCase(CMSTestCase):
         self._create_and_delete_pages(moderated=True)
 
     def test_plugin_loading_queries(self):
-        with SettingsOverride(CMS_TEMPLATES = (('placeholder_tests/base.html', 'tpl'),)):
+        with SettingsOverride(CMS_TEMPLATES=(('placeholder_tests/base.html', 'tpl'),)):
             page = create_page('home', 'placeholder_tests/base.html', 'en', published=True, slug='home')
             placeholders = list(page.placeholders.all())
             for i, placeholder in enumerate(placeholders):
                 for j in range(5):
                     add_plugin(placeholder, TextPlugin, 'en', body='text-%d-%d' % (i, j))
                     add_plugin(placeholder, LinkPlugin, 'en', name='link-%d-%d' % (i, j))
-            from django.db import connection
-            connection.queries = []
 
             # trigger the apphook query so that it doesn't get in our way
             reverse('pages-root')
+
+            # trigger the get_languages query so it doesn't get in our way
+            context = self.get_context(page=page)
+            context['request'].current_page.get_languages()
+
             with self.assertNumQueries(4):
-                context = self.get_context()
                 for i, placeholder in enumerate(placeholders):
                     content = get_placeholder_content(context, context['request'], page, placeholder.slot, False)
                     for j in range(5):
@@ -1021,16 +1024,16 @@ class PagesTestCase(CMSTestCase):
 
 class NoAdminPageTests(CMSTestCase):
     urls = 'cms.test_utils.project.noadmin_urls'
-    
+
     def setUp(self):
         admin = 'django.contrib.admin'
         noadmin_apps = [app for app in settings.INSTALLED_APPS if not app == admin]
         self._ctx = SettingsOverride(INSTALLED_APPS=noadmin_apps)
         self._ctx.__enter__()
-        
+
     def tearDown(self):
         self._ctx.__exit__(None, None, None)
-    
+
     def test_get_page_from_request_fakeadmin_nopage(self):
         request = self.get_request('/admin/')
         page = get_page_from_request(request)
@@ -1046,7 +1049,7 @@ class PreviousFilteredSiblingsTests(CMSTestCase):
         home = Page.objects.get(pk=home.pk)
         self.assertEqual(other.get_previous_filtered_sibling(), home)
         self.assertEqual(home.get_previous_filtered_sibling(), None)
-        
+
     def test_multisite(self):
         firstsite = Site.objects.create(name='first', domain='first.com')
         secondsite = Site.objects.create(name='second', domain='second.com')
@@ -1058,4 +1061,4 @@ class PreviousFilteredSiblingsTests(CMSTestCase):
         home = Page.objects.get(pk=home.pk)
         self.assertEqual(other.get_previous_filtered_sibling(), None)
         self.assertEqual(home.get_previous_filtered_sibling(), None)
-        
+

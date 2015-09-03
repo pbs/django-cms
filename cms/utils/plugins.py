@@ -1,20 +1,28 @@
 # -*- coding: utf-8 -*-
+from collections import namedtuple
 from cms.exceptions import DuplicatePlaceholderWarning
 from cms.models import Page
 from cms.templatetags.cms_tags import Placeholder
 from cms.utils.placeholder import validate_placeholder_name
 from django.contrib.sites.models import Site
 from django.shortcuts import get_object_or_404
-from django.template import (NodeList, TextNode, VariableNode,
-    TemplateSyntaxError, Variable)
+from django.template.base import (
+    NodeList, TextNode, VariableNode, TemplateSyntaxError, Variable)
 from django.template.loader import get_template
-from django.template.loader_tags import (IncludeNode, ExtendsNode,
-    BlockNode)
+from django.template.loader_tags import (
+    IncludeNode, ExtendsNode, BlockNode)
 import warnings
-from sekizai.helpers import is_variable_extend_node
+
+try:
+    from sekizai.helpers import get_varname, is_variable_extend_node, engines
+except ImportError:
+    from sekizai.helpers import get_varname, is_variable_extend_node
+    engines = None
+
 
 def get_page_from_plugin_or_404(cms_plugin):
     return get_object_or_404(Page, placeholders=cms_plugin.placeholder)
+
 
 def _extend_blocks(extend_node, blocks):
     """
@@ -23,10 +31,10 @@ def _extend_blocks(extend_node, blocks):
     # we don't support variable extensions
     if is_variable_extend_node(extend_node):
         return
-    parent = extend_node.get_parent(None)
+    parent = extend_node.get_parent(get_context())
     # Search for new blocks
-    for node in parent.nodelist.get_nodes_by_type(BlockNode):
-        if not node.name in blocks:
+    for node in _get_nodelist(parent).get_nodes_by_type(BlockNode):
+        if node.name not in blocks:
             blocks[node.name] = node
         else:
             # set this node as the super node (for {{ block.super }})
@@ -37,17 +45,19 @@ def _extend_blocks(extend_node, blocks):
                 block = block.super
             block.super = node
     # search for further ExtendsNodes
-    for node in parent.nodelist.get_nodes_by_type(ExtendsNode):
+    for node in _get_nodelist(parent).get_nodes_by_type(ExtendsNode):
         _extend_blocks(node, blocks)
         break
 
+
 def _find_topmost_template(extend_node):
-    parent_template = extend_node.get_parent({})
-    for node in parent_template.nodelist.get_nodes_by_type(ExtendsNode):
+    parent_template = extend_node.get_parent(get_context())
+    for node in _get_nodelist(parent_template).get_nodes_by_type(ExtendsNode):
         # Their can only be one extend block in a template, otherwise django raises an exception
         return _find_topmost_template(node)
     # No ExtendsNode
-    return extend_node.get_parent({})
+    return extend_node.get_parent(get_context())
+
 
 def _extend_nodelist(extend_node):
     """
@@ -62,11 +72,11 @@ def _extend_nodelist(extend_node):
     placeholders = []
 
     for block in blocks.values():
-        placeholders += _scan_placeholders(block.nodelist, block, blocks.keys())
+        placeholders += _scan_placeholders(_get_nodelist(block), block, blocks.keys())
 
     # Scan topmost template for placeholder outside of blocks
     parent_template = _find_topmost_template(extend_node)
-    placeholders += _scan_placeholders(parent_template.nodelist, None, blocks.keys())
+    placeholders += _scan_placeholders(_get_nodelist(parent_template), None, blocks.keys())
     return placeholders
 
 
@@ -75,6 +85,15 @@ def _get_nodelist(tpl):
         return tpl.template.nodelist
     else:
         return tpl.nodelist
+
+
+def get_context():
+    if engines is not None:
+        return namedtuple('Context', 'template')(
+            namedtuple('Template', 'engine')(engines.all()[0])
+        )
+    else:
+        return {}
 
 
 def _scan_placeholders(nodelist, current_block=None, ignore_blocks=None):
@@ -138,7 +157,7 @@ def _scan_placeholders(nodelist, current_block=None, ignore_blocks=None):
 
 def get_placeholders(template):
     compiled_template = get_template(template)
-    placeholders = _scan_placeholders(compiled_template.nodelist)
+    placeholders = _scan_placeholders(compiled_template.template.nodelist)
     clean_placeholders = []
     for placeholder in placeholders:
         if placeholder in clean_placeholders:

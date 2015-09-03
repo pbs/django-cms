@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from cms.exceptions import SubClassNeededError, Deprecated
-from cms.models import CMSPlugin
 from django import forms
 from django.conf import settings
 from django.contrib import admin
@@ -8,11 +6,17 @@ from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.text import camel_case_to_spaces as get_verbose_name
 from django.forms.models import ModelForm
+from django.utils import six
 from django.utils.encoding import smart_str
 from django.utils.translation import ugettext_lazy as _
-from cms.utils.compat.metaclasses import with_metaclass
-from django.contrib.admin.options import (
-    RenameBaseModelAdminMethods as ModelAdminMetaClass)
+try:  # Django 1.6, 1.7
+    from django.contrib.admin.options import (
+        RenameBaseModelAdminMethods as ModelAdminMetaClass)
+except:  # Django 1.8+
+    ModelAdminMetaClass = forms.MediaDefiningClass
+
+from cms.exceptions import SubClassNeededError, Deprecated
+from cms.models import CMSPlugin
 
 
 class CMSPluginBaseMetaclass(ModelAdminMetaClass):
@@ -55,9 +59,10 @@ class CMSPluginBaseMetaclass(ModelAdminMetaClass):
             advanced_fields = []
             for f in new_plugin.model._meta.fields:
                 if not f.auto_created and f.editable:
-                    if hasattr(f,'advanced'):
+                    if hasattr(f, 'advanced'):
                         advanced_fields.append(f.name)
-                    else: basic_fields.append(f.name)
+                    else:
+                        basic_fields.append(f.name)
             if advanced_fields:
                 new_plugin.fieldsets = [
                     (
@@ -69,8 +74,8 @@ class CMSPluginBaseMetaclass(ModelAdminMetaClass):
                     (
                         _('Advanced options'),
                         {
-                            'fields' : advanced_fields,
-                            'classes' : ('collapse',)
+                            'fields': advanced_fields,
+                            'classes': ('collapse',)
                         }
                     )
                 ]
@@ -80,7 +85,7 @@ class CMSPluginBaseMetaclass(ModelAdminMetaClass):
         return new_plugin
 
 
-class CMSPluginBase(with_metaclass(CMSPluginBaseMetaclass, admin.ModelAdmin)):
+class CMSPluginBase(six.with_metaclass(CMSPluginBaseMetaclass, admin.ModelAdmin)):
 
     name = ""
 
@@ -97,9 +102,9 @@ class CMSPluginBase(with_metaclass(CMSPluginBaseMetaclass, admin.ModelAdmin)):
     page_only = False
 
     opts = {}
-    module = None #track in which module/application belongs
+    module = None  # track in which module/application belongs
 
-    def __init__(self, model=None,  admin_site=None):
+    def __init__(self, model=None, admin_site=None):
         if admin_site:
             super(CMSPluginBase, self).__init__(self.model, admin_site)
 
@@ -123,7 +128,7 @@ class CMSPluginBase(with_metaclass(CMSPluginBaseMetaclass, admin.ModelAdmin)):
         """
         context.update({
             'current_site': getattr(request.current_page, 'site_id', None),
-            'preview': not "no_preview" in request.GET,
+            'preview': "no_preview" not in request.GET,
             'is_popup': True,
             'plugin': self.cms_plugin_instance,
             'CMS_MEDIA_URL': settings.CMS_MEDIA_URL,
@@ -215,16 +220,15 @@ class CMSPluginBase(with_metaclass(CMSPluginBaseMetaclass, admin.ModelAdmin)):
     def __unicode__(self):
         return self.name
 
-    #===========================================================================
-    # Deprecated APIs
-    #===========================================================================
+#  ===========================================================================
+#  Deprecated APIs
+#  ===========================================================================
 
     @property
     def pluginmedia(self):
         raise Deprecated(
             "CMSPluginBase.pluginmedia is deprecated in favor of django-sekizai"
         )
-
 
     def get_plugin_media(self, request, context, plugin):
         raise Deprecated(

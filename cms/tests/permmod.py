@@ -506,13 +506,16 @@ class PermissionModeratorTests(SettingsOverrideTestCase):
                 if perm.user == self.user_staff:
                     has_perm = True
         self.assertEqual(has_perm, False)
-        login_ok = self.client.login(username=self.user_staff.username, password=self.user_staff.username)
+        login_ok = self.client.login(
+            username=self.user_staff.username,
+            password=self.user_staff.username
+        )
         self.assertTrue(login_ok)
         # really logged in
         self.assertTrue('_auth_user_id' in self.client.session)
         login_user_id = self.client.session.get('_auth_user_id')
         user = User.objects.get(username=self.user_staff.username)
-        self.assertEquals(login_user_id,user.id)
+        self.assertEquals(str(login_user_id), str(user.id))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
