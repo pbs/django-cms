@@ -376,16 +376,21 @@ class PagesTestCase(CMSTestCase):
 
             # Attempt to remove the overwrite url for page1, which should not be performed
             page1_data['overwrite_url'] = ''
-            self.edit_page(page1.id, page1_data)
+            expected_error = 'Page2</a> has the same url \'{page2_url}\' as current page '\
+                             '"Page1".'.format(page2_url=page1_data['slug'])
+            self.edit_page(page1.id, page1_data, expected_messages=[expected_error])
 
             self._assert_page_attributes(page1.id, slug=page1_data['slug'], published=True,
                                         overwrite_url='not_important')
             self._assert_page_attributes(page2.id, slug=page2_data['slug'], published=True,
                                         overwrite_url=page1_data['slug'])
 
-    def edit_page(self, page_id, page_data):
+    def edit_page(self, page_id, page_data, expected_messages=None):
         edit_response = self.client.post(URL_CMS_PAGE_CHANGE % page_id, page_data, follow=True)
         self.assertEqual(edit_response.status_code, 200)
+        if expected_messages:
+            for expected_message in expected_messages:
+                self.assertIn(expected_message, edit_response.content)
 
     def test_move_page_inherit(self):
         parent = create_page("Parent", 'col_three.html', "en")
