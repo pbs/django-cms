@@ -20,6 +20,7 @@ from cms.utils import (copy_plugins, helpers, moderator, permissions, plugins,
 from cms.utils.page_resolver import is_valid_url
 from cms.utils.admin import jsonify_request
 from cms.utils.permissions import has_plugin_permission
+from cms.utils import request_item
 from copy import deepcopy
 from distutils.version import LooseVersion
 from django import template
@@ -912,8 +913,10 @@ class PageAdmin(ModelAdmin):
             else:
                 try:
                     kwargs = {
-                        'copy_permissions': request.REQUEST.get('copy_permissions', False),
-                        'copy_moderation': request.REQUEST.get('copy_moderation', False),
+                        'copy_permissions': request_item(
+                            request, 'copy_permissions', False),
+                        'copy_moderation': request_item(
+                            request, 'copy_moderation', False),
                     }
                     page.copy_page(target, site, position, **kwargs)
                     return jsonify_request(HttpResponse("ok"))
@@ -950,7 +953,7 @@ class PageAdmin(ModelAdmin):
         from django.utils.translation import ugettext as _
         self.message_user(request, _('Page was successfully approved.'))
 
-        if 'node' in request.REQUEST:
+        if request_item(request, 'node'):
             # if request comes from tree..
             return admin_utils.render_admin_menu_item(request, page)
         referer = request.META.get('HTTP_REFERER', reverse('admin:cms_page_changelist'))
@@ -1114,7 +1117,7 @@ class PageAdmin(ModelAdmin):
         """
         page = get_object_or_404(Page, id=object_id)
         attrs = "?preview=1"
-        if request.REQUEST.get('public', None):
+        if request_item(request, 'public', None):
             if not page.publisher_public_id:
                 raise Http404
             page = page.publisher_public

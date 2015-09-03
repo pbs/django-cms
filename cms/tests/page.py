@@ -238,7 +238,7 @@ class PagesTestCase(CMSTestCase):
             page.published = True
             page.save()
             req.current_page = page
-            req.REQUEST = {}
+            req.GET = {}
             self.assertEqual(t.render(template.Context({"request": req})), "Hello I am a page page,cms,stuff")
 
 

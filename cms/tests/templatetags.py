@@ -48,7 +48,7 @@ class TemplatetagTests(TestCase):
                 return script
         class FakeRequest(object):
             current_page = FakePage()
-            REQUEST = {'language': 'en'}
+            GET = {'language': 'en'}
         request = FakeRequest()
         template = Template('{% load cms_tags %}{% page_attribute page_title %}')
         context = Context({'request': request})

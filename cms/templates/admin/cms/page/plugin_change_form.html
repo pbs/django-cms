@@ -1,6 +1,5 @@
 {% extends "admin/base_site.html" %}
 {% load i18n admin_modify cms_admin %}
-{% load url from future %}
 {% block extrahead %}
 <script type="text/javascript">
     var current_site = {{current_site}};
@@ -78,7 +77,7 @@
             <a href="../../../">{% trans 'Home' %}</a>
         </li>
      	<li><a href="../../">{{ app_label|capfirst|escape }}</a></li>
-     	
+
      	<li>
      		{% if has_change_permission %}
      			<a href="../">{{ opts.verbose_name_plural|capfirst }}</a>

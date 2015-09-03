@@ -784,7 +784,7 @@ class ViewPermissionMenuTests(SettingsOverrideTestCase):
     def get_request(self, user=None):
         attrs = {
             'user': user or AnonymousUser(),
-            'REQUEST': {},
+            'GET': {},
             'session': {},
         }
         return type('Request', (object,), attrs)

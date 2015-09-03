@@ -4,6 +4,8 @@ from cms.exceptions import DuplicatePlaceholderWarning
 from cms.models import Page
 from cms.templatetags.cms_tags import Placeholder
 from cms.utils.placeholder import validate_placeholder_name
+from cms.utils import request_item
+
 from django.contrib.sites.models import Site
 from django.shortcuts import get_object_or_404
 from django.template.base import (
@@ -170,8 +172,9 @@ def get_placeholders(template):
 SITE_VAR = "site__exact"
 
 def current_site(request):
-    if SITE_VAR in request.REQUEST:
-        return Site.objects.get(pk=request.REQUEST[SITE_VAR])
+    s_var = request_item(request, SITE_VAR)
+    if s_var is not None:
+        return Site.objects.get(pk=s_var)
     else:
         site_pk = request.session.get('cms_admin_site', None)
         if site_pk:
