@@ -129,6 +129,34 @@ class CMSTestCase(testcases.TestCase):
         self.counter = self.counter + 1
         return page_data
 
+    def get_edit_data_for_page(self, page):
+        title = page.get_title_obj()
+        page_data = {
+            u'_continue': u'',
+            u'in_navigation': u'on' if page.in_navigation else u'off',
+            u'language': u'en',
+            u'limit_visibility_in_menu': u'',
+            u'meta_description': u'',
+            u'meta_keywords': u'',
+            u'overwrite_url': title.overwrite_url,
+            u'page_title': title.title,
+            u'parent': page.parent_id if page.parent_id else '',
+            u'published': u'on' if page.published else u'off',
+            u'redirect': title.redirect,
+            u'reverse_id': page.reverse_id if page.reverse_id else '',
+            u'site': page.site_id,
+            u'slug': title.slug,
+            u'template': page.template,
+            u'title': title.title
+        }
+        page_data['pagepermission_set-TOTAL_FORMS'] = 0
+        page_data['pagepermission_set-INITIAL_FORMS'] = 0
+        page_data['pagepermission_set-MAX_NUM_FORMS'] = 0
+        page_data['pagepermission_set-2-TOTAL_FORMS'] = 0
+        page_data['pagepermission_set-2-INITIAL_FORMS'] = 0
+        page_data['pagepermission_set-2-MAX_NUM_FORMS'] = 0
+        return page_data
+
     def get_new_page_data_dbfields(self, parent=None, site=None,
                                    language=None,
                                    template='nav_playground.html',):
@@ -175,6 +203,13 @@ class CMSTestCase(testcases.TestCase):
                 print "%s%s: %s" % (ident, node.title, attrs)
                 _rec(node.children, level + 1)
         _rec(nodes)
+
+    def _assert_page_attributes(self, page_id, slug, overwrite_url, published):
+        page = Page.objects.get(id=page_id)
+        title = page.get_title_obj()
+        self.assertEqual(page.published, published)
+        self.assertEqual(title.slug, slug)
+        self.assertEqual(title.overwrite_url, overwrite_url)
 
     def assertObjectExist(self, qs, **filter):
         try:

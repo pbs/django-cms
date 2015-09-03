@@ -137,6 +137,12 @@ class PageAddForm(forms.ModelForm):
                     if 'slug' in cleaned_data:
                         del cleaned_data['slug']
                     self._errors['slug'] = ErrorList(e.messages)
+                if title.has_url_overwrite and not cleaned_data['overwrite_url']:
+                    # Overwrite URL has been removed and we must check that the new path is valid
+                    try:
+                        is_valid_url(title.get_path_without_overwrite(), page)
+                    except ValidationError as val_err:
+                        self._errors['overwrite_url'] = ErrorList(val_err.messages)
         return cleaned_data
 
     def clean_slug(self):

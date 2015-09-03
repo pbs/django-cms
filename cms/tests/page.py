@@ -346,6 +346,43 @@ class PagesTestCase(CMSTestCase):
             self.assertEqual(page2_title.path, page_data1['slug'])
             self.assertTrue(page2_title.has_url_overwrite)
 
+    def test_prevent_remove_override_url(self):
+        """
+        When removing an override url from a published page, the resulted url after
+        the operation could conflict with another published page.
+        """
+        superuser = self.get_superuser()
+        with self.login_user_context(superuser):
+            create_page("Home", "nav_playground.html", "en", slug='home',
+                        position="last-child", published=True, in_navigation=True)
+            # Pages under test should not be homes
+            page1 = create_page("Page1", "nav_playground.html", "en", slug='slug1',
+                                position="last-child", published=True, in_navigation=True,
+                                overwrite_url="not_used")
+            page2 = create_page("Page2", "nav_playground.html", "en", slug='slug2',
+                                position="last-child", published=True, in_navigation=True,
+                                overwrite_url="default")
+            page1_data = self.get_edit_data_for_page(page1)
+            page2_data = self.get_edit_data_for_page(page2)
+            page1_data['overwrite_url'] = 'not_important'
+            self.edit_page(page1.id, page1_data)
+            page2_data['overwrite_url'] = page1_data['slug']
+            self.edit_page(page2.id, page2_data)
+
+            self._assert_page_attributes(page1.id, slug=page1_data['slug'], published=True,
+                                        overwrite_url='not_important')
+            self._assert_page_attributes(page2.id, slug=page2_data['slug'], published=True,
+                                        overwrite_url=page1_data['slug'])
+
+            # Attempt to remove the overwrite url for page1, which should not be performed
+            page1_data['overwrite_url'] = ''
+            self.edit_page(page1.id, page1_data)
+
+            self._assert_page_attributes(page1.id, slug=page1_data['slug'], published=True,
+                                        overwrite_url='not_important')
+            self._assert_page_attributes(page2.id, slug=page2_data['slug'], published=True,
+                                        overwrite_url=page1_data['slug'])
+
     def edit_page(self, page_id, page_data):
         edit_response = self.client.post(URL_CMS_PAGE_CHANGE % page_id, page_data, follow=True)
         self.assertEqual(edit_response.status_code, 200)
