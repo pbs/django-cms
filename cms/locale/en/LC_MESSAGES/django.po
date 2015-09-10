@@ -733,7 +733,7 @@ msgstr ""
 
 #: models/pagemodel.py:69
 msgid "The template used to render the content."
-msgstr ""
+msgstr "Templates are used to render the layout of a page."
 
 #: models/pagemodel.py:70
 msgid "The site the page is accessible at."
