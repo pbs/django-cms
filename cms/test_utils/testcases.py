@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from cms.models import Page
+from cms.models import Page, PagePermission
 from cms.test_utils.util.context_managers import (UserLoginContext,
     SettingsOverride)
 from django.conf import settings
-from django.contrib.auth.models import User, AnonymousUser
+from django.contrib.auth.models import User, AnonymousUser, Group, Permission
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.template.context import Context
@@ -106,6 +106,23 @@ class CMSTestCase(testcases.TestCase):
         staff.set_password("staff")
         staff.save()
         return staff
+
+    def make_writer_with_permission_on_current_pages(self):
+        """
+        Create a "writer"-like user who has the right to change and view all the
+        current pages but no rights to publish and to set navigation status on them.
+        """
+        writer = User(username="writer", is_staff=True, is_active=True)
+        writer.set_password("writer")
+        writer.save()
+        for page in Page.objects.all():
+            PagePermission.objects.create(can_view=True, can_change=True, can_publish=False,
+                                          can_set_navigation=False, user=writer, page=page)
+        for perm_name in ["change_page", "view_page"]:
+            perm = Permission.objects.get(codename=perm_name)
+            writer.user_permissions.add(perm)
+        writer.save()
+        return writer
 
     def get_text_plugin_wrapper(self, body):
         return '<div class="text-plugin clearfix">%s</div>' % body
