@@ -8,8 +8,8 @@ from django.contrib.sites.models import Site
 from django.core.cache import cache
 from django.db.models.signals import post_save, post_delete
 from django.utils import translation
-from django.utils.datastructures import SortedDict
 from django.utils.safestring import mark_safe
+from collections import OrderedDict as SortedDict
 
 
 def update_site_and_page_choices(lang=None):

@@ -8,9 +8,11 @@ import json
 
 register = template.Library()
 
+
 @register.filter
 def js(value):
     return json.dumps(value, cls=DjangoJSONEncoder)
+
 
 @register.filter
 def bool(value):

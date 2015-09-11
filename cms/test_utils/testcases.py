@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+import sys
+import urllib
+import warnings
+import json
 from cms.models import Page
 from cms.test_utils.util.context_managers import (UserLoginContext,
     SettingsOverride)
@@ -11,9 +15,6 @@ from django.test import testcases
 from django.test.client import Client, RequestFactory
 from menus.menu_pool import menu_pool
 from urlparse import urljoin
-import sys
-import urllib
-import warnings
 
 
 URL_CMS_PAGE = "/en/admin/cms/page/"
@@ -204,7 +205,9 @@ class CMSTestCase(testcases.TestCase):
         response = self.client.post(URL_CMS_PAGE + "%d/copy-page/" % page.pk, data)
         self.assertEquals(response.status_code, 200)
         # Altered to reflect the new django-js jsonified response messages
-        self.assertEquals(response.content, '{"status": 200, "content": "ok"}')
+        expected = {"status": 200, "content": "ok"}
+        self.assertEquals(
+            json.loads(response.content.decode('utf8')), expected)
 
         title = page.title_set.all()[0]
         copied_slug = get_available_slug(title)

@@ -18,7 +18,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.db.models.fields import BooleanField
-from django.forms.util import ErrorList
+from django.forms.utils import ErrorList
 from django.forms.widgets import HiddenInput
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _, get_language

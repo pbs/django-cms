@@ -84,8 +84,6 @@ def _get_page_by_untyped_arg(page_lookup, request, site_id):
         if settings.DEBUG:
             raise Page.DoesNotExist(body)
         else:
-            if settings.SEND_BROKEN_LINK_EMAILS:
-                mail_managers(subject, body, fail_silently=True)
             return None
 
 class PageUrl(InclusionTag):
@@ -276,8 +274,8 @@ class PageAttribute(AsTag):
     page_lookup -- lookup argument for Page, if omitted field-name of current page is returned.
     See _get_page_by_untyped_arg() for detailed information on the allowed types and their interpretation
     for the page_lookup argument.
-    
-    varname -- context variable name. Output will be added to template context as this variable. 
+
+    varname -- context variable name. Output will be added to template context as this variable.
     This argument is required to follow the 'as' keyword.
     """
     name = 'page_attribute'
