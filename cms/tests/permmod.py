@@ -2,6 +2,7 @@
 from __future__ import with_statement
 from cms.api import (create_page, publish_page, approve_page, add_plugin,
     create_page_user, assign_user_to_page)
+from cms.cache.permissions import get_cache_key, clear_permission_cache, PERMISSION_KEYS
 from cms.models import Page, CMSPlugin
 from cms.models.moderatormodels import (ACCESS_DESCENDANTS,
     ACCESS_PAGE_AND_DESCENDANTS)
@@ -14,6 +15,7 @@ from cms.utils.permissions import has_generic_permission
 
 from django.contrib.auth.models import User, Permission, AnonymousUser, Group
 from django.contrib.sites.models import Site
+from django.core.cache import cache
 from django.core.management import call_command
 from django.db.models import Q
 
@@ -1104,3 +1106,20 @@ class GlobalPagePermissionTests(PermissionTestsBase):
 
                 form_row = '<div class="form-row publication_date publication_end_date">'
                 self.assertTrue(form_row not in response.content)
+
+
+class CacheUtilitiesTests(SettingsOverrideTestCase):
+
+    def test_get_cache_key_remains_compatible(self):
+        username = 'compatibility_test_username'
+        key = PERMISSION_KEYS[0]
+        user = User.objects.create_user(username, 'user@domain.com', 'user')
+        self.assertEquals(get_cache_key(user, key), get_cache_key(username, key))
+
+    def test_clear_permission_cache(self):
+        user = User.objects.create_user('username', 'user@domain.com', 'user')
+        cache_key = get_cache_key(user, PERMISSION_KEYS[0])
+        cache.set(cache_key, 'some_value', timeout=None)
+        self.assertEquals(cache.get(cache_key), 'some_value')
+        clear_permission_cache()
+        self.assertEquals(cache.get(cache_key, 'no_value'), 'no_value')

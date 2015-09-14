@@ -6,6 +6,7 @@ from django.dispatch import Signal
 
 from cms.cache.permissions import (
     clear_user_permission_cache, clear_permission_cache)
+from cms.conf import global_settings
 from cms.exceptions import NoHomeFound
 from cms.models import (Page, Title, CMSPlugin, PagePermission,
     GlobalPagePermission, PageUser, PageUserGroup)
@@ -34,11 +35,9 @@ def update_plugin_positions(**kwargs):
 
 signals.post_delete.connect(update_plugin_positions, sender=CMSPlugin, dispatch_uid="cms.plugin.update_position")
 
-
 def pre_save_title(instance, raw, **kwargs):
     """Save old state to instance and setup path
     """
-
     menu_pool.clear(instance.page.site_id)
 
     instance.tmp_path = None
@@ -207,6 +206,10 @@ def update_placeholders(instance, **kwargs):
     instance.rescan_placeholders()
 
 def invalidate_menu_cache(instance, **kwargs):
+    if global_settings.CMS_DISABLE_SITE_CACHE_CLEAR:
+        # Cache clearing is temporarily disabled, see
+        # global_settings.CMS_DISABLE_SITE_CACHE_CLEAR for more info.
+        return
     menu_pool.clear(instance.site_id)
 
 def attach_home_page_deletion_attr(instance, **kwargs):
@@ -216,6 +219,7 @@ def attach_home_page_deletion_attr(instance, **kwargs):
     the path of the new home page.
     """
     instance._home_page_deletion = instance.is_home()
+
 
 def adjust_path_of_new_home_page(instance, **kwargs):
     """Post-delete signal handler. If the page that got deleted was the home page,
@@ -229,6 +233,7 @@ def adjust_path_of_new_home_page(instance, **kwargs):
         else:
             for title in new_home.title_set.all():
                 title.save()
+
 
 if settings.CMS_MODERATOR:
     # tell moderator, there is something happening with this page
@@ -276,8 +281,31 @@ def pre_save_globalpagepermission(instance, raw, **kwargs):
 def pre_delete_globalpagepermission(instance, **kwargs):
     _clear_users_permissions(instance)
 
+
 def pre_save_delete_page(instance, **kwargs):
     clear_permission_cache()
+
+
+def clear_cache_for_sites(site_ids):
+    """ Clear all site related cached data (menus and user permissions) for the given sites. """
+    for site_id in site_ids:
+        menu_pool.clear(site_id)
+    clear_permission_cache()
+
+
+def with_site_cache_clear_disabled(func):
+    """
+    Decorator to prevent cache clearing operations on site related data.
+    Should see global_settings.CMS_DISABLE_SITE_CACHE_CLEAR for information.
+    """
+    def _decorator(*args, **kwargs):
+        try:
+            global_settings.CMS_DISABLE_SITE_CACHE_CLEAR = True
+            return func(*args, **kwargs)
+        finally:
+            global_settings.CMS_DISABLE_SITE_CACHE_CLEAR = False
+    return _decorator
+
 
 if settings.CMS_PERMISSION:
     signals.pre_save.connect(pre_save_user, sender=User)

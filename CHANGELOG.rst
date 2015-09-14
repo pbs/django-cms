@@ -1,6 +1,58 @@
 CHANGELOG
 =========
 
+Revision 5bb3100 (11.09.2015, 13:55 UTC)
+----------------------------------------
+
+* LUN-2334
+
+  * Rewrite relative import.
+  * Changed cache deletion to improve performance.
+  * Prevent cache clears during site deletion.
+  * Rework for site data cache clear disabling.
+  * Do not perform delete operations when it is not necessary.
+  * Added option to disable and reenable cache clears.
+
+* LUN-2583
+
+  * removed preview from Text plugin
+  * Removed preview
+
+* LUN-2620
+
+  * updated help-text for Template/Basic Settings
+  * minor updates to Ace theme: preview in new tab
+
+No other commits.
+
+Revision 8f25086 (03.09.2015, 13:34 UTC)
+----------------------------------------
+
+* LUN-2282
+
+  * update submit-row and buttons for all plugins according to Ace theme
+
+* LUN-2283
+
+  * css updates to match the Ace theme
+
+* LUN-2460
+
+  * pass plugin id directly into widget context
+  * get plugin id from template instead of url
+  * Resize iframe after CK Editor has been initialized
+
+* LUN-2569
+
+  * make entire header clickable for collapsing
+  * 3: removed Note call from Page admin layout
+
+* LUN-2596
+
+  * left align fieldset fields
+
+No other commits.
+
 Revision 9494d2b (28.08.2015, 07:20 UTC)
 ----------------------------------------
 

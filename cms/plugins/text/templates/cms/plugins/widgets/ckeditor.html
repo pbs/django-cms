@@ -5,6 +5,15 @@
 var editPluginPopupCallbacks = {};
 var CK_BRIDGE = null;
 
+CKEDITOR.on("instanceReady", function(event){
+    if(window.self !== window.parent){
+        //inside iframe
+        try{
+            parent.setiframeheight($('body').height()+20, '{{plugin_id}}');
+        }catch(e){}
+    }
+});
+
 CKEDITOR.replace('id_{{ name }}', {{ ck_config|safe }});
 
 {% include "cms/plugins/widgets/widget_lib.js" %}

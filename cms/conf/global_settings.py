@@ -125,3 +125,19 @@ CMS_PLUGIN_PROCESSORS = tuple()
 CMS_PLUGIN_CONTEXT_PROCESSORS = tuple()
 
 CMS_MAX_PAGE_COUNT_FOR_DELETION = 10
+
+# Global flag used to determine if cache clear operations for site data should run or not.
+# This is treated as global variable and should not be set directly but instead used with the
+# signals.with_site_cache_clear_disabled decorator.
+#
+# Important: When using this decorator, the cached data is not deleted at all so you should
+# use signals.clear_cache_for_sites for the sites that were afected during the decorator use.
+#
+# Reasoning:
+# When a site is deleted, each page is deleted, triggering cache cleanup operations. This page
+# cleanup operation includes clearing the menu cache for the whole site and more expensively
+# clearing the whole permission cache for users. This results in at least 2 DB select
+# operations and calls to the cache.
+# In the case of a site deletion this cleanup can be done a single time after the site is
+# deleted using the provided decorator.
+CMS_DISABLE_SITE_CACHE_CLEAR = False
