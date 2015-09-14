@@ -1,6 +1,30 @@
 CHANGELOG
 =========
 
+Revision 5bb3100 (11.09.2015, 13:55 UTC)
+----------------------------------------
+
+* LUN-2334
+
+  * Rewrite relative import.
+  * Changed cache deletion to improve performance.
+  * Prevent cache clears during site deletion.
+  * Rework for site data cache clear disabling.
+  * Do not perform delete operations when it is not necessary.
+  * Added option to disable and reenable cache clears.
+
+* LUN-2583
+
+  * removed preview from Text plugin
+  * Removed preview
+
+* LUN-2620
+
+  * updated help-text for Template/Basic Settings
+  * minor updates to Ace theme: preview in new tab
+
+No other commits.
+
 Revision 8f25086 (03.09.2015, 13:34 UTC)
 ----------------------------------------
 
