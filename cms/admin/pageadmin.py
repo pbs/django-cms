@@ -780,6 +780,7 @@ class PageAdmin(ModelAdmin):
         if 'reversion' in settings.INSTALLED_APPS:
             context['has_change_permission'] = self.has_change_permission(request)
         context.update(extra_context or {})
+        context.update(self.admin_site.each_context(request))
         return render_to_response(self.change_list_template or [
             'admin/%s/%s/change_list.html' % (app_label, opts.object_name.lower()),
             'admin/%s/change_list.html' % app_label,
