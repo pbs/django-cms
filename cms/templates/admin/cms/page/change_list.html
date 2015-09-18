@@ -22,6 +22,7 @@
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}cms/css/pages.css"/>
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}cms/jstree/tree_component.css" />
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}cms/css/jquery.dialog.css" />
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}cms/css/chosen.min.css" />
 {{ block.super }}
 
 {% endblock %}
@@ -39,6 +40,7 @@
 <script type="text/javascript" src="{{ STATIC_URL }}cms/js/libs/jquery.ui.effects.core.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}cms/js/libs/jquery.ui.effects.highlight.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}cms/js/libs/jquery.form.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}cms/js/libs/chosen.jquery.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}cms/jstree/_lib/_all.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}cms/jstree/tree_component.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}cms/js/libs/jquery.ui.dialog.js"></script>
@@ -64,6 +66,10 @@
 		{% if not cl.is_filtered %}
 			initTree();
 		{% endif %}
+		{% if cl.has_access_to_multiple_sites %}
+			$("#site-select").chosen();
+		{% endif %}
+
 	});
 
 	showchangelistfilter = function(){
