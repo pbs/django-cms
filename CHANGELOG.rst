@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+Revision 17b1187 (21.09.2015, 09:27 UTC)
+----------------------------------------
+
+* LUN-2632
+
+  * apply ACE to copy page options modal
+
+* Misc commits
+
+  * Add missing migration for column description.
+
 Revision 5bb3100 (11.09.2015, 13:55 UTC)
 ----------------------------------------
 
