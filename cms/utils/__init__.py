@@ -14,6 +14,14 @@ import os
 import urllib
 
 
+def request_item(request, name, default=None):
+    if hasattr(request, 'GET') and name in request.GET:
+        return request.GET[name]
+    if hasattr(request, 'POST') and name in request.POST:
+        return request.POST[name]
+    return default
+
+
 def get_template_from_request(request, obj=None, no_current_page=False):
     """
     Gets a valid template from different sources or falls back to the default
@@ -22,8 +30,8 @@ def get_template_from_request(request, obj=None, no_current_page=False):
     template = None
     if len(settings.CMS_TEMPLATES) == 1:
         return settings.CMS_TEMPLATES[0][0]
-    if "template" in request.REQUEST:
-        template = request.REQUEST['template']
+    if request_item(request, "template"):
+        template = request_item(request, "template")
     if not template and obj is not None:
         template = obj.get_template()
     if not template and not no_current_page and hasattr(request, "current_page"):
@@ -37,13 +45,13 @@ def get_template_from_request(request, obj=None, no_current_page=False):
 
             # enforce returning ancestor template
             if hasattr(obj,"_template_cache"):
-                del obj._template_cache 
+                del obj._template_cache
             obj.template = template
             request_template = obj.get_template()
             if request_template in [t[0] for t in settings.CMS_TEMPLATES]:
                 return request_template
             return settings.CMS_TEMPLATES[0][0]
-        return template    
+        return template
     return settings.CMS_TEMPLATES[0][0]
 
 
@@ -52,14 +60,14 @@ def get_language_from_request(request, current_page=None):
     """
     Return the most obvious language according the request
     """
-    language = request.REQUEST.get('language', None)
+    language = request_item(request, 'language', None)
     if language:
-        if not language in dict(settings.CMS_LANGUAGES).keys():
+        if language not in dict(settings.CMS_LANGUAGES).keys():
             language = None
     if language is None:
         language = getattr(request, 'LANGUAGE_CODE', None)
     if language:
-        if not language in dict(settings.CMS_LANGUAGES).keys():
+        if language not in dict(settings.CMS_LANGUAGES).keys():
             language = None
 
     # TODO: This smells like a refactoring oversight - was current_page ever a page object? It appears to be a string now

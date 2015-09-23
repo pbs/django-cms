@@ -11,6 +11,7 @@ from django.contrib.auth import get_permission_codename
 from cms.models import Page
 from cms.utils import permissions, moderator, get_language_from_request
 from cms.utils.permissions import has_global_page_permission
+from cms.utils import request_item
 
 NOT_FOUND_RESPONSE = "NotFound"
 
@@ -105,7 +106,7 @@ def render_admin_menu_item(request, page, template=None):
         'site_languages': languages,
     })
 
-    filtered = 'filtered' in request.REQUEST
+    filtered = request_item(request, 'filtered') is not None
     context.update(get_admin_menu_item_context(request, page, filtered))
     # add mimetype to help out IE
     return render_to_response(template, context, content_type="text/html; charset=utf-8")

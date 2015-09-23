@@ -10,7 +10,7 @@ For documentation on how to use the functions described in this file, please
 refer to http://django-load.readthedocs.org/en/latest/index.html.
 """
 from django.conf import settings
-from django.utils.importlib import import_module
+from importlib import import_module
 
 def get_module(app, modname, verbose, failfast):
     """
@@ -28,27 +28,27 @@ def get_module(app, modname, verbose, failfast):
     if verbose:
         print "Loaded %r from %r" % (modname, app)
     return module
-        
+
 
 def load(modname, verbose=False, failfast=False):
     """
     Loads all modules with name 'modname' from all installed apps.
-    
+
     If verbose is True, debug information will be printed to stdout.
-    
+
     If failfast is True, import errors will not be surpressed.
     """
     for app in settings.INSTALLED_APPS:
         get_module(app, modname, verbose, failfast)
-        
+
 
 def iterload(modname, verbose=False, failfast=False):
     """
     Loads all modules with name 'modname' from all installed apps and returns
     and iterator of those modules.
-    
+
     If verbose is True, debug information will be printed to stdout.
-    
+
     If failfast is True, import errors will not be surpressed.
     """
     for app in settings.INSTALLED_APPS:
@@ -60,15 +60,15 @@ def load_object(import_path):
     """
     Loads an object from an 'import_path', like in MIDDLEWARE_CLASSES and the
     likes.
-    
+
     Import paths should be: "mypackage.mymodule.MyObject". It then imports the
     module up until the last dot and tries to get the attribute after that dot
     from the imported module.
-    
+
     If the import path does not contain any dots, a TypeError is raised.
-    
+
     If the module cannot be imported, an ImportError is raised.
-    
+
     If the attribute does not exist in the module, a AttributeError is raised.
     """
     if '.' not in import_path:

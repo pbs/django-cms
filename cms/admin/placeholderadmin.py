@@ -45,9 +45,11 @@ class PlaceholderAdmin(ModelAdmin):
         """
         form = super(PlaceholderAdmin, self).get_form(request, obj, **kwargs)
         placeholder_fields = self._get_placeholder_fields(form)
-        if self.declared_fieldsets:
-            # check those declared fieldsets
-            fieldsets = list(deepcopy(self.declared_fieldsets))
+        if self.fieldsets or self.fields:
+            if self.fieldsets:
+                fieldsets = list(deepcopy(self.fieldsets))
+            else:
+                fieldsets = [(None, {'fields': self.fields})]
             for label, fieldset in fieldsets:
                 fields = list(fieldset['fields'])
                 for field in fieldset['fields']:

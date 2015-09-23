@@ -20,13 +20,14 @@ from cms.utils import (copy_plugins, helpers, moderator, permissions, plugins,
 from cms.utils.page_resolver import is_valid_url
 from cms.utils.admin import jsonify_request
 from cms.utils.permissions import has_plugin_permission
+from cms.utils import request_item
 from copy import deepcopy
 from distutils.version import LooseVersion
 from django import template
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.options import IncorrectLookupParameters
-from django.contrib.admin.util import get_deleted_objects
+from django.contrib.admin.utils import get_deleted_objects
 from urllib2 import unquote
 from django.contrib import messages
 from django.contrib.sites.models import Site
@@ -779,6 +780,7 @@ class PageAdmin(ModelAdmin):
         if 'reversion' in settings.INSTALLED_APPS:
             context['has_change_permission'] = self.has_change_permission(request)
         context.update(extra_context or {})
+        context.update(self.admin_site.each_context(request))
         return render_to_response(self.change_list_template or [
             'admin/%s/%s/change_list.html' % (app_label, opts.object_name.lower()),
             'admin/%s/change_list.html' % app_label,
@@ -911,8 +913,10 @@ class PageAdmin(ModelAdmin):
             else:
                 try:
                     kwargs = {
-                        'copy_permissions': request.REQUEST.get('copy_permissions', False),
-                        'copy_moderation': request.REQUEST.get('copy_moderation', False),
+                        'copy_permissions': request_item(
+                            request, 'copy_permissions', False),
+                        'copy_moderation': request_item(
+                            request, 'copy_moderation', False),
                     }
                     page.copy_page(target, site, position, **kwargs)
                     return jsonify_request(HttpResponse("ok"))
@@ -949,7 +953,7 @@ class PageAdmin(ModelAdmin):
         from django.utils.translation import ugettext as _
         self.message_user(request, _('Page was successfully approved.'))
 
-        if 'node' in request.REQUEST:
+        if request_item(request, 'node'):
             # if request comes from tree..
             return admin_utils.render_admin_menu_item(request, page)
         referer = request.META.get('HTTP_REFERER', reverse('admin:cms_page_changelist'))
@@ -1040,16 +1044,16 @@ class PageAdmin(ModelAdmin):
             'user': request.user,
             'using': using
         }
-        deleted_objects, perms_needed =  get_deleted_objects(
+        deleted_objects, __, perms_needed = get_deleted_objects(
             [titleobj],
             titleopts,
             **kwargs
-        )[:2]
-        to_delete_plugins, perms_needed_plugins = get_deleted_objects(
+        )[:3]
+        to_delete_plugins, __, perms_needed_plugins = get_deleted_objects(
             saved_plugins,
             pluginopts,
             **kwargs
-        )[:2]
+        )[:3]
 
         deleted_objects.append(to_delete_plugins)
         perms_needed = set( list(perms_needed) + list(perms_needed_plugins) )
@@ -1113,7 +1117,7 @@ class PageAdmin(ModelAdmin):
         """
         page = get_object_or_404(Page, id=object_id)
         attrs = "?preview=1"
-        if request.REQUEST.get('public', None):
+        if request_item(request, 'public', None):
             if not page.publisher_public_id:
                 raise Http404
             page = page.publisher_public

@@ -3,13 +3,14 @@ from cms.api import create_page
 from cms.cms_toolbar import CMSToolbar
 from cms.test_utils.testcases import SettingsOverrideTestCase
 from cms.test_utils.util.context_managers import SettingsOverride
-from cms.toolbar.items import (Anchor, TemplateHTML, Switcher, List, ListItem, 
+from cms.toolbar.items import (Anchor, TemplateHTML, Switcher, List, ListItem,
     GetButton)
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, User
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.urlresolvers import reverse
 from django.test.client import RequestFactory
+from urlparse import urlparse, parse_qs
 
 class ToolbarUserMixin(object):
     def get_anon(self):
@@ -185,13 +186,19 @@ class ToolbarTests(SettingsOverrideTestCase, ToolbarUserMixin):
         self.assertTrue(isinstance(pagemenu, List))
         self.assertEqual(len(pagemenu.raw_items), 4)
 
+        def urls_equal(url1, url2):
+            _, _, path1, _, query1, _ = urlparse(url1)
+            _, _, path2, _, query2, _ = urlparse(url2)
+            self.assertEqual(path1, path2)
+            self.assertEqual(parse_qs(query1), parse_qs(query2))
+
         overview, addchild, addsibling, delete = pagemenu.raw_items
-        self.assertEqual(overview.url, reverse('admin:cms_page_changelist'))
-        self.assertEqual(addchild.serialize_url({}, toolbar),
+        urls_equal(overview.url, reverse('admin:cms_page_changelist'))
+        urls_equal(addchild.serialize_url({}, toolbar),
             reverse('admin:cms_page_add') + '?position=last-child&target=%s' % page.pk)
-        self.assertEqual(addsibling.serialize_url({}, toolbar),
+        urls_equal(addsibling.serialize_url({}, toolbar),
             reverse('admin:cms_page_add') + '?position=last-child')
-        self.assertEqual(delete.serialize_url({}, toolbar),
+        urls_equal(delete.serialize_url({}, toolbar),
             reverse('admin:cms_page_delete', args=(page.pk,)))
 
         # check the admin-menu
@@ -216,12 +223,12 @@ class ToolbarTests(SettingsOverrideTestCase, ToolbarUserMixin):
             toolbar = CMSToolbar(request)
             items = toolbar.get_items({})
             self.assertEqual([item for item in items if item.css_class_suffix == 'templates'], [])
-        
+
     def test_toolbar_markup(self):
         superuser = self.get_superuser()
         create_page("toolbar-page", "nav_playground.html", "en",
                            created_by=superuser, published=True)
-        
+
         with self.login_user_context(superuser):
             response = self.client.get('/?edit')
         self.assertEquals(response.status_code, 200)
@@ -261,7 +268,7 @@ class ToolbarTests(SettingsOverrideTestCase, ToolbarUserMixin):
         SessionMiddleware().process_request(request)
         toolbar = CMSToolbar(request)
         self.assertFalse(toolbar.show_toolbar)
-        
+
 
 class ToolbarModeratorTests(SettingsOverrideTestCase, ToolbarUserMixin):
     settings_overrides = {'CMS_MODERATOR': True}

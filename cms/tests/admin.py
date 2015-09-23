@@ -22,7 +22,7 @@ from cms.test_utils.util.context_managers import SettingsOverride
 from cms.test_utils.util.mock import AttributeObject
 from django.conf import settings
 from django.contrib import admin
-from django.contrib.admin.sites import site
+from django.contrib.admin.sites import site, AdminSite
 from django.contrib.auth.models import User, Permission, AnonymousUser
 from django.contrib.sites.models import Site
 from django.core.exceptions import PermissionDenied
@@ -1104,7 +1104,7 @@ class PluginPermissionTests(AdminTestsBase):
         page_permission = PagePermission.objects.create(
             can_change_permissions=True, user=user, page=page)
         request = self._get_change_page_request(user, page)
-        page_admin = PageAdmin(Page, None)
+        page_admin = PageAdmin(Page, AdminSite())
         # user has can_change_permission
         # => must see the PagePermissionInline
         self.assertTrue(
@@ -1116,7 +1116,7 @@ class PluginPermissionTests(AdminTestsBase):
         page_permission.can_change_permissions = False
         page_permission.save()
         request = self._get_change_page_request(user, page)
-        page_admin = PageAdmin(Page, None)
+        page_admin = PageAdmin(Page, AdminSite())
         # => PagePermissionInline is no longer visible
         self.assertFalse(
             any(type(inline) is PagePermissionInlineAdmin
@@ -1262,7 +1262,7 @@ class AdminPageEditContentSizeTests(AdminTestsBase):
                 # expect that the pagesize gets influenced by the useramount of the system
                 self.assertTrue(page_size_grown,"Page size has not grown after user creation")
                 # usernames are only 2 times in content
-                text = smart_str(response.content, response._charset)
+                text = smart_str(response.content, response.charset)
                 foundcount = text.count(USER_NAME)
                 # 2 forms contain usernames as options
                 self.assertEqual(foundcount, 2, "Username %s appeared %s times in response.content, expected 2 times" % (USER_NAME, foundcount))
