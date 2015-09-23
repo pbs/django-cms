@@ -1,6 +1,19 @@
 CHANGELOG
 =========
 
+Revision ed1272d (23.09.2015, 15:12 UTC)
+----------------------------------------
+
+No new issues.
+
+* Misc commits
+
+  * Django 1.8: updated context for custom admin view
+  * Django 1.8: updated templates
+  * DJango 1.8 upgrade: removed some django1.9 deprecation warnings
+  * Django1.8 upgrade: fixed deprecation warnings
+  * Django1.8 upgrade: fixed deprecated code * fixed model permissions codenames * fixed returned data from get_deleted_objects * replaced TEMPLATE settings * fixed default_model_class for custom model related fields * fixed tests * pylinted some changed files
+
 Revision 17b1187 (21.09.2015, 09:27 UTC)
 ----------------------------------------
 
