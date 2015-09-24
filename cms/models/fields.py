@@ -17,9 +17,8 @@ class PlaceholderField(models.ForeignKey):
         self.default_width = default_width
         self.actions = actions()
         kwargs.update({'null': True})  # always allow Null
-        if 'to' in kwargs:
-            del(kwargs['to'])
-        super(PlaceholderField, self).__init__(Placeholder, **kwargs)
+        kwargs['to'] = 'cms.Placeholder'
+        super(PlaceholderField, self).__init__(**kwargs)
 
     def formfield(self, **kwargs):
         """
@@ -84,7 +83,7 @@ class PageField(models.ForeignKey):
     def __init__(self, **kwargs):
         # we call ForeignKey.__init__ with the Page model as parameter...
         # a PageField can only be a ForeignKey to a Page
-        kwargs['to'] = self.default_model_class
+        kwargs['to'] = 'cms.Page'
         super(PageField, self).__init__(**kwargs)
 
     def formfield(self, **kwargs):

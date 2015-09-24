@@ -7,6 +7,7 @@ from cms.utils.permissions import get_user_permission_level
 from copy import deepcopy
 from distutils.version import LooseVersion
 from django.conf import settings
+from django.contrib.auth import get_permission_codename
 from django.contrib import admin
 from django.template.defaultfilters import title
 from django.utils.translation import ugettext as _
@@ -163,8 +164,8 @@ class GenericCmsPermissionAdmin(object):
             opts, fields = model._meta, []
             name = model.__name__.lower()
             for t in ('add', 'change', 'delete'):
-                fn = getattr(opts, 'get_%s_permission' % t)
-                if request.user.has_perm(opts.app_label + '.' + fn()):
+                codename = get_permission_codename(t, opts)
+                if request.user.has_perm(opts.app_label + '.' + codename):
                     fields.append('can_%s_%s' % (t, name))
             if fields:
                 fieldsets.insert(2 + i, (title, {'fields': (fields,)}))

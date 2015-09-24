@@ -5,7 +5,6 @@ HERE = os.path.dirname(os.path.realpath(__file__))
 
 CACHE_BACKEND = 'locmem:///'
 DEBUG = True
-TEMPLATE_DEBUG = True
 DATABASE_SUPPORTS_TRANSACTIONS = True
 DATABASES = {
     'default': {
@@ -24,32 +23,45 @@ STATIC_URL = '/static/'
 ADMIN_MEDIA_PREFIX = '/static/admin/'
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 SECRET_KEY = 'key'
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-    'django.template.loaders.eggs.Loader',
-)
-TEMPLATE_CONTEXT_PROCESSORS = [
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.request",
-    "django.core.context_processors.media",
-    'django.core.context_processors.csrf',
-    "cms.context_processors.media",
-    "sekizai.context_processors.sekizai",
-    "django.core.context_processors.static",
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.abspath(
+                os.path.join(os.path.dirname(__file__),
+                             'project',
+                             'templates')
+            )
+        ],
+        'OPTIONS': {
+            'context_processors': [
+                "django.contrib.auth.context_processors.auth",
+                "django.template.context_processors.i18n",
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.template.context_processors.media",
+                'django.template.context_processors.csrf',
+                "cms.context_processors.media",
+                "sekizai.context_processors.sekizai",
+                "django.template.context_processors.static",
+            ],
+            'loaders': (
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+                'django.template.loaders.eggs.Loader',
+            ),
+            'debug': True
+        },
+    },
 ]
-TEMPLATE_DIRS = [
-    os.path.abspath(os.path.join(os.path.dirname(__file__), 'project', 'templates'))
-]
+
 MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'cms.middleware.multilingual.MultilingualURLMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.doc.XViewMiddleware',
+    'django.contrib.admindocs.middleware.XViewMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'cms.middleware.user.CurrentUserMiddleware',
     'cms.middleware.page.CurrentPageMiddleware',
@@ -108,13 +120,13 @@ CMS_FRONTEND_LANGUAGES = (
     'nl',
 )
 CMS_LANGUAGE_CONF = {
-    'de':['fr', 'en'],
-    'en':['fr', 'de'],
+    'de': ['fr', 'en'],
+    'en': ['fr', 'de'],
 }
 CMS_SITE_LANGUAGES = {
-    1:['en','de','fr','pt-BR'],
-    2:['de','fr'],
-    3:['nl'],
+    1: ['en', 'de', 'fr', 'pt-BR'],
+    2: ['de', 'fr'],
+    3: ['nl'],
 }
 CMS_TEMPLATES = (
     ('col_two.html', gettext('two columns')),
@@ -130,13 +142,13 @@ CMS_PLACEHOLDER_CONF = {
 
     'col_left': {
         'plugins': ('FilePlugin', 'FlashPlugin', 'LinkPlugin', 'PicturePlugin',
-                    'TextPlugin', 'SnippetPlugin','GoogleMapPlugin',),
+                    'TextPlugin', 'SnippetPlugin', 'GoogleMapPlugin',),
         'name': gettext("left column")
     },
 
     'col_right': {
         'plugins': ('FilePlugin', 'FlashPlugin', 'LinkPlugin', 'PicturePlugin',
-                    'TextPlugin', 'SnippetPlugin','GoogleMapPlugin',),
+                    'TextPlugin', 'SnippetPlugin', 'GoogleMapPlugin',),
         'name': gettext("right column")
     },
     'extra_context': {
@@ -154,7 +166,7 @@ CMS_CACHE_DURATIONS = {
     'content': 0,
     'permissions': 0,
 }
-CMS_APPHOOKS=[]
+CMS_APPHOOKS = []
 CMS_REDIRECTS = True
 CMS_SEO_FIELDS = True
 CMS_FLAT_URLS = False
@@ -168,7 +180,8 @@ CMS_PLUGIN_CONTEXT_PROCESSORS = tuple()
 CMS_SITE_CHOICES_CACHE_KEY = 'CMS:site_choices'
 CMS_PAGE_CHOICES_CACHE_KEY = 'CMS:page_choices'
 CMS_NAVIGATION_EXTENDERS = (
-    ('cms.test_utils.project.sampleapp.menu_extender.get_nodes', 'SampleApp Menu'),
+    ('cms.test_utils.project.sampleapp.menu_extender.get_nodes',
+     'SampleApp Menu'),
 )
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 JUNIT_OUTPUT_DIR = '.'
@@ -177,6 +190,7 @@ ROOT_URLCONF = 'cms.test_utils.project.urls'
 PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.MD5PasswordHasher',
 )
+
 
 class DisableMigrations(object):
 

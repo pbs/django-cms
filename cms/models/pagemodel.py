@@ -10,6 +10,7 @@ from cms.utils import timezone
 from cms.utils.copy_plugins import copy_plugins_to
 from cms.utils.helpers import reversion_register
 from django.conf import settings
+from django.contrib.auth import get_permission_codename
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
@@ -743,14 +744,14 @@ class Page(MPTTModel):
         opts = self._meta
         if request.user.is_superuser:
             return True
-        return request.user.has_perm(opts.app_label + '.' + opts.get_change_permission()) and \
+        return request.user.has_perm(opts.app_label + '.' + get_permission_codename('change', opts)) and \
             self.has_generic_permission(request, "change")
 
     def has_delete_permission(self, request):
         opts = self._meta
         if request.user.is_superuser:
             return True
-        return request.user.has_perm(opts.app_label + '.' + opts.get_delete_permission()) and \
+        return request.user.has_perm(opts.app_label + '.' + get_permission_codename('delete', opts)) and \
             self.has_generic_permission(request, "delete")
 
     def has_publish_permission(self, request):

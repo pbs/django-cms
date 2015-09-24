@@ -9,7 +9,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import RegexURLResolver, Resolver404, reverse, \
     RegexURLPattern
 from django.db.models import Q
-from django.utils.importlib import import_module
+from importlib import import_module
 
 APP_RESOLVERS = []
 

@@ -9,7 +9,7 @@ from cms.api import create_page
 from cms.menu import get_visible_pages
 from cms.models import Page
 from cms.models import ACCESS_DESCENDANTS, ACCESS_CHILDREN, ACCESS_PAGE
-from cms.models import ACCESS_PAGE_AND_CHILDREN, ACCESS_PAGE_AND_DESCENDANTS 
+from cms.models import ACCESS_PAGE_AND_CHILDREN, ACCESS_PAGE_AND_DESCENDANTS
 from cms.models.permissionmodels import GlobalPagePermission, PagePermission
 from cms.test_utils.testcases import SettingsOverrideTestCase
 
@@ -80,7 +80,7 @@ class ViewPermissionTests(SettingsOverrideTestCase):
 
         page_d_a = create_page("page_d_a", parent=page_d, **stdkwargs)
         page_d_b = create_page("page_d_b", parent=page_d, **stdkwargs)
-        page_d_c = create_page("page_d_c", parent=page_d, **stdkwargs) 
+        page_d_c = create_page("page_d_c", parent=page_d, **stdkwargs)
         page_d_d = create_page("page_d_d", parent=page_d, **stdkwargs)
 
         return [page_a,
@@ -183,7 +183,7 @@ class ViewPermissionTests(SettingsOverrideTestCase):
     def _setup_view_restrictions(self):
         """
         Setup a view restriction with every type of the grant_on ACCESS_*
-        'group_b_ACCESS_PAGE_AND_CHILDREN' 
+        'group_b_ACCESS_PAGE_AND_CHILDREN'
         'group_b_b_ACCESS_CHILDREN'
         'group_b_ACCESS_PAGE_AND_DESCENDANTS'
         'group_b_b_ACCESS_DESCENDANTS'
@@ -241,7 +241,7 @@ class ViewPermissionTests(SettingsOverrideTestCase):
         for page_id in visible_page_ids:
             in_restricted = False
             in_public = False
-            if page_id in restricted_pages: 
+            if page_id in restricted_pages:
                 in_restricted = True
             if page_id in public_page_ids:
                 in_public = True
@@ -251,8 +251,8 @@ class ViewPermissionTests(SettingsOverrideTestCase):
 
     def assertGrantedVisibility(self, all_pages, expected_granted_pages, username=None):
         """
-        helper function to check the expected_granted_pages are 
-        not in the restricted_pages list and 
+        helper function to check the expected_granted_pages are
+        not in the restricted_pages list and
         all visible pages are in the expected_granted_pages
         """
         # log the user in if present
@@ -270,7 +270,7 @@ class ViewPermissionTests(SettingsOverrideTestCase):
         # see tests/menu.py line 753
         attrs = {
             'user': user or AnonymousUser(),
-            'REQUEST': {},
+            'GET': {},
             'session': {},
         }
         return type('Request', (object,), attrs)
@@ -481,7 +481,7 @@ class ViewPermissionTreeBugTests(ViewPermissionTests):
         'CMS_PERMISSION': True,
         'CMS_PUBLIC_FOR': 'all',
     }
-    GROUPNAME_6 = 'group_6_ACCESS_PAGE'  
+    GROUPNAME_6 = 'group_6_ACCESS_PAGE'
 
     def _setup_pages(self):
         """
@@ -523,7 +523,7 @@ class ViewPermissionTreeBugTests(ViewPermissionTests):
 
     def _setup_permviewbug(self):
         """
-        Setup group_6_ACCESS_PAGE view restriction 
+        Setup group_6_ACCESS_PAGE view restriction
         """
         page = Page.objects.get(title_set__title="page_6")
         group = Group.objects.get(name__iexact=self.GROUPNAME_6)

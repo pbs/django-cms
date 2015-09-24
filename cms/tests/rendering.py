@@ -299,8 +299,7 @@ class RenderingTestCase(SettingsOverrideTestCase):
                               ]):
             from cms.views import details
             request = AttributeObject(
-                REQUEST={'language': 'x-elvish'},
-                GET=[],
+                GET={'language': 'x-elvish'},
                 session={},
                 path='/',
                 user=self.test_user,
@@ -324,8 +323,7 @@ class RenderingTestCase(SettingsOverrideTestCase):
                               ]):
             from cms.views import details
             request = AttributeObject(
-                REQUEST={'language': 'x-elvish'},
-                GET=[],
+                GET={'language': 'x-elvish'},
                 session={},
                 path='/',
                 user=self.test_user,
@@ -347,8 +345,7 @@ class RenderingTestCase(SettingsOverrideTestCase):
         placeholder.pk = placeholder.id = 99
         context = SekizaiContext()
         context['request'] = AttributeObject(
-            REQUEST={'language': 'en'},
-            GET=[],
+            GET={'language': 'en'},
             session={},
             path='/',
             user=self.test_user,
@@ -374,8 +371,7 @@ class RenderingTestCase(SettingsOverrideTestCase):
             placeholder.pk = placeholder.id = 99
             context = SekizaiContext()
             context['request'] = AttributeObject(
-                REQUEST={'language': 'en'},
-                GET=[],
+                GET={'language': 'en'},
                 session={},
                 path='/',
                 user=self.test_user,

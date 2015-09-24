@@ -1,9 +1,33 @@
-<div id="{{ dialog_id }}" title="{% block title %}{{ title }}{% endblock %}">
-	{% block content %}
-		{% block header %}{% endblock %}
-		
-		{% block form %}{% if form %}<form id="{{ dialog_id }}-form">{% csrf_token %}{{ form.as_p }}</form>{% endif %}{% endblock %}
-	{% endblock %}
+<div id="{{ dialog_id }}" class="modal" tabindex="-1" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        {% block content %}
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="blue bigger">{% block title %}{{ title }}{% endblock %}</h4>
+            </div>
+
+            <div class="modal-body">
+                {% block header %}{% endblock %}
+                {% block form %}{% if form %}<form id="{{ dialog_id }}-form">{% csrf_token %}{{ form.as_p }}</form>{% endif %}{% endblock %}
+            </div>
+
+            {% block footer%}
+            <div class="modal-footer">
+                <button class="btn btn-sm" data-dismiss="modal">
+                    <i class="ace-icon fa fa-times"></i>
+                    Cancel
+                </button>
+
+                <button class="btn btn-sm btn-primary">
+                    <i class="ace-icon fa fa-check"></i>
+                    Ok
+                </button>
+            </div>
+            {% endblock %}
+        {% endblock %}
+        </div>
+    </div>
 </div>
 
 {% block script %}{% endblock %}
