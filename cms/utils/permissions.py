@@ -90,7 +90,7 @@ def has_page_change_permission(request, on_any_sites=False):
     opts = Page._meta
     site = current_site(request) if not on_any_sites else None
     if request.user.is_superuser or (
-        request.user.has_perm(opts.app_label + '.' + opts.get_change_permission()) and (
+        request.user.has_perm(opts.app_label + '.' + get_permission_codename('change', opts)) and (
             has_global_page_permission(
                 request, site, can_change=True))
             or has_any_page_change_permissions(
@@ -246,7 +246,7 @@ def get_subordinate_groups(user):
 def has_global_change_permissions_permission(user):
     opts = GlobalPagePermission._meta
     if user.is_superuser or (
-        user.has_perm(opts.app_label + '.' + opts.get_change_permission()) and
+        user.has_perm(opts.app_label + '.' + get_permission_codename('change', opts)) and
             GlobalPagePermission.objects.with_user(user).filter(can_change=True).exists()):
         return True
     return False

@@ -48,7 +48,7 @@ class TemplatetagTests(TestCase):
                 return script
         class FakeRequest(object):
             current_page = FakePage()
-            REQUEST = {'language': 'en'}
+            GET = {'language': 'en'}
         request = FakeRequest()
         template = Template('{% load cms_tags %}{% page_attribute page_title %}')
         context = Context({'request': request})
@@ -105,15 +105,8 @@ class TemplatetagDatabaseTests(TwoPagesFixture, SettingsOverrideTestCase):
             )
             self.assertEqual(len(mail.outbox), 0)
 
-    def test_get_page_by_untyped_arg_dict_fail_nodebug_do_email(self):
-        with SettingsOverride(SEND_BROKEN_LINK_EMAILS=True, DEBUG=False, MANAGERS=[("Jenkins", "tests@django-cms.org")]):
-            request = self.get_request('/')
-            page = _get_page_by_untyped_arg({'pk': 3}, request, 1)
-            self.assertEqual(page, None)
-            self.assertEqual(len(mail.outbox), 1)
-
     def test_get_page_by_untyped_arg_dict_fail_nodebug_no_email(self):
-        with SettingsOverride(SEND_BROKEN_LINK_EMAILS=False, DEBUG=False, MANAGERS=[("Jenkins", "tests@django-cms.org")]):
+        with SettingsOverride(DEBUG=False, MANAGERS=[("Jenkins", "tests@django-cms.org")]):
             request = self.get_request('/')
             page = _get_page_by_untyped_arg({'pk': 3}, request, 1)
             self.assertEqual(page, None)
@@ -128,18 +121,14 @@ class TemplatetagDatabaseTests(TwoPagesFixture, SettingsOverrideTestCase):
         Verify ``show_placeholder`` correctly handles being given an
         invalid identifier.
         """
-        settings.DEBUG = True # So we can see the real exception raised
-        request = HttpRequest()
-        request.REQUEST = {}
-        self.assertRaises(Placeholder.DoesNotExist,
-                          _show_placeholder_for_page,
-                          RequestContext(request),
-                          'does_not_exist',
-                          'myreverseid')
-        settings.DEBUG = False # Now test the non-debug output
-        content = _show_placeholder_for_page(RequestContext(request),
-                                            'does_not_exist', 'myreverseid')
-        self.assertEqual(content['content'], '')
+        with self.settings(DEBUG=True):
+            context = self.get_context('/')
+
+            self.assertRaises(Placeholder.DoesNotExist, _show_placeholder_for_page,
+                              context, 'does_not_exist', 'myreverseid')
+        with self.settings(DEBUG=False):
+            content = _show_placeholder_for_page(context, 'does_not_exist', 'myreverseid')
+            self.assertEqual(content['content'], '')
 
     def test_untranslated_language_url(self):
         """ Tests page_language_url templatetag behavior when used on a page

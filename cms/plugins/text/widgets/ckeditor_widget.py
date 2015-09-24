@@ -8,9 +8,10 @@ import json
 
 class CKEditor(Textarea):
 
-    def __init__(self, installed_plugins=None,  **kwargs):
+    def __init__(self, installed_plugins=None, plugin_id=None,  **kwargs):
         super(CKEditor, self).__init__(**kwargs)
         self.installed_plugins = installed_plugins
+        self.plugin_id = plugin_id
 
     class Media:
         js = [cms_static_url(path) for path in (
@@ -26,6 +27,7 @@ class CKEditor(Textarea):
     def render_additions(self, name, value, attrs=None):
         context = {
             'name': name,
+            'plugin_id': self.plugin_id,
             'installed_plugins': self.installed_plugins,
             'controls_css': cms_static_url('css/tinymce.plugin_controls.css'),
             'ck_config': json.dumps(CKEDITOR_CONFIG)

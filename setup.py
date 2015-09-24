@@ -28,11 +28,12 @@ setup(
     platforms=['OS Independent'],
     classifiers=CLASSIFIERS,
     install_requires=[
-        'Django>=1.7,<1.8',
+        'Django>=1.7,<1.9',
         'django-classy-tags>=0.3.4.1',
         'html5lib',
         'django-mptt==0.7.4',
         'django-sekizai>=0.6.1',
+        'django-admin-extend',
     ],
     tests_require=[
         'django-reversion>=1.8,<1.9',

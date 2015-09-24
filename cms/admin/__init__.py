@@ -2,6 +2,7 @@
 import pageadmin
 import useradmin
 import permissionadmin
+from . import siteadmin
 
 # Piggyback off admin.autodiscover() to discover cms plugins
 from cms import plugin_pool

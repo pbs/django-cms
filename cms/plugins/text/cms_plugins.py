@@ -16,15 +16,16 @@ class TextPlugin(CMSPluginBase):
     form = TextForm
     render_template = "cms/plugins/text.html"
     change_form_template = "cms/plugins/text_plugin_change_form.html"
+    admin_preview = False
 
-    def get_editor_widget(self, request, plugins):
+    def get_editor_widget(self, request, plugins, plugin_id=None):
         """
         Returns the Django form Widget to be used for
         the text area
         """
         try:
             from cms.plugins.text.widgets.ckeditor_widget import CKEditor
-            return CKEditor(installed_plugins=plugins)
+            return CKEditor(installed_plugins=plugins, plugin_id=plugin_id)
         except ImportError:
             pass
 
@@ -41,7 +42,7 @@ class TextPlugin(CMSPluginBase):
         # We avoid mutating the Form declared above by subclassing
         class TextPluginForm(self.form):
             pass
-        widget = self.get_editor_widget(request, plugins)
+        widget = self.get_editor_widget(request, plugins, self.cms_plugin_instance.pk)
         TextPluginForm.declared_fields["body"] = CharField(widget=widget, required=False)
         return TextPluginForm
 
