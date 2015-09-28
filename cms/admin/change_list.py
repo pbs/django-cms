@@ -253,6 +253,7 @@ class CMSChangeList(ChangeList):
             self.sites = get_user_sites_queryset(request.user)
         else:
             self.sites = Site.objects.all()
+        self.sites = self.sites.order_by('name')
         self.has_access_to_multiple_sites = len(self.sites) > 1
 
     def current_site(self):
