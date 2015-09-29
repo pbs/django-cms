@@ -355,7 +355,13 @@ class Page(MPTTModel):
         from cms.utils.permissions import _thread_locals
         user = getattr(_thread_locals, "user", None)
         if user:
-            self.changed_by = user.username
+            if hasattr(user, 'get_full_name') and user.get_full_name():
+                username = user.get_full_name()
+            elif hasattr(user, 'email') and user.email.strip():
+                username = user.email.strip()
+            else:
+                username = getattr(user, 'username', '').strip()
+            self.changed_by = username[:70]
         else:
             self.changed_by = "script"
         if not self.pk:
