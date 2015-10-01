@@ -1,6 +1,21 @@
 CHANGELOG
 =========
 
+Revision bd0b5ad (01.10.2015, 12:20 UTC)
+----------------------------------------
+
+* LUN-2591
+
+  * ordered sites list by name
+
+* LUN-2592
+
+  * chosen widget used on site selector
+
+* Misc commits
+
+  * Add migrations for cms and cms.plugins.link.
+
 Revision ed1272d (23.09.2015, 15:12 UTC)
 ----------------------------------------
 
