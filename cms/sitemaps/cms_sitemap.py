@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib.sitemaps import Sitemap
 from django.core import paginator
-
+from django.db import connection
 
 class ObjectCachedPaginator(paginator.Paginator):
     """
@@ -45,13 +45,17 @@ class CMSSitemap(Sitemap):
         return all_pages
 
     def lastmod(self, page):
-        from cms.models import Placeholder, CMSPlugin
-        placeholders_qs = Placeholder.objects.filter(page=page)
-        placeholders_ids = list(placeholders_qs.values_list('id', flat=True))
-        plugins_qs = CMSPlugin.objects.filter(placeholder__in=placeholders_ids)
-        latest_plg_mod_date = plugins_qs.order_by(
-            '-changed_date').values_list('changed_date', flat=True)[:1]
         mod_dates = [page.changed_date, page.publication_date]
+        latest_plg_mod_date = None
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "select cmsplg.changed_date from cms_cmsplugin cmsplg " +
+                "inner join cms_page_placeholders cmsp " +
+                "on cmsp.id=cmsplg.placeholder_id " +
+                "where cmsp.page_id = %s " +
+                "order by cmsplg.changed_date desc limit 1", [page.id])
+            latest_plg_mod_date = cursor.fetchone()
+
         if latest_plg_mod_date:
             mod_dates.append(latest_plg_mod_date[0])
         return max(mod_dates)
