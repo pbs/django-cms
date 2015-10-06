@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.contrib.sitemaps import Sitemap
 from django.core import paginator
-from django.db import connection
 
 class ObjectCachedPaginator(paginator.Paginator):
     """
