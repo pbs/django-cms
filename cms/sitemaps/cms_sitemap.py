@@ -45,18 +45,13 @@ class CMSSitemap(Sitemap):
         return all_pages
 
     def lastmod(self, page):
+        from cms.models import CMSPlugin
         mod_dates = [page.changed_date, page.publication_date]
-        latest_plg_mod_date = None
-        with connection.cursor() as cursor:
-            cursor.execute(
-                "select cmsplg.changed_date from cms_cmsplugin cmsplg " +
-                "inner join cms_page_placeholders cmsp " +
-                "on cmsp.id=cmsplg.placeholder_id " +
-                "where cmsp.page_id = %s " +
-                "order by cmsplg.changed_date desc limit 1", [page.id])
-            latest_plg_mod_date = cursor.fetchone()
+        latest_plg = CMSPlugin.objects.filter(
+            placeholder__page=page).only('changed_date').order_by(
+            'changed_date')[:1]
 
-        if latest_plg_mod_date:
-            mod_dates.append(latest_plg_mod_date[0])
+        if latest_plg:
+            mod_dates.append(latest_plg[0].changed_date)
         return max(mod_dates)
 
