@@ -153,7 +153,7 @@ def get_app_patterns():
     from cms.models import Title
     try:
         current_site = Site.objects.get_current()
-    except Site.DoesNotExist:
+    except (Site.DoesNotExist, ImproperlyConfigured):
         current_site = None
     included = []
 

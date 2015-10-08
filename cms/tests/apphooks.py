@@ -8,6 +8,7 @@ from cms.test_utils.testcases import CMSTestCase
 from cms.test_utils.util.context_managers import SettingsOverride
 from django.contrib.auth.models import User
 from django.core.urlresolvers import clear_url_caches, reverse
+from django.test.utils import override_settings
 import sys
 
 
@@ -204,3 +205,7 @@ class ApphooksTestCase(CMSTestCase):
             resolver = urlpatterns[0]
             url = resolver.reverse('sample-root')
             self.assertEqual(url, 'child/not-home/subchild/')
+
+    @override_settings(SITE_ID='')
+    def test_app_patterns_with_no_site(self):
+        self.assertEqual(get_app_patterns(), [])
