@@ -1,6 +1,27 @@
 CHANGELOG
 =========
 
+Revision e4f5460 (13.10.2015, 11:53 UTC)
+----------------------------------------
+
+* LUN-2507
+
+  * Better assertion in test.
+  * Prevent clashing urls generated from removing overwrite url.
+
+* LUN-2594
+
+  * Handle case when page id is not correct.
+
+* LUN-2607
+
+  * Check that the POST request does not perform actions that the user is not allowed.
+  * Add attributes that the user does not have access to in hidden fields.
+  * Remove unnecessary exclude. This is excluded in get_fieldsets.
+  * Add test for case when writers change attributes that they cannot view/edit.
+
+No other commits.
+
 Revision bd0b5ad (01.10.2015, 12:20 UTC)
 ----------------------------------------
 
