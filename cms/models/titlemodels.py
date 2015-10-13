@@ -37,18 +37,21 @@ class Title(models.Model):
         super(Title, self).save(*args, **kwargs)
 
     def update_path(self):
-        # Build path from parent page's path and slug
-        current_path = self.path
-        parent_page = self.page.parent
-
-        slug = u'%s' % self.slug
         if not self.has_url_overwrite:
-            self.path = u'%s' % ('' if self.page.is_home() else slug)
-            if parent_page:
-                parent_title = Title.objects.get_title(parent_page, language=self.language, language_fallback=True)
-                if parent_title:
-                    self.path = u'%s/%s' % (parent_title.path, slug)
+            self.path = self.get_path_without_overwrite()
         self.path = self.path.strip(" /")
+
+    def get_path_without_overwrite(self):
+        # Build path from parent page's path and slug
+        slug = u'%s' % self.slug
+        path = u'%s' % ('' if self.page.is_home() else slug)
+        parent_page = self.page.parent
+        if parent_page:
+            parent_title = Title.objects.get_title(parent_page, language=self.language,
+                                                   language_fallback=True)
+            if parent_title:
+                path = u'%s/%s' % (parent_title.path, slug)
+        return path
 
     @property
     def overwrite_url(self):
