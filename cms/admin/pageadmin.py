@@ -349,13 +349,16 @@ class PageAdmin(ModelAdmin):
                 fields = list(given_fieldsets[0][1]['fields'][2])
                 fields.remove('published')
                 given_fieldsets[0][1]['fields'][2] = tuple(fields)
-
+                hidden_fields = given_fieldsets[2][1]['fields']
+                hidden_fields.append('published')
                 # delete publication_date publication_end_date
                 del given_fieldsets[0][1]['fields'][3]
             if not obj.has_set_navigation_permission(request):
                 fields = list(given_fieldsets[0][1]['fields'][2])
                 fields.remove('in_navigation')
                 given_fieldsets[0][1]['fields'][2] = tuple(fields)
+                hidden_fields = given_fieldsets[2][1]['fields']
+                hidden_fields.append('in_navigation')
             placeholders_template = get_template_from_request(request, obj)
             for placeholder_name in self.get_fieldset_placeholders(placeholders_template):
                 name = placeholder_utils.get_placeholder_conf("name", placeholder_name, obj.template, placeholder_name)
@@ -452,17 +455,7 @@ class PageAdmin(ModelAdmin):
         language = get_language_from_request(request, obj)
 
         if obj:
-            def exclude_field(has_permission, field):
-                if not has_permission:
-                    if field not in self.exclude:
-                        self.exclude.append(field)
-                else:
-                    if field in self.exclude:
-                        self.exclude.remove(field)
-
             self.inlines = PAGE_ADMIN_INLINES
-            exclude_field(obj.has_publish_permission(request), 'published')
-            exclude_field(obj.has_set_navigation_permission(request), 'in_navigation')
             if not settings.CMS_SOFTROOT and 'soft_root' in self.exclude:
                 self.exclude.remove('soft_root')
 
@@ -593,6 +586,11 @@ class PageAdmin(ModelAdmin):
                     obj.pagemoderatorstate_set.get_delete_actions(
                     ).count())
 
+            if request.method == 'POST':
+                try:
+                    self._assert_user_rights_allow_operations(request, obj)
+                except PermissionDenied as exc:
+                    return HttpResponseForbidden(exc.message)
 
             #activate(user_lang_set)
             extra_context = {
@@ -618,6 +616,20 @@ class PageAdmin(ModelAdmin):
             location = response._headers['location']
             response._headers['location'] = (location[0], "%s?language=%s" % (location[1], tab_language))
         return response
+
+    def _assert_user_rights_allow_operations(self, request, page):
+        """
+        Some page attributes (like published state) can be changed as a result of the request.
+        Check that the user has the special rights for these operations.
+        """
+        new_published_state = 'published' in request.POST
+        if new_published_state != page.published and not page.has_publish_permission(request):
+            raise PermissionDenied(_("You have no permission to publish/unpublish the page."))
+        new_navigation_state = 'in_navigation' in request.POST
+        if new_navigation_state != page.in_navigation and \
+           not page.has_set_navigation_permission(request):
+            raise PermissionDenied(_("You have no permission to set if the page "\
+                                     "should be visible or not in navigation."))
 
     def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
         # add context variables

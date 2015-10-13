@@ -3,12 +3,13 @@ from __future__ import with_statement
 from cms.api import (create_page, publish_page, approve_page, add_plugin,
     create_page_user, assign_user_to_page)
 from cms.cache.permissions import get_cache_key, clear_permission_cache, PERMISSION_KEYS
-from cms.models import Page, CMSPlugin
+from cms.models import Page, CMSPlugin, Title
 from cms.models.moderatormodels import (ACCESS_DESCENDANTS,
     ACCESS_PAGE_AND_DESCENDANTS)
 from cms.models.permissionmodels import PagePermission, GlobalPagePermission
 from cms.test_utils.testcases import (URL_CMS_PAGE_ADD, URL_CMS_PLUGIN_REMOVE,
-    SettingsOverrideTestCase, URL_CMS_PLUGIN_ADD, CMSTestCase)
+                                      SettingsOverrideTestCase, URL_CMS_PLUGIN_ADD,
+                                      CMSTestCase, URL_CMS_PAGE_CHANGE)
 from cms.test_utils.util.context_managers import SettingsOverride
 from cms.utils.page_resolver import get_page_from_path
 from cms.utils.permissions import has_generic_permission
@@ -609,6 +610,53 @@ class PermissionModeratorTests(SettingsOverrideTestCase):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 404)
 
+    def test_writer_cannot_change_not_shown_properties(self):
+        """
+        Test that attributes that are not shown to a user (published and in_navigation state)
+        are not modified by POST requests.
+        """
+        page_data = self.get_new_page_data()
+
+        def _assert_page_status(page_id):
+            page = Page.objects.get(id=page_id)
+            self.assertTrue(page.published)
+            self.assertTrue(page.in_navigation)
+
+        superuser = self.get_superuser()
+        with self.login_user_context(superuser):
+            response = self.client.post(URL_CMS_PAGE_ADD, page_data, follow=True)
+            self.assertEqual(response.status_code, 200)
+            title = Title.objects.get(slug=page_data['slug'])
+            self.assertNotEqual(title, None)
+            page = title.page
+            page.published = True
+            page.in_navigation = True
+            page.save()
+        _assert_page_status(page.id)
+
+        writer = self.make_writer_with_permission_on_current_pages()
+
+        def _assert_writer_request_does_not_change_page(data, expected_response_status):
+            with self.login_user_context(writer):
+                edit_response = self.client.post(URL_CMS_PAGE_CHANGE % page.id, data, follow=True)
+                self.assertEqual(edit_response.status_code, expected_response_status)
+            _assert_page_status(page.id)
+
+        # as is, page_data has the published/available in navigation flags missing
+        _assert_writer_request_does_not_change_page(page_data, 403)
+
+        correct_page_data = dict(page_data)
+        correct_page_data['published'] = 'on'
+        correct_page_data['in_navigation'] = 'on'
+        _assert_writer_request_does_not_change_page(correct_page_data, 200)
+
+        incorrect_page_data = dict(page_data)
+        incorrect_page_data['published'] = 'on'
+        _assert_writer_request_does_not_change_page(incorrect_page_data, 403)
+
+        incorrect_page_data2 = dict(page_data)
+        incorrect_page_data2['in_navigation'] = 'on'
+        _assert_writer_request_does_not_change_page(incorrect_page_data2, 403)
 
 class PatricksMoveTest(SettingsOverrideTestCase):
     """
