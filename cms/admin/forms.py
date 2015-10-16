@@ -16,7 +16,8 @@ from django.contrib.auth.models import Permission, User
 from django.contrib.auth import get_permission_codename
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ImproperlyConfigured
+
 from django.db.models.fields import BooleanField
 from django.forms.utils import ErrorList
 from django.forms.widgets import HiddenInput
@@ -109,7 +110,7 @@ class PageAddForm(forms.ModelForm):
 
         try:
             site = self.cleaned_data.get('site', Site.objects.get_current())
-        except Site.DoesNotExist:
+        except (Site.DoesNotExist, ImproperlyConfigured):
             site = None
             raise ValidationError("No site found for current settings.")
 
