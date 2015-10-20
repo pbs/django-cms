@@ -97,7 +97,7 @@ class Placeholder(models.Model):
         if not hasattr(self, '_attached_fields_cache'):
             self._attached_fields_cache = []
             for rel in self._meta.get_all_related_objects():
-                if issubclass(rel.model, CMSPlugin):
+                if issubclass(rel.related_model, CMSPlugin):
                     continue
                 from cms.admin.placeholderadmin import PlaceholderAdmin
                 parent = rel.related_model
@@ -118,7 +118,7 @@ class Placeholder(models.Model):
         if not hasattr(self, '_attached_field_cache'):
             self._attached_field_cache = None
             for rel in self._meta.get_all_related_objects():
-                if issubclass(rel.model, CMSPlugin):
+                if issubclass(rel.related_model, CMSPlugin):
                     continue
                 from cms.admin.placeholderadmin import PlaceholderAdmin
                 parent = rel.related_model
