@@ -2,7 +2,6 @@
 from cms.utils.helpers import reversion_register
 from cms.utils.placeholder import PlaceholderNoAction
 from django.contrib.auth import get_permission_codename
-from django.contrib import admin
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.forms.widgets import Media
@@ -97,20 +96,14 @@ class Placeholder(models.Model):
         if not hasattr(self, '_attached_fields_cache'):
             self._attached_fields_cache = []
             for rel in self._meta.get_all_related_objects():
-                if issubclass(rel.model, CMSPlugin):
+                if issubclass(rel.related_model, CMSPlugin):
                     continue
-                from cms.admin.placeholderadmin import PlaceholderAdmin
-                parent = rel.related_model
-                if (parent in admin.site._registry and
-                        isinstance(admin.site._registry[parent],
-                                   PlaceholderAdmin)):
-
-                    field = getattr(self, rel.get_accessor_name())
-                    try:
-                        if field.count():
-                            self._attached_fields_cache.append(rel.field)
-                    except:
-                        pass
+                field = getattr(self, rel.get_accessor_name())
+                try:
+                    if field.count():
+                        self._attached_fields_cache.append(rel.field)
+                except:
+                    pass
         return self._attached_fields_cache
 
     def _get_attached_field(self):
@@ -118,20 +111,15 @@ class Placeholder(models.Model):
         if not hasattr(self, '_attached_field_cache'):
             self._attached_field_cache = None
             for rel in self._meta.get_all_related_objects():
-                if issubclass(rel.model, CMSPlugin):
+                if issubclass(rel.related_model, CMSPlugin):
                     continue
-                from cms.admin.placeholderadmin import PlaceholderAdmin
-                parent = rel.related_model
-                if (parent in admin.site._registry and
-                        isinstance(admin.site._registry[parent],
-                                   PlaceholderAdmin)):
-                    field = getattr(self, rel.get_accessor_name())
-                    try:
-                        if field.count():
-                            self._attached_field_cache = rel.field
-                            break
-                    except:
-                        pass
+                field = getattr(self, rel.get_accessor_name())
+                try:
+                    if field.count():
+                        self._attached_field_cache = rel.field
+                        break
+                except:
+                    pass
             return self._attached_field_cache
 
     def _get_attached_field_name(self):
