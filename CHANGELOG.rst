@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+Revision 583a604 (20.10.2015, 12:53 UTC)
+----------------------------------------
+
+* LUN-2702
+
+  * Handle new exception thrown by django.contrib.sites.models.SiteManager
+
+No other commits.
+
 Revision e4f5460 (13.10.2015, 11:53 UTC)
 ----------------------------------------
 
