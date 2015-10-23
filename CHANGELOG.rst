@@ -1,6 +1,24 @@
 CHANGELOG
 =========
 
+Revision f01edc1 (23.10.2015, 13:06 UTC)
+----------------------------------------
+
+* LUN-2483
+
+  * Added placeholder tag option to prevent rendering in edit mode.
+
+* LUN-2727
+
+  * Remove unnecessary checks.
+  * rel.model in always Placeholder, rel.related_model must be checked.
+
+* Misc commits
+
+  * Remove unused import.
+  * Use the ORM instead of a raw SQL.
+  * Improve get of latest changed plugin.
+
 Revision 583a604 (20.10.2015, 12:53 UTC)
 ----------------------------------------
 
