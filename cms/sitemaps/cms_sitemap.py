@@ -2,7 +2,6 @@
 from django.contrib.sitemaps import Sitemap
 from django.core import paginator
 
-
 class ObjectCachedPaginator(paginator.Paginator):
     """
         Custom paginator that will cache pages per page number
@@ -45,14 +44,13 @@ class CMSSitemap(Sitemap):
         return all_pages
 
     def lastmod(self, page):
-        from cms.models import Placeholder, CMSPlugin
-        placeholders_qs = Placeholder.objects.filter(page=page)
-        placeholders_ids = list(placeholders_qs.values_list('id', flat=True))
-        plugins_qs = CMSPlugin.objects.filter(placeholder__in=placeholders_ids)
-        latest_plg_mod_date = plugins_qs.order_by(
-            '-changed_date').values_list('changed_date', flat=True)[:1]
+        from cms.models import CMSPlugin
         mod_dates = [page.changed_date, page.publication_date]
-        if latest_plg_mod_date:
-            mod_dates.append(latest_plg_mod_date[0])
+        latest_plg = CMSPlugin.objects.filter(
+            placeholder__page=page).only('changed_date').order_by(
+            'changed_date')[:1]
+
+        if latest_plg:
+            mod_dates.append(latest_plg[0].changed_date)
         return max(mod_dates)
 
