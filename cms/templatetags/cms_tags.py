@@ -194,6 +194,9 @@ class Placeholder(Tag):
         the content of the placeholder with the same name on parent pages
     or -- optional argument which if given will make the template tag a block
         tag whose content is shown if the placeholder is empty
+    no_render_on_edit -- do not render the placeholder when the toolbar edit mode is on.
+        The edit mode will always turn the placeholder into html blocks, which may not be
+        acceptable for all placeholders.
     """
     name = 'placeholder'
     options = PlaceholderOptions(
@@ -208,9 +211,12 @@ class Placeholder(Tag):
         validate_placeholder_name(name)
         width = None
         inherit = False
+        no_render_on_edit = False
         for bit in extra_bits:
             if bit == 'inherit':
                 inherit = True
+            elif bit == 'no_render_on_edit':
+                no_render_on_edit = True
             elif bit.isdigit():
                 width = int(bit)
                 import warnings
@@ -221,6 +227,8 @@ class Placeholder(Tag):
         if not 'request' in context:
             return ''
         request = context['request']
+        if no_render_on_edit and request.toolbar.edit_mode:
+            return ''
         if width:
             context.update({'width': width})
 
