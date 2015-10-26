@@ -48,7 +48,7 @@ class CMSSitemap(Sitemap):
         mod_dates = [page.changed_date, page.publication_date]
         latest_plg = CMSPlugin.objects.filter(
             placeholder__page=page).only('changed_date').order_by(
-            'changed_date')[:1]
+            '-changed_date')[:1]
 
         if latest_plg:
             mod_dates.append(latest_plg[0].changed_date)
