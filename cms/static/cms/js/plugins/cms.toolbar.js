@@ -101,34 +101,36 @@ CMS.$(document).ready(function ($) {
 		_showToolbar: function () {
 			// add toolbar padding
 			var padding = parseInt($(document.body).css('margin-top'));
-				$(document.body).css('margin-top', (padding+43)); // 43 = height of toolbar
-			// show toolbar
-			this.toolbar.show();
-			// change data information
-			this.toolbar.data('collapsed', false);
-			// add class to trigger
-			this.toggle.addClass('cms_toolbar-collapsed');
-			// save as cookie
-			$.cookie('CMS_toolbar-collapsed', false, { path:'/', expires:7 });
-			// add show event to toolbar
-			this.toolbar.trigger('cms.toolbar.show');
+
+			$(document.body).css('margin-top', (padding+43)); // 43 = height of toolbar
+            // show toolbar
+            this.toolbar.show();
+            // change data information
+            this.toolbar.data('collapsed', false);
+            // add class to trigger
+            this.toggle.addClass('cms_toolbar-collapsed');
+            // save as cookie
+            $.cookie('CMS_toolbar-collapsed', false, { path:'/', expires:7 });
+            // add show event to toolbar
+            this.toolbar.trigger('cms.toolbar.show');
 		},
 
 		// sets collapsed data to true
 		_hideToolbar: function () {
 			// remove toolbar padding
 			var padding = parseInt($(document.body).css('margin-top'));
-				$(document.body).css('margin-top', (padding-this.toolbar.height()-1)); // substract 1 cause of the border
-			// hide toolbar
-			this.toolbar.hide();
-			// change data information
-			this.toolbar.data('collapsed', true);
-			// remove class from trigger
-			this.toggle.removeClass('cms_toolbar-collapsed');
-			// save as cookie
-			$.cookie('CMS_toolbar-collapsed', true, { path:'/', expires:7 });
-			// add hide event to toolbar
-			this.toolbar.trigger('cms.toolbar.hide');
+
+			$(document.body).css('margin-top', '');
+            // hide toolbar
+            this.toolbar.hide();
+            // change data information
+            this.toolbar.data('collapsed', true);
+            // remove class from trigger
+            this.toggle.removeClass('cms_toolbar-collapsed');
+            // save as cookie
+            $.cookie('CMS_toolbar-collapsed', true, { path:'/', expires:7 });
+            // add hide event to toolbar
+            this.toolbar.trigger('cms.toolbar.hide');
 		},
 
 		/**
