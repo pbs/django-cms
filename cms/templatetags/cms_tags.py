@@ -227,7 +227,11 @@ class Placeholder(Tag):
         if not 'request' in context:
             return ''
         request = context['request']
-        if no_render_on_edit and request.toolbar.edit_mode:
+
+        def _edit_mode():
+            return getattr(request, 'toolbar', None) and getattr(request.toolbar, 'edit_mode')
+
+        if no_render_on_edit and _edit_mode():
             return ''
         if width:
             context.update({'width': width})
