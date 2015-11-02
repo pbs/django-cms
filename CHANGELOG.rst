@@ -1,6 +1,23 @@
 CHANGELOG
 =========
 
+Revision bc1a2e0 (02.11.2015, 08:42 UTC)
+----------------------------------------
+
+* LUN-2483
+
+  * Handle rendering disable case when cms toolbar is fully deactivated.
+
+* LUN-2618
+
+  * Order by descending change date.
+
+* LUN-2661
+
+  * fix negative margin on <body> when cms toolbar is present
+
+No other commits.
+
 Revision f01edc1 (23.10.2015, 13:06 UTC)
 ----------------------------------------
 
