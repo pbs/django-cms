@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+Revision 8edd04a (17.11.2015, 07:44 UTC)
+----------------------------------------
+
+* LUN-2595
+
+  * show user display name for changed/created by fields
+
+No other commits.
+
 Revision bc1a2e0 (02.11.2015, 08:42 UTC)
 ----------------------------------------
 
