@@ -130,11 +130,17 @@
 	}
 
 	function plugin_delete_click_handler(){
-		var plugin_id = $(this).parent().attr("id").split("plugin_")[1];
-		var question = gettext("Are you sure you want to delete this plugin?");
-		var answer = confirm(question, true);
-		var pagesplits = window.location.href.split("/");
-		var page_id = pagesplits[pagesplits.length-2];
+            var plugin = $(this).parent(),
+	        plugin_id = plugin.attr("id").split("plugin_")[1],
+		delete_warning = plugin.data("deletewarn"),
+	        question = gettext("Are you sure you want to delete this plugin?"),
+		answer,
+		pagesplits = window.location.href.split("/"),
+		page_id = pagesplits[pagesplits.length-2];
+	    if (delete_warning) {
+		question += "\n" + delete_warning;
+	    }
+	    answer = confirm(question, true)
 		if(answer){
 			$.post("remove-plugin/", { plugin_id:plugin_id, page_id:page_id }, function(data){
 				var splits = data.split(",");
