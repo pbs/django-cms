@@ -137,9 +137,9 @@ class CMSPlugin(with_metaclass(PluginModelBase, MPTTModel)):
         return plugin_pool.get_plugin(self.plugin_type).name
 
     def get_short_description(self, instance=None):
-        if not instance:
+        if instance is None:
             instance = self.get_plugin_instance()[0]
-        if instance is not None:
+        if instance:
             return unicode(instance)
         return _("<Empty>")
 
