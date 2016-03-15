@@ -136,11 +136,25 @@ class CMSPlugin(with_metaclass(PluginModelBase, MPTTModel)):
         from cms.plugin_pool import plugin_pool
         return plugin_pool.get_plugin(self.plugin_type).name
 
-    def get_short_description(self):
-        instance = self.get_plugin_instance()[0]
-        if instance is not None:
+    def get_short_description(self, instance=None):
+        if instance is None:
+            instance = self.get_plugin_instance()[0]
+        if instance:
             return unicode(instance)
         return _("<Empty>")
+
+    def get_plugin_short_context(self):
+        """
+        Get the short context needed to display the plugin in a placeholder
+        """
+        instance = self.get_plugin_instance()[0]
+        if instance is None:
+            return {"short_desc": _("<Empty>")}
+
+        return {
+            "short_desc": self.get_short_description(),
+            "delete_warning": instance.get_warning_on_delete()
+        }
 
     def get_plugin_class(self):
         from cms.plugin_pool import plugin_pool
@@ -328,6 +342,13 @@ class CMSPlugin(with_metaclass(PluginModelBase, MPTTModel)):
         1 based position!
         """
         return self.position + 1
+
+    def get_warning_on_delete(self):
+        """
+        Custom warning to display when the plugin is deleted.
+        """
+        return None
+
 
 reversion_register(CMSPlugin)
 
