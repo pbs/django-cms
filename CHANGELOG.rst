@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+Revision 54fee0f (16.03.2016, 09:53 UTC)
+----------------------------------------
+
+* LUN-2890
+
+  * Minor refactoring.
+  * Provide hook to customize warnings when deleting plugins.
+
+No other commits.
+
 Revision 8edd04a (17.11.2015, 07:44 UTC)
 ----------------------------------------
 
