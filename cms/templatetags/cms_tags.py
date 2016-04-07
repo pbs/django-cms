@@ -443,3 +443,9 @@ class CMSToolbar(InclusionTag):
         context['CMS_TOOLBAR_CONFIG'] = context['request'].toolbar.as_json(context)
         return context
 register.tag(CMSToolbar)
+
+
+def get_by_key(mapping, key):
+    """ Get a value by key from a mapping. """
+    return mapping.get(key, None)
+register.filter(get_by_key)
