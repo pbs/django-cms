@@ -5,6 +5,7 @@
 var editPluginPopupCallbacks = {};
 var CK_BRIDGE = null;
 
+/* jshint ignore:start */
 CKEDITOR.on("instanceReady", function(event){
     if(window.self !== window.parent){
         //inside iframe
@@ -17,6 +18,7 @@ CKEDITOR.on("instanceReady", function(event){
 CKEDITOR.replace('id_{{ name }}', {{ ck_config|safe }});
 
 {% include "cms/plugins/widgets/widget_lib.js" %}
+/* jshint ignore:end */
 
 CKEDITOR.plugins.add('cms-plugins', {
     init: function (editor) {
@@ -28,8 +30,19 @@ CKEDITOR.plugins.add('cms-plugins', {
 
         // Register plugin placeholder bridge
         PlaceholderEditorRegistry.registerEditor("{{name}}", ckBridge);
-        
+
         CK_BRIDGE = get_editor("{{ name }}");
+
+        /**
+         * Checks if an image embedded in the text editor is actually a plugin
+         * placeholder image
+         * @param  {CKEditor element}  $elem the element to check against
+         * @return {Boolean}       true if the $elem is a plugin placeholder
+         */
+        function isPluginPlaceholder($elem) {
+            var elemId = $elem.getAttribute('id');
+            return ($elem.is('img') && /^(plugin_obj_[0-9]+)$/.test(elemId));
+        }
 
         function pluginDialogHandler(ev){
             // Take the dialog name and its definition from the event data.
@@ -38,14 +51,13 @@ CKEDITOR.plugins.add('cms-plugins', {
                 element = ev.data.element,
                 elemId = element.getAttribute('id');
 
-            if(element.is('img') && 
-               /^(plugin_obj_[0-9]{0,6})$/.test(elemId) &&
+            if(isPluginPlaceholder(element) &&
                dialogName === 'image'){
                 var plugin_id = elemId.split("plugin_obj_")[1].split('"')[0];
                 edit_plugin(plugin_id);
                 return false;
             }
-        };
+        }
 
         function toggleEnabledButtons(disable){
             for(var cmd in editor.commands){
@@ -73,9 +85,7 @@ CKEDITOR.plugins.add('cms-plugins', {
             editor.document.removeAllListeners();
             editor.document.on('click', function(ev){
                 var element = ev.data.getTarget(),
-                    elemId = element.getAttribute('id'),
-                    isPlugin = (element.is('img') && 
-                               /^(plugin_obj_[0-9]{0,6})$/.test(elemId));
+                    isPlugin = isPluginPlaceholder(element),
                     isDelete = element.hasClass('delete control'),
                     isEdit = element.hasClass('edit control');
 
@@ -155,11 +165,13 @@ CKEDITOR.plugins.add('cms-plugins', {
             },
             multiSelect : false,
 
-            init: function(){
+            init: function() {
                 // Add plugins select box
+                /* jshint ignore:start */
                 {% for p in installed_plugins %}
                     this.add('{{ p.value }}', '{{ p.name }}', '{{ p.name }}');
                 {% endfor %}
+                /* jshint ignore:end */
             },
 
             onClick: function( value ){
@@ -167,8 +179,10 @@ CKEDITOR.plugins.add('cms-plugins', {
                     splits = window.location.href.split("?")[0].split("/"),
                     parent_id = Number(splits[splits.length - 2]);
 
-                if (pluginvalue == "") {
+                if (pluginvalue === "") {
+                    /* jshint ignore:start */
                     alert("{% filter escapejs %}{% trans "Please select a plugin type." %}{% endfilter %}");
+                    /* jshint ignore:end */
                     return;
                 }
 
