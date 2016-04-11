@@ -1,6 +1,19 @@
 CHANGELOG
 =========
 
+Revision e1d969c (11.04.2016, 08:03 UTC)
+----------------------------------------
+
+* LUN-2796
+
+  * Add filter for dict.get().
+
+* LUN-2956
+
+  * fix embeded plugins edit buttons that have pk >= 1M
+
+No other commits.
+
 Revision 54fee0f (16.03.2016, 09:53 UTC)
 ----------------------------------------
 
