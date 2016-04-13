@@ -133,7 +133,7 @@
             var plugin = $(this).parent(),
 	        plugin_id = plugin.attr("id").split("plugin_")[1],
 		delete_warning = plugin.data("deletewarn"),
-	        question = gettext("Are you sure you want to delete this plugin?"),
+	        question = gettext("Are you sure you want to delete this component?"),
 		answer,
 		pagesplits = window.location.href.split("/"),
 		page_id = pagesplits[pagesplits.length-2];
