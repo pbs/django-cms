@@ -1,3 +1,7 @@
+.cke_combo_button .cke_combo_text {
+        width: auto;
+}
+
 select[name="plugins"] {
 	width: 150px;
 }
