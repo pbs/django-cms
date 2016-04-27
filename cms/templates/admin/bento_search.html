@@ -1,27 +1,36 @@
-<div style="border:1px solid; float:left;height:100%;padding:10px 10px;">
-  Search:<br><br>
-  <input id="page-search" type="text"></input><br><br>
-  <div id="search_results"></div>
-  <a href="/admin">Dashboard</a><br><br>
-  <a href="/admin">Settings</a><br><br>
-  <a href="/admin">Layouts</a><br><br>
-</div>
+<div id="sidebar" class="sidebar responsive ace-save-state">
+  <script type="text/javascript">
+      try{ace.settings.loadState('sidebar')}catch(e){}
+  </script>
 
-<script type="text/javascript">
- $(document).ready(function(){
-   $('#page-search').keypress(function(e){
-     if(e.which == 13){
-       var search = $("#page-search").val();
-       console.log("search enter", search);
-       $.ajax({
-         type: 'GET',
-         url: '/new/search/' + search,
-         success: function(data) {
-           console.log(data);
-           $("#search_results").html(data.html);
-         }
-       });
-     }
-   });
- });
-</script>
+  <ul class="nav nav-list">
+    <li class="">
+        <a href="#">
+            <i class="menu-icon fa fa-tachometer"></i>
+            <span class="menu-text"> Dashboard </span>
+        </a>
+
+        <b class="arrow"></b>
+    </li>
+
+    <li class="">
+        <a href="#" class="dropdown-toggle">
+            <i class="menu-icon fa fa-desktop"></i>
+            <span class="menu-text">
+                Settings
+            </span>
+        </a>
+    </li>
+
+    <li class="">
+        <a href="#" class="dropdown-toggle">
+            <i class="menu-icon fa fa-list"></i>
+            <span class="menu-text"> Layouts </span>
+        </a>
+    </li>
+  </ul><!-- /.nav-list -->
+
+  <div class="sidebar-toggle sidebar-collapse" id="sidebar-collapse">
+      <i id="sidebar-toggle-icon" class="ace-icon fa fa-angle-double-left ace-save-state" data-icon1="ace-icon fa fa-angle-double-left" data-icon2="ace-icon fa fa-angle-double-right"></i>
+  </div>
+</div>

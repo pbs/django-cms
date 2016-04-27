@@ -71,13 +71,15 @@ class BentoPageAdmin(ModelAdmin):
     search_fields = ('title', 'url')
 
     def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
+        if obj == None:
+            return super(BentoPageAdmin, self).render_change_form(request, context, add=True)
         layout = json.loads(obj.layout.stuff)
 
         context = {
             'page': obj,
             'layout': layout,
             'layout_name': obj.layout.title,
-            
+
         }
         return render_to_response('admin/bento_page_change.html', context)
 

@@ -1,0 +1,15 @@
+#search_results {
+    position: relative;
+    z-index: 100;
+    background: white;
+    padding: 10px;
+    display: none;
+    border: 1px solid #6fb3e0;
+    margin-top: 5px;
+}
+#search_results a {
+    display: block;
+}
+#search_results br {
+    display: none;
+}
