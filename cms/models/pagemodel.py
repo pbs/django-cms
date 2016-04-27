@@ -24,6 +24,21 @@ from os.path import join
 import copy
 
 
+class BentoLayout(models.Model):
+    title = models.CharField(max_length=200)
+    stuff = models.TextField()
+    
+    def __unicode__(self):
+        return self.title
+
+class BentoPage(models.Model):
+    url = models.CharField(max_length=200)
+    title = models.CharField(max_length=200)
+    layout = models.ForeignKey(BentoLayout, null=False, blank=False)
+
+    def __unicode__(self):
+        return self.url + ' ' + self.title
+
 class Page(MPTTModel):
     """
     A simple hierarchical page model

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from cms.apphook_pool import apphook_pool
-from cms.views import details
+from cms.views import details, get_plugins, page_search
 from django.conf import settings
 from django.conf.urls import url, patterns
 
@@ -11,6 +11,8 @@ else:
 
 urlpatterns = [
     # Public pages
+    url(r'^new/getplugins/(?P<width>\d+)/(?P<height>\d+)', get_plugins),
+    url(r'^new/search/(?P<search_text>.+)', page_search),
     url(r'^$', details, {'slug':''}, name='pages-root'),
     reg,
 ]

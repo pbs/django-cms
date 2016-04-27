@@ -12,6 +12,36 @@ from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.utils.http import urlquote
+from django.http import JsonResponse
+from cms.plugin_pool import plugin_pool
+from cms.models import BentoPage
+
+facebook = "http://www.greatvaluecolleges.net/wp-content/plugins/social-media-feather/synved-social/image/social/regular/96x96/facebook.png"
+
+
+def page_search(request, search_text):
+    html = ""
+    pages = BentoPage.objects.filter(url__icontains=search_text)
+    for page in pages:
+        html += ("<a href='/admin/cms/bentopage/" + str(page.id) + "'>" + page.url
+                 + "</a><br>")
+    html += "<br><br>"
+    data = {'html': html}
+    return JsonResponse(data)
+
+def get_plugins(request, width, height):
+    width = int(width)
+    height = int(height)
+    old_plugins = plugin_pool.get_all_plugins()
+    html = "<div>"
+    for plugin in old_plugins:
+        html += "<img src='http://screenshots.en.sftcdn.net/en/scrn/76000/76818/microsoft-small-basic-22.jpg' title='{}'>".format(plugin.name)
+
+    if width>50:
+        html += "<img src='{}' title='{}'>".format(facebook, "New Component")
+    html += "</div>"
+    data = {'html':html}
+    return JsonResponse(data)
 
 def _handle_no_page(request, slug):
     if not slug and settings.DEBUG:

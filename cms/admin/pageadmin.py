@@ -9,7 +9,8 @@ from cms.apphook_pool import apphook_pool
 from cms.exceptions import NoPermissionsException
 from cms.forms.widgets import PluginEditor
 from cms.models import (Page, Title, CMSPlugin, PagePermission,
-    PageModeratorState, EmptyTitle, GlobalPagePermission, titlemodels)
+                        PageModeratorState, EmptyTitle, GlobalPagePermission, titlemodels,
+                        BentoPage, BentoLayout)
 from cms.models.managers import PagePermissionsPermissionManager
 from cms.models.placeholdermodel import Placeholder
 from cms.plugin_pool import plugin_pool
@@ -47,6 +48,8 @@ from django.utils.translation import ugettext, ugettext_lazy as _
 from menus.menu_pool import menu_pool
 import django
 import functools
+from django import forms
+import json
 
 
 DJANGO_1_3 = LooseVersion(django.get_version()) < LooseVersion('1.4')
@@ -57,6 +60,43 @@ if 'reversion' in settings.INSTALLED_APPS:
 
 from django.contrib.admin import ModelAdmin
 create_on_success = lambda x: x
+
+class BentoPageAdminForm(forms.ModelForm):
+    class Meta:
+        model = BentoPage
+        exclude = ()
+
+class BentoPageAdmin(ModelAdmin):
+    form = BentoPageAdminForm
+    search_fields = ('title', 'url')
+
+    def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
+        layout = json.loads(obj.layout.stuff)
+
+        context = {
+            'page': obj,
+            'layout': layout,
+            'layout_name': obj.layout.title,
+            
+        }
+        return render_to_response('admin/bento_page_change.html', context)
+
+
+
+admin.site.register(BentoPage, BentoPageAdmin)
+
+class BentoLayoutAdminForm(forms.ModelForm):
+    class Meta:
+        model = BentoLayout
+        exclude = ()
+
+
+class BentoLayoutAdmin(ModelAdmin):
+    form = BentoLayoutAdminForm
+
+
+admin.site.register(BentoLayout, BentoLayoutAdmin)
+
 
 if DJANGO_1_3:
     """
@@ -1307,9 +1347,11 @@ class PageAdmin(ModelAdmin):
 
     @create_on_success
     def edit_plugin(self, request, plugin_id):
+        print "page admin edit plugin", plugin_id
         plugin_id = int(plugin_id)
         if not 'history' in request.path and not 'recover' in request.path:
-            cms_plugin = get_object_or_404(CMSPlugin.objects.select_related('placeholder'), pk=plugin_id)
+            cms_plugin = get_object_or_404(CMSPlugin.objects.select_related('placeholder'),
+                                           pk=plugin_id)
             page = cms_plugin.placeholder.page if cms_plugin.placeholder else None
             instance, plugin_admin = cms_plugin.get_plugin_instance(self.admin_site)
             if page and not page.has_change_permission(request):

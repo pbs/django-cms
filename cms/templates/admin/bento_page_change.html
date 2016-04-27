@@ -1,0 +1,60 @@
+<html>
+  <head>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <title> Editing the new Bento Page {{ page.title }}</title>
+  </head>
+  <body>
+    <div>
+      {% include 'admin/bento_search.html' %}
+    </div>
+    <div id="content" style="padding-left:200px">
+      <br><br>
+    Your are now editing page <b>{{ page.title }}!</b> <br><br>
+    This has the layout <b>{{ layout_name }}</b>.<br><br>
+    <div>
+      These are the available placeholders:
+      {% for placeholder in layout.placeholders %}
+        <div style="border:1px solid;margin:10px 10px;padding:10px 10px">
+          Placeholder <b> {{ placeholder.name }} </b> <br><br>
+          This will have a width of {{ placeholder.width }}% and a height of {{ placeholder.height }}%.<br> <br>
+          <button id="add-plugin-{{ placeholder.name }}" data-width="{{ placeholder.width }}" data-height="{{ placeholder.height }}" type="button" style="margin:5px 5px">+</button>
+          <a id="add-plugin-{{ placeholder.name }}-clear" type="button" style="margin:5px 5px;display:none;">Cancel</a>
+          <div id="add-plugin-{{ placeholder.name }}-plugins"></div>
+    </div>
+      {% endfor %}
+    </div>
+
+    <script type="text/javascript">
+     $(document).ready(function(){
+       $("button").click(function(){
+         var id=this.id,
+             width=$(this).data('width'),
+             height=$(this).data('height');
+         console.log("button click", this);
+         $.ajax({
+           type: 'GET',
+                url: '/new/getplugins/'+width+"/"+height,
+           success: function(data) {
+             console.log("got plugins ", data);
+             $("#"+id+"-plugins").html(data.html);
+             $("#"+id+"-clear").show();
+           }
+         });
+       });
+       $("a").click(function(){
+         var id=this.id,
+             second=id.substring(0, id.length-6);
+         console.log("click clear", second);
+         $("#"+id).hide();
+         $("#"+second+"-plugins").html("");
+       });
+     });
+    </script>
+    <style type="text/css" style="display: none">
+     img {
+       width: 50px;
+     }
+    </style>
+    </div>
+  </body>
+</html>
