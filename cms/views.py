@@ -14,9 +14,30 @@ from django.template.context import RequestContext
 from django.utils.http import urlquote
 from django.http import JsonResponse
 from cms.plugin_pool import plugin_pool
-from cms.models import BentoPage
+from cms.models import BentoPage, BentoLayout
 
-facebook = "http://www.greatvaluecolleges.net/wp-content/plugins/social-media-feather/synved-social/image/social/regular/96x96/facebook.png"
+new_logo = "http://www.greatvaluecolleges.net/wp-content/plugins/social-media-feather/synved-social/image/social/regular/96x96/facebook.png"
+old_logo = "http://screenshots.en.sftcdn.net/en/scrn/76000/76818/microsoft-small-basic-22.jpg"
+
+
+def add_container(request, page_id, container_type):
+    page = BentoPage.objects.get(id=page_id)
+    container = BentoLayout.objects.get(title=container_type)
+    new_container_id = page.add_layout(container)
+    return JsonResponse({
+        'status': 'ok',
+        'message': 'Container was added.',
+        'container_id': new_container_id,
+    })
+
+
+def remove_container(request, page_id, container_id):
+    page = BentoPage.objects.get(id=page_id)
+    new_container_id = page.remove_layout(int(container_id))
+    return JsonResponse({
+        'status': 'ok',
+        'message': 'Container was removed.',
+    })
 
 
 def page_search(request, search_text):
@@ -33,14 +54,20 @@ def get_plugins(request, width, height):
     width = int(width)
     height = int(height)
     old_plugins = plugin_pool.get_all_plugins()
-    html = "<div>"
+    available_plugins = []
     for plugin in old_plugins:
-        html += "<img src='http://screenshots.en.sftcdn.net/en/scrn/76000/76818/microsoft-small-basic-22.jpg' title='{}'>".format(plugin.name)
-
-    if width>50:
-        html += "<img src='{}' title='{}'>".format(facebook, "New Component")
-    html += "</div>"
-    data = {'html':html}
+        available_plugins.append({
+            'name': str(plugin.name),
+            'src': old_logo,
+        })
+    if width > 50:
+        available_plugins.append({
+            'name': 'New Component',
+            'src': new_logo,
+        })
+    data = {
+        'components': available_plugins,
+    }
     return JsonResponse(data)
 
 def _handle_no_page(request, slug):

@@ -22,19 +22,44 @@ from menus.menu_pool import menu_pool
 from mptt.models import MPTTModel, TreeForeignKey
 from os.path import join
 import copy
-
+import json
 
 class BentoLayout(models.Model):
     title = models.CharField(max_length=200)
     stuff = models.TextField()
-    
+
     def __unicode__(self):
         return self.title
 
 class BentoPage(models.Model):
     url = models.CharField(max_length=200)
     title = models.CharField(max_length=200)
-    layout = models.ForeignKey(BentoLayout, null=False, blank=False)
+    config = models.TextField()
+    layout_nr = models.IntegerField()
+
+    def remove_layout(self, layout_id):
+        data = json.loads(self.config)
+        layout_data = data['containers']
+        print layout_data, layout_id
+        layout_data = [container for container in layout_data
+                       if container['container_id']!=layout_id]
+        print layout_data
+        data['containers'] = layout_data
+        self.config = json.dumps(data)
+        self.save()
+
+    def add_layout(self, layout):
+        data = json.loads(self.config)
+        layout_data = data['containers']
+        layout_data.append({
+            'container_id': self.layout_nr,
+            'type': layout.id,
+            'components': [],
+        })
+        self.layout_nr += 1
+        self.config = json.dumps(data)
+        self.save()
+        return self.layout_nr - 1
 
     def __unicode__(self):
         return self.url + ' ' + self.title

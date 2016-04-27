@@ -10,14 +10,16 @@
     <div id="content" style="padding-left:200px">
       <br><br>
     Your are now editing page <b>{{ page.title }}!</b> <br><br>
-    This has the layout <b>{{ layout_name }}</b>.<br><br>
+    Layout:<br> {{ layout }}<br><br>
     <div>
       These are the available placeholders:
       {% for placeholder in layout.placeholders %}
         <div style="border:1px solid;margin:10px 10px;padding:10px 10px">
           Placeholder <b> {{ placeholder.name }} </b> <br><br>
           This will have a width of {{ placeholder.width }}% and a height of {{ placeholder.height }}%.<br> <br>
-          <button id="add-plugin-{{ placeholder.name }}" data-width="{{ placeholder.width }}" data-height="{{ placeholder.height }}" type="button" style="margin:5px 5px">+</button>
+          <button id="add-plugin-{{ placeholder.name }}"
+                  data-width="{{ placeholder.width }}" data-height="{{ placeholder.height }}"
+                  type="button" style="margin:5px 5px">+</button>
           <a id="add-plugin-{{ placeholder.name }}-clear" type="button" style="margin:5px 5px;display:none;">Cancel</a>
           <div id="add-plugin-{{ placeholder.name }}-plugins"></div>
     </div>
@@ -36,7 +38,11 @@
                 url: '/new/getplugins/'+width+"/"+height,
            success: function(data) {
              console.log("got plugins ", data);
-             $("#"+id+"-plugins").html(data.html);
+             html = "";
+             $.each(data.components, function(index, plugin) {
+               html += "<img data-name='" + plugin.name+ "' src='" + plugin.src +"' title='" + plugin.name + "'>";
+             });
+             $("#"+id+"-plugins").html(html);
              $("#"+id+"-clear").show();
            }
          });
@@ -47,6 +53,18 @@
          console.log("click clear", second);
          $("#"+id).hide();
          $("#"+second+"-plugins").html("");
+       });
+
+
+       $("img").click(function(){
+         var name=$(this).data('name');
+         $.ajax({
+           type: 'GET',
+           url: '/new/newplugin/{{ page.id }}/'+name,
+           success: function(data) {
+             console.log("add new plugin", data);
+           }
+         });
        });
      });
     </script>
