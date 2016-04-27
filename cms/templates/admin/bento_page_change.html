@@ -72,15 +72,10 @@
                   <i class="ace-icon fa fa-caret-down"></i>
                 </a>
                 <ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
-
-
-
                   <li>
                     <a href="/admin/password_change/"><i class="ace-icon fa fa-user"></i>Change password</a>
                   </li>
                   <li class="divider"></li>
-
-
                   <li>
                     <a href="/admin/logout/"><i class="ace-icon fa fa-power-off"></i>Log out</a>
                   </li>
@@ -91,7 +86,6 @@
       </div>
     </div>
 
-</div>
     {% include 'admin/bento_search.html' %}
 
     <div class="main-content">
@@ -133,16 +127,25 @@
         </div>
 
         <div class="page-content">
-          {% for placeholder in layout.placeholders %}
-            <div class=""style="border:1px solid;margin:10px 10px;padding:10px 10px">
-              Placeholder <b> {{ placeholder.name }} </b> <br><br>
-              This will have a width of {{ placeholder.width }}% and a height of {{ placeholder.height }}%.<br> <br>
-              <button id="add-plugin-{{ placeholder.name }}" data-width="{{ placeholder.width }}" data-height="{{ placeholder.height }}" type="button" style="margin:5px 5px">+</button>
-              <a id="add-plugin-{{ placeholder.name }}-clear" type="button" style="margin:5px 5px;display:none;">Cancel</a>
-              <div id="add-plugin-{{ placeholder.name }}-plugins"></div>
-           </div>
-          {% endfor %}
+          <div class="container">
+            <div class="row">
+              <div class="col-lg-8">
+                <div class="default-placeholder text-center">
+                  <button class="btn btn-primary"><i class="ace-icon glyphicon-plus"></i></button>
+                </div>
+              </div>
+              <div class="col-lg-4">
+                <div class="default-placeholder text-center">
+                  <button class="btn btn-primary"><i class="ace-icon glyphicon-plus"></i></button>
+                </div>
+              </div>
+              </div>
+            </div>
+          <div class="text-center">
+            <button class="btn btn-primary"><i class="ace-icon glyphicon-plus"></i></button>
           </div>
+          </div>
+        </div>
 
           <script type="text/javascript">
            $(document).ready(function(){

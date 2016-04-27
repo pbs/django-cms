@@ -13,3 +13,10 @@
 #search_results br {
     display: none;
 }
+.default-placeholder {
+    border: dashed 3px  #ccc;
+    min-height: 100px;
+}
+.btn {
+    margin-top: 30px;
+}
