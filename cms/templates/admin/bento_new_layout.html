@@ -1,11 +1,31 @@
-<div class="container">
-  <div class="row">
-    {% for region in regions %}
+<div class="placeholder-item row" id="region-{{ container_id }}">
+  <div class="placeholder-actions">
+    <span class="placeholder-info">Compoment Layout</span>
+    <button class="btn btn-xs btn-remove" onclick="removeContainer('#region-{{ container_id }}', '/new/removecontainer/3/{{ container_id }}')" class="placeholder-">
+      <i class="ace-icon glyphicon glyphicon-remove"></i>
+    </button>
+  </div>
+  <div class="col-lg-12 placeholder">
+    <!-- <div class="row"> -->
+      {% for region in regions %}
       <div class="col-lg-{{ region.grid }}" id="region-{{ container_id }}-{{ region.name }}">
         <div class="default-placeholder text-center">
-          <button class="btn btn-primary"><i class="ace-icon glyphicon-plus"></i></button>
+          <button class="btn btn-primary" data-toggle="modal" data-target="#addCompoments"><i class="ace-icon glyphicon-plus"></i></button>
         </div>
       </div>
-    {% endfor %}
+      {% endfor %}
+    <!-- </div> -->
   </div>
 </div>
+
+<script type="text/javascript">
+  function removeContainer(id, url){
+    $.ajax({
+      type: 'GET',
+      url: url,
+      success: function(){
+        $(id).remove();
+      }
+    });
+  }
+</script>

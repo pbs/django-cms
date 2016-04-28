@@ -14,16 +14,49 @@
     display: none;
 }
 .default-placeholder {
-    border: dashed 3px  #ccc;
+    border: dashed 2px #438eb9;
     min-height: 100px;
+    opacity: 0.5;
 }
-.btn {
+.placeholder:hover .default-placeholder {
+    opacity: 1;
+}
+.btn:not(.btn-remove) {
     margin-top: 30px;
 }
 .modal-layouts a {
     display: inline-block;
     margin-right: 10px;
 }
-#page-setup .container {
+#page-setup .placeholder {
+    padding: 10px 0;
+    border: dashed 2px #fff;
+}
+#page-setup .placeholder-item {
     margin-top: 20px;
+    position: relative;
+}
+#page-setup .placeholder-item:hover .placeholder {
+    border-color: #ccc;
+}
+.placeholder-actions {
+  display: none;
+  text-align: center;
+  padding: 5px;
+  width: 200px;
+  margin: auto;
+  background: #ccc;
+  border-radius: 5px 5px 0 0;
+  color: white;
+  position: absolute;
+  top: -29px;
+  right: 45%;
+}
+.placeholder-actions .btn {
+}
+#page-setup .placeholder-item:hover .placeholder-actions {
+    display: block;
+}
+.placeholder-info {
+    margin-right: 10px;
 }
