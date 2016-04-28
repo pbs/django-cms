@@ -20,3 +20,10 @@
 .btn {
     margin-top: 30px;
 }
+.modal-layouts a {
+    display: inline-block;
+    margin-right: 10px;
+}
+#page-setup .container {
+    margin-top: 20px;
+}

@@ -126,30 +126,15 @@
           </div><!-- /.nav-search -->
         </div>
 
-        <div class="page-content">
-          <div class="container">
-            <div class="row">
-              <div class="col-lg-8">
-                <div class="default-placeholder text-center">
-                  <button class="btn btn-primary"><i class="ace-icon glyphicon-plus"></i></button>
-                </div>
-              </div>
-              <div class="col-lg-4">
-                <div class="default-placeholder text-center">
-                  <button class="btn btn-primary"><i class="ace-icon glyphicon-plus"></i></button>
-                </div>
-              </div>
-              </div>
-            </div>
-          <div class="text-center">
-            <button id="add-new-layout" class="btn btn-primary"><i class="ace-icon glyphicon-plus"></i></button>
-          </div>
+        <div class="page-content" id="page-setup">
+          <div class="text-center" id="add-new-layout-wrapper">
+            <button type="button" id="add-new-layout" data-toggle="modal" data-target="#addLayout" class="btn btn-primary"><i class="ace-icon glyphicon-plus"></i></button>
           </div>
         </div>
 
           <script type="text/javascript">
            $(document).ready(function(){
-             $(".add_plugin_button").click(function(){
+            $(".add_plugin_button").click(function(){
                var id=this.id,
                    width=$(this).data('width'),
                    height=$(this).data('height');
@@ -167,30 +152,57 @@
                    $("#"+id+"-clear").show();
                  }
                });
-             });
-             $("a").click(function(){
-               var id=this.id,
-                   second=id.substring(0, id.length-6);
-               console.log("click clear", second);
-               $("#"+id).hide();
-               $("#"+second+"-plugins").html("");
-             });
-             $("#add-new-layout").click(function(){
-               console.log("Add new layout.");
-               $.ajax({
-                 type: 'GET',
-                 url: '/new/getcontainers/',
-                 success: function(data) {
-                   console.log("got containers", data);
-                   $.each(data.containers, function(index, container) {
-                     console.log(container.img_src, container.data);
-                     console.log("Can add layout with ajax to /new/addcontainer/{{ page.id }}/"+container.name);
-                   });
-                 }
-               });
-             });
-             
-           });
+            });
+
+             // $("a").click(function(){
+             //   var id=this.id,
+             //       second=id.substring(0, id.length-6);
+             //   console.log("click clear", second);
+             //   $("#"+id).hide();
+             //   $("#"+second+"-plugins").html("");
+             // });
+
+            $("#addLayout").on('show.bs.modal', function(){
+              var modal = $(this);
+              $.ajax({
+                type: 'GET',
+                url: '/new/getcontainers/',
+
+                success: function(data) {
+                  var wrapper = modal.find('.modal-body .modal-layouts');
+                  if (!wrapper.children().length) {
+                    $.each(data.containers, function(index, container) {
+                      console.log(container);
+                      var html = '<a href="/new/addcontainer/{{ page.id }}/' + container.name + '">';
+                      html += '<img src="' + container.img_src + '"/>';
+                      html += '</a>';
+
+                      wrapper.append(html);
+                    });
+                  }
+                }
+              });
+            });
+
+            $(document).on('click', '#addLayout .modal-layouts a',  function(e){
+              var layoutURL = e.currentTarget.href;
+              e.preventDefault();
+              e.stopPropagation();
+
+              $.ajax({
+                type: 'GET',
+                url: layoutURL,
+                success: function(data) {
+                  var container = data.html;
+
+                  $(container).insertBefore('#add-new-layout-wrapper');
+                  $('#addLayout').modal('hide');
+                }
+              });
+
+            });
+
+          });
           </script>
 
           <style type="text/css" style="display: none">
@@ -202,6 +214,25 @@
       </div>
     </div><!-- /.main-content -->
 
+
+
+    <div class="modal fade" id="addLayout" tabindex="-1" role="dialog" aria-labelledby="addLayoutLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Choose Layout</h4>
+          </div>
+          <div class="modal-body">
+            <div class="modal-layouts"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
   <!-- <![endif]-->
 
   <!--[if IE]>
