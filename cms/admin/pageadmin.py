@@ -75,10 +75,15 @@ class BentoPageAdmin(ModelAdmin):
             return super(BentoPageAdmin, self).render_change_form(
                 request, context, add, change, form_url, obj)
         data = json.loads(obj.config)
+        containers = [{
+            'components': container['components'],
+            'container_id': container['container_id'],
+            'container': json.loads(BentoLayout.objects.get(id=int(container['type'])).stuff)['placeholders'],
+        } for container in data['containers']]
 
         context = {
             'page': obj,
-            'layout': data['containers'],
+            'containers': containers,
         }
         return render_to_response('admin/bento_page_change.html', context)
 

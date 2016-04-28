@@ -127,6 +127,10 @@
         </div>
 
         <div class="page-content" id="page-setup">
+
+          {% for container in containers %}
+            {% include 'admin/bento_new_layout.html' with regions=container.container container_id=container.container_id %}
+          {% endfor %}
           <div class="text-center" id="add-new-layout-wrapper">
             <button type="button" id="add-new-layout" data-toggle="modal" data-target="#addLayout" class="btn btn-primary"><i class="ace-icon glyphicon-plus"></i></button>
           </div>
