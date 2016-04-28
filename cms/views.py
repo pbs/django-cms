@@ -15,6 +15,8 @@ from django.utils.http import urlquote
 from django.http import JsonResponse
 from cms.plugin_pool import plugin_pool
 from cms.models import BentoPage, BentoLayout
+from django.template.loader import render_to_string
+import json
 
 new_logo = "http://www.greatvaluecolleges.net/wp-content/plugins/social-media-feather/synved-social/image/social/regular/96x96/facebook.png"
 old_logo = "http://screenshots.en.sftcdn.net/en/scrn/76000/76818/microsoft-small-basic-22.jpg"
@@ -33,10 +35,15 @@ def add_container(request, page_id, container_type):
     page = BentoPage.objects.get(id=page_id)
     container = BentoLayout.objects.get(title=container_type)
     new_container_id = page.add_layout(container)
+    html = render_to_string('admin/bento_new_layout.html', {
+        'container_id': new_container_id,
+        'regions': json.loads(container.stuff)['placeholders'],
+    })
     return JsonResponse({
         'status': 'ok',
         'message': 'Container was added.',
         'container_id': new_container_id,
+        'html': html,
     })
 
 
