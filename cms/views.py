@@ -24,7 +24,7 @@ old_logo = "http://screenshots.en.sftcdn.net/en/scrn/76000/76818/microsoft-small
 
 def get_containers(request):
     data = [{
-        'img_src': old_logo,
+        'img_src': layout.image or old_logo,
         'data': layout.stuff,
         'name': layout.title,
     } for layout in BentoLayout.objects.all()]

@@ -24,9 +24,11 @@ from os.path import join
 import copy
 import json
 
+
 class BentoLayout(models.Model):
     title = models.CharField(max_length=200)
     stuff = models.TextField()
+    image = models.CharField(max_length=400, blank=True)
 
     def __unicode__(self):
         return self.title
