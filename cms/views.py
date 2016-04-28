@@ -20,6 +20,15 @@ new_logo = "http://www.greatvaluecolleges.net/wp-content/plugins/social-media-fe
 old_logo = "http://screenshots.en.sftcdn.net/en/scrn/76000/76818/microsoft-small-basic-22.jpg"
 
 
+def get_containers(request):
+    data = [{
+        'img_src': old_logo,
+        'data': layout.stuff,
+        'name': layout.title,
+    } for layout in BentoLayout.objects.all()]
+    return JsonResponse({'containers': data})
+
+
 def add_container(request, page_id, container_type):
     page = BentoPage.objects.get(id=page_id)
     container = BentoLayout.objects.get(title=container_type)

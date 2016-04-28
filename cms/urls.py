@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from cms.apphook_pool import apphook_pool
-from cms.views import details, get_plugins, page_search, add_container, remove_container
+from cms.views import details, get_plugins, page_search, add_container, remove_container, get_containers
 from django.conf import settings
 from django.conf.urls import url, patterns
 
@@ -13,6 +13,7 @@ urlpatterns = [
     # Public pages
     url(r'^new/getplugins/(?P<width>\d+)/(?P<height>\d+)', get_plugins),
     url(r'^new/search/(?P<search_text>.+)', page_search),
+    url(r'^new/getcontainers/', get_containers),
     url(r'^new/addcontainer/(?P<page_id>\d+)/(?P<container_type>.+)', add_container),
     url(r'^new/removecontainer/(?P<page_id>\d+)/(?P<container_id>\d+)', remove_container),
     url(r'^$', details, {'slug':''}, name='pages-root'),
