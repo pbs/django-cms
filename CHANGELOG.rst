@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+Revision bbab8dd (06.05.2016, 15:16 UTC)
+----------------------------------------
+
+* LUN-2958
+
+  * Rename plugin to component.
+  * Replace plugin(s) with component(s)
+  * Use componentsin cke plugins dropdown.
+
+No other commits.
+
 Revision e1d969c (11.04.2016, 08:03 UTC)
 ----------------------------------------
 
