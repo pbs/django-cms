@@ -8,15 +8,144 @@ from django.conf import settings
 from django.conf.urls import patterns
 from django.core.urlresolvers import resolve, Resolver404
 
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render_to_response
-from django.template.context import RequestContext
+from django.template import RequestContext
 from django.utils.http import urlquote
+from django.contrib.admin.templatetags.admin_static import static
+from django.forms.widgets import Media as WidgetsMedia
+from django.template.loader import get_template
 
 def _handle_no_page(request, slug):
     if not slug and settings.DEBUG:
         return render_to_response("cms/new.html", RequestContext(request))
     raise Http404('CMS: Page not found for "%s"' % slug)
+
+from cms.models import *
+
+def plugin_to_json(request, plugin_id):
+    plugin_id = int(plugin_id)
+    print "plugin to json", plugin_id
+    plugin = CMSPlugin.objects.get(id=plugin_id)
+    data = {
+        'plugin_id': plugin_id,
+        'snippet_id': plugin.smartsnippetpointer.snippet.id,
+    }
+
+    return JsonResponse(data)
+
+def make_media(variables=None):
+    media_obj = WidgetsMedia(
+        js=((
+            static('admin/js/core.js'),
+            static('admin/js/admin/RelatedObjectLookups.js'),
+            static('libs/jquery-2.1.1.min.js'),
+            static('libs/bootstrap/js/bootstrap.min.js'),
+            static('admin/js/custom.js'), )
+        ),
+        css={
+            'all': (
+                '//fonts.googleapis.com/css?family=Open+Sans:400,300',
+                static('libs/bootstrap/css/bootstrap.css'),
+                static('libs/ace/css/ace.min.css'),
+                static('admin/css/custom.css'), )
+        }
+    )
+    media_obj.add_js(
+        (reverse('admin:jsi18n'),
+         static('admin/js/SmartSnippetLib.js'),
+         static('admin/js/jquery.init.js'),
+         static('admin/js/default.jQuery.init.js')))
+    from smartsnippets.cms_plugins import variables_media
+    variables_media(media_obj, variables)
+    return media_obj
+
+def edit_snippet(request, ss_id):
+    from smartsnippets.models import *
+    snippet = SmartSnippet.objects.get(id=int(ss_id))
+    fake_pointer = SmartSnippetPointer(snippet=snippet)
+    selected_snippet_vars = snippet.variables.all()
+    empty_plugin_vars = [
+        Variable(snippet=fake_pointer, snippet_variable=snippet_var)
+        for snippet_var in selected_snippet_vars]
+    variables = sorted(empty_plugin_vars,
+                    key=lambda v: (v.snippet_variable._order, v.snippet_variable.name))
+    media = make_media(variables)
+    from cms.plugin_rendering import PluginContext
+    context = RequestContext(request)
+    context.update({
+        'is_popup': True,
+        'is_popup_var': '_popup',
+        'documentation_link': snippet.documentation_link,
+        'description': snippet.description,
+        'name': snippet.name,
+        'plugin': fake_pointer,
+        'original': fake_pointer,
+        'variables': variables,
+        'media': media,
+        'current_site': Site.objects.get_current().id,
+
+        'form_url': '',
+        'has_file_field': True,
+    })
+    return render_to_response('smartsnippets/new_edit.html', context)
+
+
+def render_snippet(request, snippet_id):
+                            # {"var_item1":"{\"short_description\":\"adf\",\"title\":\"sadf\",\"url\":\"asdf\"}","item1_short_description":"adf","item1_title":"sadf","item1_url":"asdf","var_item2":"{\"short_description\":\"sadf\",\"title\":\"asdf\"}","item2_short_description":"sadf","item2_title":"asdf","var_item3":"{}","var_item4":"{}","var_item5":"{}","var_item6":"{}","var_item7":"{}"}
+    data = request.POST.get('data', var_a)
+
+    from smartsnippets.models import *
+    snippet = SmartSnippet.objects.get(id=int(snippet_id))
+    fake_pointer = SmartSnippetPointer(snippet=snippet)
+    fake_pointer.placeholder_id = 0
+    fake_pointer.id = 0
+    fake_pointer.pk = 0
+    # from django.conf import settings
+    # # print settings.TEMPLATES
+    # template = get_template("smartsnippets/mock_fe.html",
+    #                         using="django")
+    # from sekizai.helpers import (
+    #     Watcher as sekizai_context_watcher,
+    #     get_varname as sekizai_cache_key,
+    # )
+    # from django.conf import settings
+    # import ipdb;ipdb.set_trace() # pylint: disable=C0321
+    # req_context = RequestContext(request,
+    #                              processors=settings.TEMPLATES[0]['OPTIONS']['context_processors'])
+    # print "req_context.dicts[1].keys()", req_context.dicts[1].keys()
+    # print "req_context.dicts[2].keys()", req_context.dicts[2].keys()
+    # # import ipdb;ipdb.set_trace() # pylint: disable=C0321
+    # with req_context.bind_template(template.template):
+    #     context = PluginContext(req_context, fake_pointer, None)
+    #     context.update(data)
+    #     context['request'] = request
+
+    #     # print "edit_snippet context", context
+    #     sekizai_differ = sekizai_context_watcher(context)
+    #     content = snippet.render(context)
+    #     sekizai_diff = sekizai_differ.get_changes()
+    #     print "sekizai", sekizai_diff
+
+    # # context2 = RequestContext(request)
+    # # sekizai_differ = sekizai_context_watcher(context2)
+    # # render_to_response("smartsnippets/test.html", context2)
+    # # sekizai_diff = sekizai_differ.get_changes()
+    # # print "sekizai", sekizai_diff
+    # req_context['snippet'] = content
+    # print "context.dicts[1].dicts[1].keys()", context.dicts[1].dicts[1].keys()
+    # print "context.dicts[1].dicts[2].keys()", context.dicts[1].dicts[2].keys()
+    # print "context.dicts[2].keys()", context.dicts[2].keys()
+    # print "req_context.dicts[1].keys()", req_context.dicts[1].keys()
+    # print "req_context.dicts[2].keys()", req_context.dicts[2].keys()
+    # # print context
+    # # return render_to_response("smartsnippets/mock_fe.html", context2)
+    # return render_to_response("smartsnippets/mock_fe.html", req_context)
+
+    context = RequestContext(request)
+    context['snippet_1'] = data
+    context['snippet_1_id'] = snippet_id
+    return render_to_response("smartsnippets/mock_fe.html", context)
 
 
 def details(request, slug):
@@ -111,3 +240,32 @@ def details(request, slug):
         return _handle_no_page(request, slug)
 
     return render_to_response(template_name, context)
+
+var_a = {u'item2': {u'image': u'http://pbs.bento.storage.s3.amazonaws.com/hostedbento-prod/filer_public/CET_Images/Programs/RVR_Slide.jpg',
+                        u'short_description': u'The first .',
+                        u'title': u'River Valley Rhythms',
+                        u'url': u'http://www.cetconnect.org/rivervalleyrhythms/'},
+             u'item3': {u'image': u'http://pbs.bento.storage.s3.amazonaws.com/hostedbento-prod/filer_public/CET_Images/Programs/WallanderSlide.jpg',
+                        u'short_description': u'ed, Emmy-nominated series to a poignant end.',
+                        u'title': u'Wallander \u2013 The Final Season',
+                        u'url': u'http://www.cetconnect.org/featured-programs/wallander-final-season/'},
+             u'item1': {u'short_description': u'The 49thl 26 - April 30, 2016',
+                        u'image': u'http://pbs.bento.storage.s3.amazonaws.com/hostedbento-prod/filer_public/CET_Images/Programs/GrantchesterSlideNew.jpg',
+                        u'title': u'a'},
+             u'item6': {u'image': u'http://pbs.bento.storage.s3.amazonaws.com/hostedbento-prod/filer_public/CET_Images/Programs/GrantchesterSlideNew.jpg',
+                        u'short_description': u'Rejoin vir.',
+                        u'title': u'Grantchester Season Two',
+                        u'url': u'http://www.cetconnect.org/featured-programs/grantchester-season-two/'},
+             u'item7': {u'image': u'http://pbs.bento.storage.s3.amazonaws.com/hostedbento-prod/filer_public/CET_Images/Programs/GrantchesterSlideNew.jpg',
+                        u'short_description': u'Rejoin vir.',
+                        u'title': u'Grantchester Season Two',
+                        u'url': u'http://www.cetconnect.org/featured-programs/grantchester-season-two/'},
+             u'item4': {u'image': u'http://pbs.bento.storage.s3.amazonaws.com/hostedbento-prod/filer_public/CET_Images/Programs/GrantchesterSlideNew.jpg',
+                        u'short_description': u'Rejoin vir.',
+                        u'title': u'Grantchester Season Two',
+                        u'url': u'http://www.cetconnect.org/featured-programs/grantchester-season-two/'},
+             u'item5': {u'image': u'http://pbs.bento.storage.s3.amazonaws.com/hostedbento-prod/filer_public/CET_Images/Programs/GrantchesterSlideNew.jpg',
+                        u'short_description': u'Rejoin vir.',
+                        u'title': u'Grantchester Season Two',
+                        u'url': u'http://www.cetconnect.org/featured-programs/grantchester-season-two/'},
+}
