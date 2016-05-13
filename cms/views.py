@@ -49,7 +49,6 @@ def details(request, slug):
     """
     # get the right model
     context = RequestContext(request)
-    # import ipdb;ipdb.set_trace() # pylint: disable=C0321
     # Get a Page model object from the request
     page = get_page_from_request(request, use_path=slug)
     if not page:

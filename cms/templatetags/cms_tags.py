@@ -252,40 +252,6 @@ class Placeholder(Tag):
         return self.kwargs['name'].var.value.strip('"').strip("'")
 register.tag(Placeholder)
 
-class JSONSnippet(Tag):
-    name = "jsonsnippet"
-    options = Options(
-        Argument('snippet_id', resolve=False),
-    )
-
-    def render_tag(self, context, snippet_id):
-        print "render json snippet", snippet_id
-        data = context['snippet_' + str(snippet_id)]
-        ss_id = context['snippet_' + str(snippet_id) + "_id"]
-        from smartsnippets.models import *
-        from cms.plugin_rendering import PluginContext
-        from sekizai.helpers import (
-            Watcher as sekizai_context_watcher,
-            get_varname as sekizai_cache_key,
-        )
-
-        snippet = SmartSnippet.objects.get(id=int(ss_id))
-        fake_pointer = SmartSnippetPointer(snippet=snippet)
-        fake_pointer.placeholder_id = 0
-        fake_pointer.id = 0
-        fake_pointer.pk = 0
-        context2 = PluginContext(context, fake_pointer, None)
-        context2.update(data)
-
-        # print "edit_snippet context", context
-        sekizai_differ = sekizai_context_watcher(context2)
-        content = snippet.render(context2)
-        sekizai_diff = sekizai_differ.get_changes()
-        print "sekizai", sekizai_diff
-
-        return content
-register.tag(JSONSnippet)
-
 
 class PageAttribute(AsTag):
     """
