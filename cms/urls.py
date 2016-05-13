@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from cms.apphook_pool import apphook_pool
-from cms.views import details, plugin_to_json, edit_snippet, render_snippet
+from cms.views import details, edit_snippet, render_snippet
 from django.conf import settings
 from django.conf.urls import url, patterns
 
@@ -11,7 +11,6 @@ else:
 
 urlpatterns = [
     # Public pages
-    url(r'^test/plugin_to_json/(?P<plugin_id>.+)/$', plugin_to_json),
     url(r'^test/edit/(?P<ss_id>.+)/$', edit_snippet),
     url(r'^test/render/(?P<snippet_id>.+)/$', render_snippet),
     url(r'^$', details, {'slug':''}, name='pages-root'),
