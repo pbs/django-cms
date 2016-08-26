@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+Revision 158aed6 (26.08.2016, 07:14 UTC)
+----------------------------------------
+
+No new issues.
+
+* Misc commits
+
+  * Pin html5lib.
+
 Revision bbab8dd (06.05.2016, 15:16 UTC)
 ----------------------------------------
 
