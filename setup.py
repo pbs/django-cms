@@ -30,7 +30,7 @@ setup(
     install_requires=[
         'Django>=1.7,<1.9',
         'django-classy-tags>=0.3.4.1',
-        'html5lib',
+        'html5lib==0.999999',
         'django-mptt==0.7.4',
         'django-sekizai>=0.6.1',
         'django-admin-extend',
