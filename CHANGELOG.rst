@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+Revision 0bfed3a (14.06.2019, 14:01 UTC)
+----------------------------------------
+
+No new issues.
+
+* Misc commits
+
+  * pin-sekizai: pin to 0.8.2
+
 Revision bbea94f (06.09.2018, 09:31 UTC)
 ----------------------------------------
 
