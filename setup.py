@@ -32,7 +32,7 @@ setup(
         'django-classy-tags>=0.3.4.1',
         'html5lib==0.999999',
         'django-mptt==0.7.4',
-        'django-sekizai>=0.6.1',
+        'django-sekizai==0.8.2',
         'django-admin-extend',
     ],
     tests_require=[
