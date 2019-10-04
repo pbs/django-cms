@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+Revision 83d1627 (04.10.2019, 12:14 UTC)
+----------------------------------------
+
+No new issues.
+
+* Misc commits
+
+  * Pin attrs package
+
 Revision 0bfed3a (14.06.2019, 14:01 UTC)
 ----------------------------------------
 
